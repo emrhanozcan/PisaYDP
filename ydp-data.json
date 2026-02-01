@@ -1,0 +1,372 @@
+{
+  "users": [
+    {
+      "id": "admin-1",
+      "username": "admin",
+      "password": "123",
+      "role": "admin",
+      "firstName": "System",
+      "lastName": "Admin",
+      "email": "admin@ydp.com",
+      "createdAt": "2026-01-30T23:00:41.868Z"
+    },
+    {
+      "id": "branch-sariyer-1",
+      "username": "sariyer",
+      "password": "123",
+      "role": "branch_user",
+      "firstName": "Sarıyer",
+      "lastName": "Yönetici",
+      "email": "sariyer@ydp.com",
+      "branchCode": "sariyer",
+      "createdAt": "2026-01-30T23:00:41.868Z"
+    },
+    {
+      "id": "branch-kadikoy-1",
+      "username": "kadikoy",
+      "password": "123",
+      "role": "branch_user",
+      "firstName": "Kadıköy",
+      "lastName": "Yönetici",
+      "email": "kadikoy@ydp.com",
+      "branchCode": "kadikoy",
+      "createdAt": "2026-01-30T23:00:41.868Z"
+    },
+    {
+      "id": "branch-ankara-1",
+      "username": "ankara",
+      "password": "123",
+      "role": "branch_user",
+      "firstName": "Ankara",
+      "lastName": "Yönetici",
+      "email": "ankara@ydp.com",
+      "branchCode": "ankara",
+      "createdAt": "2026-01-30T23:00:41.868Z"
+    },
+    {
+      "id": "branch-izmir-1",
+      "username": "izmir",
+      "password": "123",
+      "role": "branch_user",
+      "firstName": "İzmir",
+      "lastName": "Yönetici",
+      "email": "izmir@ydp.com",
+      "branchCode": "izmir",
+      "createdAt": "2026-01-30T23:00:41.868Z"
+    },
+    {
+      "id": "branch-bursa-1",
+      "username": "bursa",
+      "password": "123",
+      "role": "branch_user",
+      "firstName": "Bursa",
+      "lastName": "Yönetici",
+      "email": "bursa@ydp.com",
+      "branchCode": "bursa",
+      "createdAt": "2026-01-30T23:00:41.868Z"
+    },
+    {
+      "id": "branch-fethiye-1",
+      "username": "fethiye",
+      "password": "123",
+      "role": "branch_user",
+      "firstName": "Fethiye",
+      "lastName": "Yönetici",
+      "email": "fethiye@ydp.com",
+      "branchCode": "fethiye",
+      "createdAt": "2026-01-30T23:00:41.868Z"
+    },
+    {
+      "id": "italy-staff-1",
+      "username": "italy1",
+      "password": "123",
+      "role": "italy_staff",
+      "firstName": "Marco",
+      "lastName": "Rossi",
+      "email": "marco@ydp.it",
+      "createdAt": "2026-01-30T23:00:41.868Z"
+    },
+    {
+      "id": "italy-staff-2",
+      "username": "italy2",
+      "password": "123",
+      "role": "italy_staff",
+      "firstName": "Giulia",
+      "lastName": "Bianchi",
+      "email": "giulia@ydp.it",
+      "createdAt": "2026-01-30T23:00:41.868Z"
+    }
+  ],
+  "students": [],
+  "assignments": [],
+  "serviceTypes": [
+    {
+      "id": "st-1",
+      "name": "Havalimanı Karşılama",
+      "category": "Arrival",
+      "pricingModel": "fixed",
+      "unitPrice": 40,
+      "isActive": true
+    },
+    {
+      "id": "st-2",
+      "name": "Genel Danışma",
+      "category": "Consulting",
+      "pricingModel": "hourly",
+      "unitPrice": 15,
+      "isActive": true
+    },
+    {
+      "id": "st-3",
+      "name": "Ev Yerleştirme",
+      "category": "Accommodation",
+      "pricingModel": "fixed",
+      "unitPrice": 100,
+      "isActive": true
+    }
+  ],
+  "serviceLogs": [],
+  "auditLogs": [],
+  "universities": [
+    {
+      "id": "uni-1",
+      "name": "Katanya Üniversitesi",
+      "country": "İtalya",
+      "isActive": true
+    },
+    {
+      "id": "uni-2",
+      "name": "Pavia Üniversitesi",
+      "country": "İtalya",
+      "isActive": true
+    },
+    {
+      "id": "uni-3",
+      "name": "Milano Devlet Üniversitesi",
+      "country": "İtalya",
+      "isActive": true
+    },
+    {
+      "id": "uni-4",
+      "name": "Genova Üniversitesi",
+      "country": "İtalya",
+      "isActive": true
+    },
+    {
+      "id": "uni-5",
+      "name": "IULM Üniversitesi",
+      "country": "İtalya",
+      "isActive": true
+    },
+    {
+      "id": "uni-6",
+      "name": "NABA Üniversitesi",
+      "country": "İtalya",
+      "isActive": true
+    },
+    {
+      "id": "uni-7",
+      "name": "Bari Aldo Moro Üniversitesi",
+      "country": "İtalya",
+      "isActive": true
+    },
+    {
+      "id": "uni-8",
+      "name": "ERGO",
+      "country": "İtalya",
+      "isActive": true
+    },
+    {
+      "id": "uni-9",
+      "name": "ADISUR Campania",
+      "country": "İtalya",
+      "isActive": true
+    },
+    {
+      "id": "uni-10",
+      "name": "Cattholica Üniversitesi",
+      "country": "İtalya",
+      "isActive": true
+    },
+    {
+      "id": "uni-11",
+      "name": "IED Üniversitesi",
+      "country": "İtalya",
+      "isActive": true
+    },
+    {
+      "id": "uni-12",
+      "name": "San Raffaele Üniversitesi",
+      "country": "İtalya",
+      "isActive": true
+    },
+    {
+      "id": "uni-13",
+      "name": "Venedik Ca'Foscari Üniversitesi",
+      "country": "İtalya",
+      "isActive": true
+    },
+    {
+      "id": "uni-14",
+      "name": "Padova Üniversitesi",
+      "country": "İtalya",
+      "isActive": true
+    },
+    {
+      "id": "uni-15",
+      "name": "DSU Toscana",
+      "country": "İtalya",
+      "isActive": true
+    },
+    {
+      "id": "uni-16",
+      "name": "Milano Biccoca Üniversitesi",
+      "country": "İtalya",
+      "isActive": true
+    },
+    {
+      "id": "uni-17",
+      "name": "Messina Üniversitesi",
+      "country": "İtalya",
+      "isActive": true
+    },
+    {
+      "id": "uni-18",
+      "name": "Lazio Disco",
+      "country": "İtalya",
+      "isActive": true
+    },
+    {
+      "id": "uni-19",
+      "name": "Cassino Üniversitesi",
+      "country": "İtalya",
+      "isActive": true
+    },
+    {
+      "id": "uni-20",
+      "name": "Humanitas Üniversitesi",
+      "country": "İtalya",
+      "isActive": true
+    },
+    {
+      "id": "uni-21",
+      "name": "Bocconi Üniversitesi",
+      "country": "İtalya",
+      "isActive": true
+    },
+    {
+      "id": "uni-22",
+      "name": "Cagliari Üniversitesi",
+      "country": "İtalya",
+      "isActive": true
+    },
+    {
+      "id": "uni-23",
+      "name": "Politecnico di Marche",
+      "country": "İtalya",
+      "isActive": true
+    },
+    {
+      "id": "uni-24",
+      "name": "Teramo Üniversitesi",
+      "country": "İtalya",
+      "isActive": true
+    },
+    {
+      "id": "uni-25",
+      "name": "Politecnico di Milano Üniversitesi",
+      "country": "İtalya",
+      "isActive": true
+    },
+    {
+      "id": "uni-26",
+      "name": "Trieste Üniversitesi",
+      "country": "İtalya",
+      "isActive": true
+    }
+  ],
+  "branchStudents": [
+    {
+      "id": "bs-1",
+      "branchCode": "sariyer",
+      "firstName": "Ahmet",
+      "lastName": "Yılmaz",
+      "idNumber": "12345678901",
+      "email": "ahmet@email.com",
+      "phone": "+90 532 123 4567",
+      "city": "İstanbul",
+      "universityId": "uni-1",
+      "program": "Tıp",
+      "enrollmentYear": "2",
+      "packageType": "Premium",
+      "accommodationService": "Evet",
+      "supportPackage": "Evet",
+      "status": "active",
+      "finalStatus": "Kabul",
+      "registrationDate": "2024-01-15",
+      "createdAt": "2026-01-30T23:00:41.868Z",
+      "branchName": "Sarıyer"
+    },
+    {
+      "id": "bs-2",
+      "branchCode": "sariyer",
+      "firstName": "Ayşe",
+      "lastName": "Kaya",
+      "idNumber": "98765432109",
+      "email": "ayse@email.com",
+      "phone": "+90 533 987 6543",
+      "city": "İstanbul",
+      "universityId": "uni-3",
+      "program": "Mimarlık",
+      "enrollmentYear": "1",
+      "packageType": "Standart",
+      "status": "active",
+      "finalStatus": "Beklemede",
+      "registrationDate": "2024-02-20",
+      "createdAt": "2026-01-30T23:00:41.868Z",
+      "branchName": "Sarıyer"
+    },
+    {
+      "id": "bs-3",
+      "branchCode": "kadikoy",
+      "firstName": "Mehmet",
+      "lastName": "Demir",
+      "idNumber": "11122233344",
+      "email": "mehmet@email.com",
+      "phone": "+90 534 111 2233",
+      "city": "İstanbul",
+      "universityId": "uni-5",
+      "program": "İşletme",
+      "enrollmentYear": "3",
+      "packageType": "Premium",
+      "accommodationService": "Evet",
+      "status": "active",
+      "finalStatus": "Kabul",
+      "registrationDate": "2024-03-10",
+      "createdAt": "2026-01-30T23:00:41.868Z",
+      "branchName": "Kadıköy"
+    },
+    {
+      "id": "bs-4",
+      "branchCode": "ankara",
+      "firstName": "Zeynep",
+      "lastName": "Öztürk",
+      "idNumber": "55566677788",
+      "email": "zeynep@email.com",
+      "phone": "+90 535 555 6677",
+      "city": "Ankara",
+      "universityId": "uni-21",
+      "program": "Ekonomi",
+      "enrollmentYear": "2",
+      "packageType": "Premium",
+      "accommodationService": "Evet",
+      "supportPackage": "Evet",
+      "status": "active",
+      "finalStatus": "Kabul",
+      "registrationDate": "2024-01-25",
+      "createdAt": "2026-01-30T23:00:41.868Z",
+      "branchName": "Ankara"
+    }
+  ],
+  "userFavorites": []
+}
