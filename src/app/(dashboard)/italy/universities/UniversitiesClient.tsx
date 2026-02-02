@@ -204,7 +204,7 @@ export default function UniversitiesClient({ universities, allStudents, initialF
     return (
         <div style={{ display: 'flex', gap: '1rem', height: 'calc(100vh - 100px)' }}>
             {/* Left Sidebar - University List */}
-            <div style={{ width: isListCollapsed ? '60px' : '320px', transition: 'all 0.3s ease', background: isListCollapsed ? 'linear-gradient(to bottom, #eafaf3, #ffffff)' : 'white', borderRadius: '16px', boxShadow: '0 2px 12px rgba(0,0,0,0.04)', display: 'flex', flexDirection: 'column', overflow: 'visible', flexShrink: 0, position: 'relative' }}>
+            <div style={{ width: isListCollapsed ? '60px' : '320px', transition: 'all 0.3s ease', background: isListCollapsed ? 'linear-gradient(to bottom, #eafaf3, #ffffff, #fbf1f1)' : 'white', borderRadius: '16px', boxShadow: '0 2px 12px rgba(0,0,0,0.04)', display: 'flex', flexDirection: 'column', overflow: 'visible', flexShrink: 0, position: 'relative' }}>
                 <button
                     onClick={() => setIsListCollapsed(!isListCollapsed)}
                     style={{

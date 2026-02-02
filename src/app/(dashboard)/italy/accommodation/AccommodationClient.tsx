@@ -188,7 +188,7 @@ export default function AccommodationClient({ initialStudents, universities }: A
     return (
         <div style={{ display: 'flex', height: 'calc(100vh - 140px)', gap: '1.5rem' }}>
             {/* Left Sidebar - Student List  - Matched width and padding to StudentsClient.tsx */}
-            <div style={{ width: isListCollapsed ? '60px' : '380px', transition: 'all 0.3s ease', background: isListCollapsed ? 'linear-gradient(to bottom, #eafaf3, #ffffff)' : 'white', borderRadius: '16px', boxShadow: '0 4px 20px rgba(0,0,0,0.05)', display: 'flex', flexDirection: 'column', overflow: 'visible', flexShrink: 0, position: 'relative' }}>
+            <div style={{ width: isListCollapsed ? '60px' : '380px', transition: 'all 0.3s ease', background: isListCollapsed ? 'linear-gradient(to bottom, #eafaf3, #ffffff, #fbf1f1)' : 'white', borderRadius: '16px', boxShadow: '0 4px 20px rgba(0,0,0,0.05)', display: 'flex', flexDirection: 'column', overflow: 'visible', flexShrink: 0, position: 'relative' }}>
                 <button
                     onClick={() => setIsListCollapsed(!isListCollapsed)}
                     style={{
