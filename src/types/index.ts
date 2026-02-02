@@ -145,6 +145,52 @@ export interface BranchStudent {
   supportPackage?: 'Evet' | 'Hayır'; // Danışmanlık
   scholarshipPackage?: 'Evet' | 'Hayır'; // Burs Paketi
   ydtSupport?: 'Evet' | 'Hayır'; // YDT (Yaşam Destek Paketi)
+
+  // Accommodation Details
+  accommodationCity?: string;
+  accommodationType?: string; // Ev, Oda, Yurt, Stüdyo Daire
+  accommodationAddress?: string;
+  accommodationMonthlyRent?: string;
+  accommodationDiffPayment?: string; // Konaklama fark ödemesi
+  accommodationPaymentStatus?: string; // Ödeme
+  accommodationDate?: string; // Tarih
+  accommodationStatus?: string; // başvurunuz alınmıştır, işleminiz devam etmektedir, konaklamanız ayarlanmıştır
+
+  // Guardian Service Details
+  guardianOperator?: string; // İşlemi yapan kişi
+  guardianArrivalDate?: string; // Geliş Tarihi
+  guardianCity?: string; // Şehir
+  guardianLocation?: string; // Yeri
+  guardianTime?: string; // Saati
+  guardianStatus?: string; // Durumu
+
+  // Arrival Details
+  arrivalCity?: string;
+  arrivalPaymentStatus?: string;
+  arrivalOperator?: string;
+  arrivalDate?: string;
+  arrivalAirport?: string;
+  arrivalTime?: string; // Uçuş Saati
+  flightCode?: string;
+  arrivalAccommodation?: string;
+  arrivalStatus?: string;
+
+  // Life Support Service (YDT) - Date & Status pairs
+  ydtWelcomeDate?: string;
+  ydtWelcomeStatus?: string;
+  ydtSchoolRegDate?: string;
+  ydtSchoolRegStatus?: string;
+  ydtResPermitDate?: string;
+  ydtResPermitStatus?: string;
+  ydtSimDate?: string;
+  ydtSimStatus?: string; // Ulaşım kartı / SİM
+  ydtBankDate?: string;
+  ydtBankStatus?: string;
+
+  // Consultant Info
+  consultantName?: string;
+  consultantContact?: string;
+
   status: StudentStatus;
   registrationDate: string;
   createdAt: string;

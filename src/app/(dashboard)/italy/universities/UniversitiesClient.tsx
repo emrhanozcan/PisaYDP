@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { University, BranchStudent, BRANCH_NAMES, BranchCode } from '@/types';
-import { Star, Search, Download, CheckCircle, Clock, XCircle, Edit2, Trash2, Upload, Plus, Save, X, Mail, Phone, MapPin, GraduationCap, CreditCard, FileText, Users } from 'lucide-react';
+import { Star, Search, Download, CheckCircle, Clock, XCircle, Edit2, Trash2, Upload, Plus, Save, X, Mail, Phone, MapPin, GraduationCap, CreditCard, FileText, Users, ChevronLeft, ChevronRight } from 'lucide-react';
 
 interface UniversitiesClientProps {
     universities: University[];
@@ -199,11 +199,37 @@ export default function UniversitiesClient({ universities, allStudents, initialF
 
     const allBranches: BranchCode[] = ['sariyer', 'kadikoy', 'ankara', 'izmir', 'bursa', 'fethiye'];
 
+    const [isListCollapsed, setIsListCollapsed] = useState(false);
+
     return (
         <div style={{ display: 'flex', gap: '1rem', height: 'calc(100vh - 100px)' }}>
             {/* Left Sidebar - University List */}
-            <div style={{ width: '320px', background: 'white', borderRadius: '16px', boxShadow: '0 2px 12px rgba(0,0,0,0.04)', display: 'flex', flexDirection: 'column', overflow: 'hidden', flexShrink: 0 }}>
-                <div style={{ padding: '1rem', borderBottom: '1px solid #f0f0f5' }}>
+            <div style={{ width: isListCollapsed ? '60px' : '320px', transition: 'all 0.3s ease', background: isListCollapsed ? 'linear-gradient(to bottom, #eafaf3, #ffffff)' : 'white', borderRadius: '16px', boxShadow: '0 2px 12px rgba(0,0,0,0.04)', display: 'flex', flexDirection: 'column', overflow: 'visible', flexShrink: 0, position: 'relative' }}>
+                <button
+                    onClick={() => setIsListCollapsed(!isListCollapsed)}
+                    style={{
+                        position: 'absolute',
+                        right: '-16px',
+                        top: '50%',
+                        transform: 'translateY(-50%)',
+                        background: 'white',
+                        border: '1px solid #e0e0e0',
+                        borderRadius: '50%',
+                        width: '32px',
+                        height: '32px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        cursor: 'pointer',
+                        color: '#008C45',
+                        zIndex: 20,
+                        boxShadow: '0 2px 8px rgba(0,0,0,0.15)'
+                    }}
+                >
+                    {isListCollapsed ? <ChevronRight size={20} /> : <ChevronLeft size={20} />}
+                </button>
+
+                <div style={{ padding: '1rem', borderBottom: '1px solid #f0f0f5', opacity: isListCollapsed ? 0 : 1, transition: 'opacity 0.2s', pointerEvents: isListCollapsed ? 'none' : 'auto', whiteSpace: 'nowrap', visibility: isListCollapsed ? 'hidden' : 'visible' }}>
                     <h2 style={{ fontSize: '1rem', fontWeight: '600', color: '#1a1a2e', margin: '0 0 0.75rem 0' }}>Üniversiteler</h2>
                     <div style={{ position: 'relative' }}>
                         <Search size={16} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#808191' }} />
@@ -211,7 +237,7 @@ export default function UniversitiesClient({ universities, allStudents, initialF
                             style={{ width: '100%', padding: '10px 10px 10px 36px', border: '1px solid #e8e8ef', borderRadius: '10px', fontSize: '0.85rem', background: '#fafafc', outline: 'none' }} />
                     </div>
                 </div>
-                <div style={{ flex: 1, overflowY: 'auto' }}>
+                <div style={{ flex: 1, overflowY: 'auto', opacity: isListCollapsed ? 0 : 1, transition: 'opacity 0.2s', pointerEvents: isListCollapsed ? 'none' : 'auto', visibility: isListCollapsed ? 'hidden' : 'visible' }}>
                     {filteredUniversities.map(uni => (
                         <div key={uni.id} onClick={() => setSelectedUni(uni)}
                             onMouseEnter={(e) => { const a = e.currentTarget.querySelector('.actions') as HTMLElement; if (a) a.style.opacity = '1'; }}

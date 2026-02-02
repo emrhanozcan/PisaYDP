@@ -283,6 +283,12 @@
       "name": "Trieste Üniversitesi",
       "country": "İtalya",
       "isActive": true
+    },
+    {
+      "id": "uni-27",
+      "name": "EDISU Torino",
+      "country": "İtalya",
+      "isActive": true
     }
   ],
   "branchStudents": [
@@ -296,15 +302,20 @@
       "phone": "+90 532 123 4567",
       "city": "İstanbul",
       "universityId": "uni-1",
-      "program": "Tıp",
+      "program": "Lisans",
       "enrollmentYear": "2024",
       "packageType": "Premium",
       "accommodationService": "Evet",
       "supportPackage": "Evet",
       "status": "active",
-      "finalStatus": "Red",
+      "finalStatus": "Kabul",
       "registrationDate": "2024-01-15",
-      "createdAt": "2026-01-30T23:00:41.868Z"
+      "createdAt": "2026-01-30T23:00:41.868Z",
+      "description": "test",
+      "grade": "",
+      "accommodationCity": "",
+      "passportNo": "1234567890",
+      "arrivalCity": ""
     },
     {
       "id": "bs-2",

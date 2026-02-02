@@ -62,7 +62,7 @@ a {
   border-right: 1px solid transparent;
   flex-shrink: 0;
   transition: all 0.3s ease;
-  overflow-y: auto;
+  overflow: visible;
 }
 
 .main-content {

@@ -206,8 +206,8 @@ export default function StudentsClient({ initialStudents, universities, branchCo
                             {/* Kişisel Bilgiler */}
                             <InfoCard title="Kişisel Bilgiler" color="#6C5CE7" icon={<Mail size={18} />}>
                                 <InlineEditableRow label="E-mail" value={selectedStudent.email} field="email" onUpdate={(v) => handleUpdateField(selectedStudent.id, 'email', v)} />
-                                <InlineEditableRow label="Telefon" value={selectedStudent.phone} field="phone" onUpdate={(v) => handleUpdateField(selectedStudent.id, 'phone', v)} icon={<Phone size={14} color="#808191" />} />
-                                <InlineEditableRow label="Şehir" value={selectedStudent.city} field="city" type="select" options={CITIES.map(c => ({ value: c.name, label: c.name }))} onUpdate={(v) => handleUpdateField(selectedStudent.id, 'city', v)} badge color={CITIES.find(c => c.name === selectedStudent.city)?.color} />
+                                <InlineEditableRow label="Telefon" value={selectedStudent.phone} field="phone" onUpdate={(v) => handleUpdateField(selectedStudent.id, 'phone', v)} />
+                                <InlineEditableRow label="Şehir" value={selectedStudent.city} field="city" onUpdate={(v) => handleUpdateField(selectedStudent.id, 'city', v)} />
                                 <InlineEditableRow label="Pasaport No" value={selectedStudent.passportNo} field="passportNo" onUpdate={(v) => handleUpdateField(selectedStudent.id, 'passportNo', v)} />
                                 <InlineEditableRow label="Seri No" value={selectedStudent.serialNumber} field="serialNumber" onUpdate={(v) => handleUpdateField(selectedStudent.id, 'serialNumber', v)} />
                             </InfoCard>
@@ -299,7 +299,7 @@ export default function StudentsClient({ initialStudents, universities, branchCo
                                 <InputField label="E-mail" value={editingStudent.email || ''} onChange={(v) => setEditingStudent(p => ({ ...p, email: v }))} />
                                 <InputField label="Pasaport No" value={editingStudent.passportNo || ''} onChange={(v) => setEditingStudent(p => ({ ...p, passportNo: v }))} />
                                 <InputField label="Seri No" value={editingStudent.serialNumber || ''} onChange={(v) => setEditingStudent(p => ({ ...p, serialNumber: v }))} />
-                                <SelectField label="Şehir" value={editingStudent.city || ''} onChange={(v) => setEditingStudent(p => ({ ...p, city: v }))} options={CITIES.map(c => ({ value: c.name, label: c.name }))} />
+                                <InputField label="Şehir" value={editingStudent.city || ''} onChange={(v) => setEditingStudent(p => ({ ...p, city: v }))} />
                             </div>
 
                             <SectionHeader title="Eğitim Bilgileri" color="#00B894" />
