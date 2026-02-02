@@ -421,13 +421,13 @@ export const db = {
             writeDB(data);
             return student;
         },
-        update: (student: BranchStudent) => {
+        update: (student: any) => {
             const data = readDB();
             const index = data.branchStudents.findIndex(s => s.id === student.id);
             if (index !== -1) {
-                data.branchStudents[index] = student;
+                data.branchStudents[index] = { ...data.branchStudents[index], ...student };
                 writeDB(data);
-                return student;
+                return data.branchStudents[index];
             }
             return null;
         },

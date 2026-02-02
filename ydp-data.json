@@ -297,15 +297,14 @@
       "city": "İstanbul",
       "universityId": "uni-1",
       "program": "Tıp",
-      "enrollmentYear": "2",
+      "enrollmentYear": "2024",
       "packageType": "Premium",
       "accommodationService": "Evet",
       "supportPackage": "Evet",
       "status": "active",
-      "finalStatus": "Kabul",
+      "finalStatus": "Red",
       "registrationDate": "2024-01-15",
-      "createdAt": "2026-01-30T23:00:41.868Z",
-      "branchName": "Sarıyer"
+      "createdAt": "2026-01-30T23:00:41.868Z"
     },
     {
       "id": "bs-2",
@@ -318,13 +317,12 @@
       "city": "İstanbul",
       "universityId": "uni-3",
       "program": "Mimarlık",
-      "enrollmentYear": "1",
+      "enrollmentYear": "2024",
       "packageType": "Standart",
       "status": "active",
-      "finalStatus": "Beklemede",
+      "finalStatus": "Kabul",
       "registrationDate": "2024-02-20",
-      "createdAt": "2026-01-30T23:00:41.868Z",
-      "branchName": "Sarıyer"
+      "createdAt": "2026-01-30T23:00:41.868Z"
     },
     {
       "id": "bs-3",

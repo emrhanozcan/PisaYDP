@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { BranchStudent, University, BRANCH_NAMES, BranchCode } from '@/types';
-import { Search, Mail, Phone, Download, GraduationCap, CreditCard, FileText, MapPin, Edit2, Trash2, Plus, Save, X, Users } from 'lucide-react';
+import { Search, Mail, Phone, Download, GraduationCap, CreditCard, FileText, MapPin, Edit2, Trash2, Plus, Save, X, Users, ChevronDown, Check } from 'lucide-react';
 
 interface StudentsClientProps {
     initialStudents: (BranchStudent & { branchName: string })[];
@@ -10,7 +10,7 @@ interface StudentsClientProps {
 }
 
 export default function StudentsClient({ initialStudents, universities }: StudentsClientProps) {
-    const [students] = useState<(BranchStudent & { branchName: string })[]>(initialStudents);
+    const [students, setStudents] = useState<(BranchStudent & { branchName: string })[]>(initialStudents);
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedStudent, setSelectedStudent] = useState<(BranchStudent & { branchName: string }) | null>(null);
     const [branchFilter, setBranchFilter] = useState<string>('');
@@ -55,10 +55,126 @@ export default function StudentsClient({ initialStudents, universities }: Studen
     const handleOpenModal = (student?: BranchStudent & { branchName: string }) => {
         if (student) { setEditingStudent(student); setIsEditing(true); }
         else { setEditingStudent({ ...EMPTY_STUDENT, branchCode: 'izmir' }); setIsEditing(false); } // Default to Izmir or let user choose? If we have selector, maybe empty? But BranchCode type might require valid. Let's default to 'izmir' or better yet, if we want them to choose, maybe '' if allowed. But SelectField handles string values. 
-        // Let's set default as 'izmir' as it was before, or better, the current filter value if selected?
-        // Let's set to 'izmir' as a safe default.
+        // Let's set default as 'izmir' as a safe default.
         setIsModalOpen(true);
     };
+
+
+    function InlineEditableRow({ label, value, displayValue, icon, field, onUpdate, type = 'text', options, badge, color, style }: { label: string; value?: string; displayValue?: string; icon?: React.ReactNode; field: keyof BranchStudent; onUpdate: (val: string) => void; type?: 'text' | 'select'; options?: { value: string; label: string }[]; badge?: boolean; color?: string; style?: React.CSSProperties }) {
+        const [isEditing, setIsEditing] = useState(false);
+        const [tempValue, setTempValue] = useState(value || '');
+
+        useEffect(() => { setTempValue(value || ''); }, [value]);
+
+        const handleSave = () => {
+            onUpdate(tempValue);
+            setIsEditing(false);
+        };
+
+        const handleCancel = () => {
+            setTempValue(value || '');
+            setIsEditing(false);
+        };
+
+        if (isEditing) {
+            return (
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', minHeight: '28px', ...style }}>
+                    <span style={{ color: '#808191', fontSize: '0.8rem', minWidth: '90px' }}>{label}:</span>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '4px', flex: 1 }}>
+                        {type === 'select' ? (
+                            <select
+                                value={tempValue}
+                                onChange={(e) => setTempValue(e.target.value)}
+                                style={{ padding: '2px 4px', borderRadius: '4px', border: '1px solid #6C5CE7', fontSize: '0.8rem', outline: 'none', background: 'white', flex: 1, minWidth: 0 }}
+                                autoFocus
+                            >
+                                <option value="">Seçiniz</option>
+                                {options?.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+                            </select>
+                        ) : (
+                            <input
+                                type="text"
+                                value={tempValue}
+                                onChange={(e) => setTempValue(e.target.value)}
+                                style={{ padding: '2px 6px', borderRadius: '4px', border: '1px solid #6C5CE7', fontSize: '0.8rem', outline: 'none', width: '100%', flex: 1, minWidth: 0 }}
+                                autoFocus
+                            />
+                        )}
+                        <button onClick={handleSave} style={{ background: '#E8F5E9', border: 'none', borderRadius: '4px', padding: '2px', cursor: 'pointer', color: '#2E7D32', flexShrink: 0 }}><Check size={14} /></button>
+                        <button onClick={handleCancel} style={{ background: '#FFEBEE', border: 'none', borderRadius: '4px', padding: '2px', cursor: 'pointer', color: '#C62828', flexShrink: 0 }}><X size={14} /></button>
+                    </div>
+                </div>
+            );
+        }
+
+        return (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', ...style }} onClick={() => setIsEditing(true)} title="Düzenlemek için tıklayın">
+                {icon}
+                <span style={{ color: '#808191', fontSize: '0.8rem', minWidth: '90px' }}>{label}:</span>
+                {badge ? (
+                    <span style={{ padding: '2px 8px', borderRadius: '10px', fontSize: '0.75rem', background: color ? `${color}20` : (displayValue || value === 'Kabul' || value === 'Tamamlandı' ? '#E8F5E9' : value === 'Red' ? '#FFEBEE' : '#FFF8E1'), color: color || (displayValue || value === 'Kabul' || value === 'Tamamlandı' ? '#2E7D32' : value === 'Red' ? '#C62828' : '#F57F17') }}>{displayValue || value || '-'}</span>
+                ) : (
+                    <span style={{ fontWeight: '500', color: style?.color || '#333', fontSize: '0.85rem', borderBottom: '1px dashed transparent', transition: 'border-color 0.2s', ...style }} onMouseEnter={(e) => e.currentTarget.style.borderBottomColor = '#ccc'} onMouseLeave={(e) => e.currentTarget.style.borderBottomColor = 'transparent'}>{displayValue || value || (field === 'fee' ? '' : '-')}</span>
+                )}
+            </div>
+        );
+    }
+
+    function QuickStatusBadge({ status, onUpdate }: { status?: string, onUpdate: (val: string) => void }) {
+        const [isOpen, setIsOpen] = useState(false);
+        const styles: Record<string, { bg: string; color: string }> = {
+            'Kabul': { bg: '#E8F5E9', color: '#2E7D32' },
+            'Red': { bg: '#FFEBEE', color: '#C62828' },
+            'Beklemede': { bg: '#FFF8E1', color: '#F57F17' },
+            'SOSPESO': { bg: '#E3F2FD', color: '#1565C0' }
+        };
+        const s = styles[status || 'Beklemede'] || styles['Beklemede'];
+
+        useEffect(() => {
+            const handleClickOutside = (e: MouseEvent) => {
+                if (isOpen && !(e.target as Element).closest('.status-badge-container')) {
+                    setIsOpen(false);
+                }
+            };
+            document.addEventListener('click', handleClickOutside);
+            return () => document.removeEventListener('click', handleClickOutside);
+        }, [isOpen]);
+
+        return (
+            <div className="status-badge-container" style={{ position: 'relative' }}>
+                <span
+                    onClick={(e) => { e.stopPropagation(); setIsOpen(!isOpen); }}
+                    style={{ padding: '4px 12px', borderRadius: '12px', fontSize: '0.75rem', fontWeight: '500', background: s.bg, color: s.color, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}
+                >
+                    {status || 'Beklemede'} <ChevronDown size={12} />
+                </span>
+                {isOpen && (
+                    <div style={{ position: 'absolute', top: '100%', left: 0, marginTop: '4px', background: 'white', border: '1px solid #eee', borderRadius: '8px', boxShadow: '0 4px 12px rgba(0,0,0,0.1)', zIndex: 10, minWidth: '120px', overflow: 'hidden' }}>
+                        {Object.keys(styles).map(key => (
+                            <div
+                                key={key}
+                                onClick={(e) => { e.stopPropagation(); onUpdate(key); setIsOpen(false); }}
+                                style={{ padding: '8px 12px', fontSize: '0.8rem', cursor: 'pointer', background: key === status ? '#f8f9fa' : 'white', color: styles[key].color, fontWeight: key === status ? '600' : '400' }}
+                                onMouseEnter={(e) => e.currentTarget.style.background = '#f0f0f5'}
+                                onMouseLeave={(e) => e.currentTarget.style.background = key === status ? '#f8f9fa' : 'white'}
+                            >
+                                {key}
+                            </div>
+                        ))}
+                    </div>
+                )}
+            </div>
+        );
+    }
+
+    function QuickStatusRow({ label, status, onUpdate }: { label: string; status?: string; onUpdate: (val: string) => void }) {
+        return (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span style={{ color: '#808191', fontSize: '0.8rem', minWidth: '90px' }}>{label}:</span>
+                <QuickStatusBadge status={status} onUpdate={onUpdate} />
+            </div>
+        );
+    }
 
     const handleSaveStudent = async () => {
         const method = isEditing ? 'PUT' : 'POST';
@@ -81,24 +197,42 @@ export default function StudentsClient({ initialStudents, universities }: Studen
 
     const allBranches: BranchCode[] = ['sariyer', 'kadikoy', 'ankara', 'izmir', 'bursa', 'fethiye'];
 
+    const [statusFilter, setStatusFilter] = useState('');
+
     const filteredStudents = students.filter(s => {
-        const matchSearch = `${s.firstName} ${s.lastName}`.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            s.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            s.phone?.includes(searchTerm);
+        const fullSearch = `${s.firstName} ${s.lastName} ${s.email} ${s.phone}`.toLowerCase();
+        const matchSearch = fullSearch.includes(searchTerm.toLowerCase());
         const matchBranch = !branchFilter || s.branchCode === branchFilter;
         const matchUni = !uniFilter || s.universityId === uniFilter;
-        return matchSearch && matchBranch && matchUni;
+        const matchStatus = !statusFilter || s.finalStatus === statusFilter;
+        return matchSearch && matchBranch && matchUni && matchStatus;
     });
 
     const getUniversityName = (id?: string) => universities.find(u => u.id === id)?.name || '-';
 
+    const handleUpdateField = async (id: string, field: keyof BranchStudent, value: any) => {
+        if (!selectedStudent) return;
+        const updatedStudent = { ...selectedStudent, [field]: value };
+        setSelectedStudent(updatedStudent);
+        setStudents(prev => prev.map(s => s.id === id ? updatedStudent : s)); // Updating 'students' state which includes branchName
+
+        await fetch('/api/branch/students', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id, [field]: value })
+        });
+    };
+
     const handleExcelExport = () => {
         if (students.length === 0) { alert('Dışa aktarılacak öğrenci yok.'); return; }
         const headers = ['Ad Soyad', 'Şube', 'Telefon', 'E-mail', 'Üniversite', 'Bölüm', 'Program', 'Sınıf', 'Sıralama', 'Bloke', 'Kira Kontratı', 'Sonuç', 'Ödeme', 'Pasaport', 'Danışmanlık'];
-        const rows = students.map(s => [`${s.firstName} ${s.lastName}`, s.branchName, s.phone || '', s.email || '', getUniversityName(s.universityId), s.city || '', s.program || '', s.enrollmentYear || '', s.examResult || '', s.visaResult || '', s.selectionResult || '', s.finalStatus || '', s.status === 'active' ? 'Tamamlandı' : 'Beklemede', s.passportNo || '', s.supportPackage || '']);
+        const rows = students.map(s => [
+            `${s.firstName} ${s.lastName}`, s.branchName, s.phone, s.email, getUniversityName(s.universityId), s.department, s.program, s.grade,
+            s.examResult, s.visaResult, s.selectionResult, s.finalStatus, s.paymentStatus, s.passportNo, s.supportPackage
+        ]);
         const csv = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
         const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-        const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `tum_ogrenciler.csv`; a.click();
+        const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'tum_ogrenciler.csv'; a.click();
     };
 
     const getStatusBadge = (status?: string) => {
@@ -113,9 +247,9 @@ export default function StudentsClient({ initialStudents, universities }: Studen
     };
 
     return (
-        <div style={{ display: 'flex', height: 'calc(100vh - 100px)', gap: '1.5rem' }}>
+        <div style={{ display: 'flex', height: 'calc(100vh - 140px)', gap: '1.5rem' }}>
             {/* Left Sidebar - Student List */}
-            <div style={{ width: '350px', background: 'white', borderRadius: '16px', boxShadow: '0 4px 20px rgba(0,0,0,0.05)', display: 'flex', flexDirection: 'column', overflow: 'hidden', flexShrink: 0 }}>
+            <div style={{ width: '380px', background: 'white', borderRadius: '16px', boxShadow: '0 4px 20px rgba(0,0,0,0.05)', display: 'flex', flexDirection: 'column', overflow: 'hidden', flexShrink: 0 }}>
                 <div style={{ padding: '1rem', borderBottom: '1px solid #f0f0f5' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
                         <span style={{ fontWeight: '600', color: '#1a1a2e' }}>Öğrenciler ({filteredStudents.length})</span>
@@ -127,16 +261,23 @@ export default function StudentsClient({ initialStudents, universities }: Studen
                         <Search size={16} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#808191' }} />
                         <input type="text" placeholder="Öğrenci ara..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} style={{ width: '100%', padding: '10px 10px 10px 36px', border: '1px solid #e8e8ef', borderRadius: '10px', fontSize: '0.85rem', background: '#fafafc', outline: 'none' }} />
                     </div>
-                    <div style={{ display: 'flex', gap: '6px' }}>
-                        <select value={branchFilter} onChange={(e) => setBranchFilter(e.target.value)} style={{ flex: 1, padding: '8px', border: '1px solid #e8e8ef', borderRadius: '8px', fontSize: '0.8rem', background: '#fafafc', cursor: 'pointer' }}>
+                    <div style={{ display: 'flex', gap: '8px', marginBottom: '8px' }}>
+                        <select value={branchFilter} onChange={(e) => setBranchFilter(e.target.value)} style={{ flex: 1, padding: '8px', border: '1px solid #e8e8ef', borderRadius: '8px', fontSize: '0.8rem', background: '#fafafc', cursor: 'pointer', outline: 'none' }}>
                             <option value="">Tüm Şubeler</option>
-                            {allBranches.map(bc => <option key={bc} value={bc}>{BRANCH_NAMES[bc]}</option>)}
+                            {Object.entries(BRANCH_NAMES).map(([code, name]) => <option key={code} value={code}>{name}</option>)}
                         </select>
-                        <select value={uniFilter} onChange={(e) => setUniFilter(e.target.value)} style={{ flex: 1, padding: '8px', border: '1px solid #e8e8ef', borderRadius: '8px', fontSize: '0.8rem', background: '#fafafc', cursor: 'pointer', maxWidth: '150px', textOverflow: 'ellipsis' }}>
+                        <select value={uniFilter} onChange={(e) => setUniFilter(e.target.value)} style={{ flex: 1, padding: '8px', border: '1px solid #e8e8ef', borderRadius: '8px', fontSize: '0.8rem', background: '#fafafc', cursor: 'pointer', outline: 'none' }}>
                             <option value="">Tüm Okullar</option>
                             {universities.map(u => <option key={u.id} value={u.id}>{u.name}</option>)}
                         </select>
                     </div>
+                    <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} style={{ width: '100%', padding: '8px', border: '1px solid #e8e8ef', borderRadius: '8px', fontSize: '0.8rem', background: '#fafafc', cursor: 'pointer', outline: 'none' }}>
+                        <option value="">Tüm Durumlar</option>
+                        <option value="Beklemede">Beklemede</option>
+                        <option value="Kabul">Kabul</option>
+                        <option value="Red">Red</option>
+                        <option value="SOSPESO">SOSPESO</option>
+                    </select>
                 </div>
                 <div style={{ flex: 1, overflowY: 'auto' }}>
                     {filteredStudents.map(student => (
@@ -167,7 +308,7 @@ export default function StudentsClient({ initialStudents, universities }: Studen
                                     <h2 style={{ fontSize: '1.4rem', fontWeight: 'bold', color: '#1a1a2e', margin: 0 }}>{selectedStudent.firstName} {selectedStudent.lastName}</h2>
                                     <div style={{ display: 'flex', gap: '0.75rem', marginTop: '0.5rem', alignItems: 'center' }}>
                                         <span style={{ padding: '4px 10px', borderRadius: '8px', fontSize: '0.8rem', background: '#E8F5E9', color: '#2E7D32', fontWeight: '500' }}>{selectedStudent.branchName} Şubesi</span>
-                                        {getStatusBadge(selectedStudent.finalStatus)}
+                                        <QuickStatusBadge status={selectedStudent.finalStatus} onUpdate={(val) => handleUpdateField(selectedStudent.id, 'finalStatus', val)} />
                                     </div>
                                 </div>
                             </div>
@@ -182,45 +323,45 @@ export default function StudentsClient({ initialStudents, universities }: Studen
                         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1rem' }}>
                             {/* Kişisel Bilgiler */}
                             <InfoCard title="Kişisel Bilgiler" color="#6C5CE7" icon={<Mail size={18} />}>
-                                <InfoRow label="E-mail" value={selectedStudent.email} />
-                                <InfoRow label="Telefon" value={selectedStudent.phone} icon={<Phone size={14} color="#808191" />} />
-                                <InfoRow label="Şehir" value={selectedStudent.city} badge color={CITIES.find(c => c.name === selectedStudent.city)?.color} />
-                                <InfoRow label="Pasaport No" value={selectedStudent.passportNo} />
-                                <InfoRow label="Seri No" value={selectedStudent.serialNumber} />
+                                <InlineEditableRow label="E-mail" value={selectedStudent.email} field="email" onUpdate={(v) => handleUpdateField(selectedStudent.id, 'email', v)} />
+                                <InlineEditableRow label="Telefon" value={selectedStudent.phone} field="phone" onUpdate={(v) => handleUpdateField(selectedStudent.id, 'phone', v)} icon={<Phone size={14} color="#808191" />} />
+                                <InlineEditableRow label="Şehir" value={selectedStudent.city} field="city" type="select" options={CITIES.map(c => ({ value: c.name, label: c.name }))} onUpdate={(v) => handleUpdateField(selectedStudent.id, 'city', v)} badge color={CITIES.find(c => c.name === selectedStudent.city)?.color} />
+                                <InlineEditableRow label="Pasaport No" value={selectedStudent.passportNo} field="passportNo" onUpdate={(v) => handleUpdateField(selectedStudent.id, 'passportNo', v)} />
+                                <InlineEditableRow label="Seri No" value={selectedStudent.serialNumber} field="serialNumber" onUpdate={(v) => handleUpdateField(selectedStudent.id, 'serialNumber', v)} />
                             </InfoCard>
 
                             {/* Eğitim Bilgileri */}
                             <InfoCard title="Eğitim Bilgileri" color="#00B894" icon={<GraduationCap size={18} />}>
-                                <InfoRow label="Üniversite" value={getUniversityName(selectedStudent.universityId)} />
-                                <InfoRow label="Bölüm" value={selectedStudent.department} />
-                                <InfoRow label="Program" value={selectedStudent.program} badge color={PROGRAMS.find(p => p.name === selectedStudent.program)?.color} />
-                                <InfoRow label="Sınıf" value={selectedStudent.grade} />
+                                <InlineEditableRow label="Üniversite" value={selectedStudent.universityId} displayValue={getUniversityName(selectedStudent.universityId)} field="universityId" type="select" options={universities.map(u => ({ value: u.id, label: u.name }))} onUpdate={(v) => handleUpdateField(selectedStudent.id, 'universityId', v)} />
+                                <InlineEditableRow label="Bölüm" value={selectedStudent.department} field="department" onUpdate={(v) => handleUpdateField(selectedStudent.id, 'department', v)} />
+                                <InlineEditableRow label="Program" value={selectedStudent.program} field="program" type="select" options={PROGRAMS.map(p => ({ value: p.name, label: p.name }))} onUpdate={(v) => handleUpdateField(selectedStudent.id, 'program', v)} badge color={PROGRAMS.find(p => p.name === selectedStudent.program)?.color} />
+                                <InlineEditableRow label="Sınıf" value={selectedStudent.grade} field="grade" type="select" options={['1', '2', '3', '4', '5', '6'].map(g => ({ value: g, label: g }))} onUpdate={(v) => handleUpdateField(selectedStudent.id, 'grade', v)} />
                             </InfoCard>
 
                             {/* Veli Bilgileri */}
                             <InfoCard title="Veli İletişim Bilgileri" color="#fdcb6e" icon={<Users size={18} />}>
-                                <InfoRow label="Veli Adı" value={selectedStudent.parentName} />
-                                <InfoRow label="Veli Tel" value={selectedStudent.parentPhone} />
-                                <InfoRow label="Veli Email" value={selectedStudent.parentEmail} />
-                                <InfoRow label="Ücret" value={selectedStudent.fee ? `${selectedStudent.fee} €` : '-'} style={{ fontWeight: 'bold', color: '#27AE60' }} />
+                                <InlineEditableRow label="Veli Adı" value={selectedStudent.parentName} field="parentName" onUpdate={(v) => handleUpdateField(selectedStudent.id, 'parentName', v)} />
+                                <InlineEditableRow label="Veli Tel" value={selectedStudent.parentPhone} field="parentPhone" onUpdate={(v) => handleUpdateField(selectedStudent.id, 'parentPhone', v)} />
+                                <InlineEditableRow label="Veli Email" value={selectedStudent.parentEmail} field="parentEmail" onUpdate={(v) => handleUpdateField(selectedStudent.id, 'parentEmail', v)} />
+                                <InlineEditableRow label="Ücret" value={selectedStudent.fee} field="fee" onUpdate={(v) => handleUpdateField(selectedStudent.id, 'fee', v)} style={{ fontWeight: 'bold', color: '#27AE60' }} />
                             </InfoCard>
 
                             {/* Mali Bilgiler */}
                             <InfoCard title="Mali Bilgiler" color="#E67E22" icon={<CreditCard size={18} />}>
-                                <InfoRow label="IBAN" value={selectedStudent.iban} />
-                                <InfoRow label="Sıralama" value={selectedStudent.examResult} />
-                                <InfoRow label="Bloke" value={selectedStudent.visaResult} />
-                                <InfoRow label="Kira Kontratı" value={selectedStudent.selectionResult} />
-                                <InfoRow label="Ödeme" value={selectedStudent.paymentStatus} badge />
+                                <InlineEditableRow label="IBAN" value={selectedStudent.iban} field="iban" onUpdate={(v) => handleUpdateField(selectedStudent.id, 'iban', v)} />
+                                <InlineEditableRow label="Sıralama" value={selectedStudent.examResult} field="examResult" onUpdate={(v) => handleUpdateField(selectedStudent.id, 'examResult', v)} />
+                                <InlineEditableRow label="Bloke" value={selectedStudent.visaResult} field="visaResult" onUpdate={(v) => handleUpdateField(selectedStudent.id, 'visaResult', v)} />
+                                <InlineEditableRow label="Kira Kontratı" value={selectedStudent.selectionResult} field="selectionResult" onUpdate={(v) => handleUpdateField(selectedStudent.id, 'selectionResult', v)} />
+                                <InlineEditableRow label="Ödeme" value={selectedStudent.paymentStatus} field="paymentStatus" type="select" options={['Tamamlandı', 'Kısmi Ödeme', 'Bekleniyor'].map(o => ({ value: o, label: o }))} onUpdate={(v) => handleUpdateField(selectedStudent.id, 'paymentStatus', v)} badge />
                             </InfoCard>
 
                             {/* Hizmet & Sonuç */}
                             <InfoCard title="Hizmet & Sonuç" color="#E91E63" icon={<FileText size={18} />}>
-                                <InfoRow label="Sonuç" value={selectedStudent.finalStatus} badge />
-                                <InfoRow label="Danışmanlık" value={selectedStudent.supportPackage} />
-                                <InfoRow label="Konaklama" value={selectedStudent.accommodationService} />
-                                <InfoRow label="Burs Paketi" value={selectedStudent.scholarshipPackage} />
-                                <InfoRow label="YDT" value={selectedStudent.ydtSupport} />
+                                <QuickStatusRow label="Sonuç" status={selectedStudent.finalStatus} onUpdate={(v) => handleUpdateField(selectedStudent.id, 'finalStatus', v)} />
+                                <InlineEditableRow label="Danışmanlık" value={selectedStudent.supportPackage} field="supportPackage" type="select" options={['Evet', 'Hayır'].map(o => ({ value: o, label: o }))} onUpdate={(v) => handleUpdateField(selectedStudent.id, 'supportPackage', v)} />
+                                <InlineEditableRow label="Konaklama" value={selectedStudent.accommodationService} field="accommodationService" type="select" options={['Evet', 'Hayır'].map(o => ({ value: o, label: o }))} onUpdate={(v) => handleUpdateField(selectedStudent.id, 'accommodationService', v)} />
+                                <InlineEditableRow label="Burs Paketi" value={selectedStudent.scholarshipPackage} field="scholarshipPackage" type="select" options={['Evet', 'Hayır'].map(o => ({ value: o, label: o }))} onUpdate={(v) => handleUpdateField(selectedStudent.id, 'scholarshipPackage', v)} />
+                                <InlineEditableRow label="YDT" value={selectedStudent.ydtSupport} field="ydtSupport" type="select" options={['Evet', 'Hayır'].map(o => ({ value: o, label: o }))} onUpdate={(v) => handleUpdateField(selectedStudent.id, 'ydtSupport', v)} />
                             </InfoCard>
                         </div>
 
