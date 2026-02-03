@@ -243,7 +243,7 @@ export default function StudentsClient({ initialStudents, universities, branchCo
                                 <InlineEditableRow label="Danışmanlık" value={selectedStudent.supportPackage} field="supportPackage" type="select" options={['Evet', 'Hayır'].map(o => ({ value: o, label: o }))} onUpdate={(v) => handleUpdateField(selectedStudent.id, 'supportPackage', v)} />
                                 <InlineEditableRow label="Konaklama" value={selectedStudent.accommodationService} field="accommodationService" type="select" options={['Evet', 'Hayır'].map(o => ({ value: o, label: o }))} onUpdate={(v) => handleUpdateField(selectedStudent.id, 'accommodationService', v)} />
                                 <InlineEditableRow label="Burs Paketi" value={selectedStudent.scholarshipPackage} field="scholarshipPackage" type="select" options={['Evet', 'Hayır'].map(o => ({ value: o, label: o }))} onUpdate={(v) => handleUpdateField(selectedStudent.id, 'scholarshipPackage', v)} />
-                                <InlineEditableRow label="YDT" value={selectedStudent.ydtSupport} field="ydtSupport" type="select" options={['Evet', 'Hayır'].map(o => ({ value: o, label: o }))} onUpdate={(v) => handleUpdateField(selectedStudent.id, 'ydtSupport', v)} />
+                                <InlineEditableRow label="YDP" value={selectedStudent.ydtSupport} field="ydtSupport" type="select" options={['Evet', 'Hayır'].map(o => ({ value: o, label: o }))} onUpdate={(v) => handleUpdateField(selectedStudent.id, 'ydtSupport', v)} />
                             </InfoCard>
                         </div>
 
@@ -333,7 +333,7 @@ export default function StudentsClient({ initialStudents, universities, branchCo
                                 <SelectField label="Danışmanlık" value={editingStudent.supportPackage || 'Hayır'} onChange={(v) => setEditingStudent(p => ({ ...p, supportPackage: v as 'Evet' | 'Hayır' }))} options={[{ value: 'Evet', label: 'Evet' }, { value: 'Hayır', label: 'Hayır' }]} />
                                 <SelectField label="Konaklama" value={editingStudent.accommodationService || 'Hayır'} onChange={(v) => setEditingStudent(p => ({ ...p, accommodationService: v as 'Evet' | 'Hayır' }))} options={[{ value: 'Evet', label: 'Evet' }, { value: 'Hayır', label: 'Hayır' }]} />
                                 <SelectField label="Burs Paketi" value={editingStudent.scholarshipPackage || 'Hayır'} onChange={(v) => setEditingStudent(p => ({ ...p, scholarshipPackage: v as 'Evet' | 'Hayır' }))} options={[{ value: 'Evet', label: 'Evet' }, { value: 'Hayır', label: 'Hayır' }]} />
-                                <SelectField label="YDT" value={editingStudent.ydtSupport || 'Hayır'} onChange={(v) => setEditingStudent(p => ({ ...p, ydtSupport: v as 'Evet' | 'Hayır' }))} options={[{ value: 'Evet', label: 'Evet' }, { value: 'Hayır', label: 'Hayır' }]} />
+                                <SelectField label="YDP" value={editingStudent.ydtSupport || 'Hayır'} onChange={(v) => setEditingStudent(p => ({ ...p, ydtSupport: v as 'Evet' | 'Hayır' }))} options={[{ value: 'Evet', label: 'Evet' }, { value: 'Hayır', label: 'Hayır' }]} />
                                 <div style={{ gridColumn: 'span 3' }}>
                                     <InputField label="Açıklama" value={editingStudent.description || ''} onChange={(v) => setEditingStudent(p => ({ ...p, description: v }))} />
                                 </div>

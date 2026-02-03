@@ -129,3 +129,77 @@ export async function deleteServiceType(id: string) {
     db.serviceTypes.delete(id);
     revalidatePath('/admin/settings');
 }
+
+// Admin: Update payment status of a service log
+export async function updatePaymentStatus(logId: string, paymentStatus: 'pending' | 'paid') {
+    const log = db.logs.getAll().find(l => l.id === logId);
+    if (!log) return;
+
+    db.logs.update({
+        ...log,
+        paymentStatus,
+        updatedAt: new Date().toISOString()
+    });
+
+    revalidatePath('/admin/payments');
+    revalidatePath('/mentor/summary');
+}
+
+// Admin: Update service log status (approve/reject)
+export async function updateServiceLogStatus(logId: string, status: 'approved' | 'rejected' | 'submitted', feedback?: string) {
+    const log = db.logs.getAll().find(l => l.id === logId);
+    if (!log) return;
+
+    db.logs.update({
+        ...log,
+        status,
+        adminFeedback: feedback,
+        updatedAt: new Date().toISOString()
+    });
+
+    revalidatePath('/admin/logs');
+    revalidatePath('/admin/payments');
+    revalidatePath('/mentor');
+    revalidatePath('/mentor/summary');
+}
+
+// Admin: Update mentor information
+export async function updateMentor(mentorId: string, data: {
+    firstName?: string;
+    lastName?: string;
+    email?: string;
+    phone?: string;
+    username?: string;
+    password?: string;
+}) {
+    const mentor = db.users.getById(mentorId);
+    if (!mentor || mentor.role !== 'mentor') {
+        throw new Error('Mentor not found');
+    }
+
+    const updatedMentor = {
+        ...mentor,
+        firstName: data.firstName || mentor.firstName,
+        lastName: data.lastName || mentor.lastName,
+        email: data.email || mentor.email,
+        phone: data.phone || mentor.phone,
+        username: data.username || mentor.username,
+        password: data.password || mentor.password,
+        updatedAt: new Date().toISOString()
+    };
+
+    db.users.update(updatedMentor);
+
+    db.audit.create({
+        id: `audit-${Date.now()}`,
+        entity: 'User',
+        entityId: mentorId,
+        action: 'update',
+        actorId: 'admin-1',
+        changes: data,
+        timestamp: new Date().toISOString()
+    });
+
+    revalidatePath('/admin/mentors');
+    revalidatePath(`/admin/mentors/${mentorId}`);
+}

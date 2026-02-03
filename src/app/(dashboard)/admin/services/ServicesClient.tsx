@@ -1,8 +1,8 @@
 'use client';
 
-import { useState, useTransition, useMemo } from 'react';
+import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
-import { FileText, Search, Calendar, Download, Filter, ArrowUpDown, BarChart3, PieChart, TrendingUp, DollarSign, Users } from "lucide-react";
+import { FileText, Search, Calendar, User, Filter, ArrowUpDown, DollarSign, Clock, CheckCircle, XCircle } from "lucide-react";
 import { updatePaymentStatus, updateServiceLogStatus } from "@/app/actions/admin";
 
 interface LogData {
@@ -29,28 +29,16 @@ interface Props {
 type SortKey = 'date' | 'mentor' | 'student' | 'service' | 'price' | 'status' | 'paymentStatus';
 type SortOrder = 'asc' | 'desc';
 
-export default function PayoutsClient({ logs, serviceTypes, mentors }: Props) {
+export default function ServicesClient({ logs, serviceTypes, mentors }: Props) {
     const [search, setSearch] = useState('');
     const [filterMentor, setFilterMentor] = useState('all');
     const [filterService, setFilterService] = useState('all');
     const [filterStatus, setFilterStatus] = useState('all');
     const [filterPayment, setFilterPayment] = useState('all');
-    const [filterMonth, setFilterMonth] = useState('all');
     const [sortKey, setSortKey] = useState<SortKey>('date');
     const [sortOrder, setSortOrder] = useState<SortOrder>('desc');
     const [isPending, startTransition] = useTransition();
     const router = useRouter();
-
-    // Get unique months from logs
-    const availableMonths = useMemo(() => {
-        const months = new Set<string>();
-        logs.forEach(log => {
-            const date = new Date(log.date);
-            const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
-            months.add(monthKey);
-        });
-        return Array.from(months).sort().reverse();
-    }, [logs]);
 
     // Filter logs
     let filteredLogs = logs.filter(log => {
@@ -66,15 +54,7 @@ export default function PayoutsClient({ logs, serviceTypes, mentors }: Props) {
             (filterPayment === 'paid' && log.paymentStatus === 'paid') ||
             (filterPayment === 'pending' && (log.paymentStatus === 'pending' || !log.paymentStatus));
 
-        // Month filter
-        let matchesMonth = true;
-        if (filterMonth !== 'all') {
-            const date = new Date(log.date);
-            const logMonth = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
-            matchesMonth = logMonth === filterMonth;
-        }
-
-        return matchesSearch && matchesMentor && matchesService && matchesStatus && matchesPayment && matchesMonth;
+        return matchesSearch && matchesMentor && matchesService && matchesStatus && matchesPayment;
     });
 
     // Sort logs
@@ -106,48 +86,6 @@ export default function PayoutsClient({ logs, serviceTypes, mentors }: Props) {
         return sortOrder === 'desc' ? -comparison : comparison;
     });
 
-    // Calculate statistics
-    const stats = useMemo(() => {
-        const approvedLogs = filteredLogs.filter(l => l.status === 'approved');
-        const paidLogs = approvedLogs.filter(l => l.paymentStatus === 'paid');
-        const pendingPaymentLogs = approvedLogs.filter(l => l.paymentStatus !== 'paid');
-
-        const totalApproved = approvedLogs.reduce((sum, l) => sum + l.servicePrice, 0);
-        const totalPaid = paidLogs.reduce((sum, l) => sum + l.servicePrice, 0);
-        const totalPendingPayment = pendingPaymentLogs.reduce((sum, l) => sum + l.servicePrice, 0);
-
-        // By mentor
-        const byMentor: Record<string, { name: string; total: number; count: number }> = {};
-        approvedLogs.forEach(log => {
-            if (!byMentor[log.mentorId]) {
-                byMentor[log.mentorId] = { name: log.mentorName, total: 0, count: 0 };
-            }
-            byMentor[log.mentorId].total += log.servicePrice;
-            byMentor[log.mentorId].count++;
-        });
-
-        // By service
-        const byService: Record<string, { name: string; total: number; count: number }> = {};
-        approvedLogs.forEach(log => {
-            if (!byService[log.serviceTypeId]) {
-                byService[log.serviceTypeId] = { name: log.serviceName, total: 0, count: 0 };
-            }
-            byService[log.serviceTypeId].total += log.servicePrice;
-            byService[log.serviceTypeId].count++;
-        });
-
-        return {
-            totalApproved,
-            totalPaid,
-            totalPendingPayment,
-            approvedCount: approvedLogs.length,
-            paidCount: paidLogs.length,
-            pendingCount: pendingPaymentLogs.length,
-            byMentor: Object.values(byMentor).sort((a, b) => b.total - a.total),
-            byService: Object.values(byService).sort((a, b) => b.total - a.total)
-        };
-    }, [filteredLogs]);
-
     const handleSort = (key: SortKey) => {
         if (sortKey === key) {
             setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
@@ -171,47 +109,6 @@ export default function PayoutsClient({ logs, serviceTypes, mentors }: Props) {
         });
     };
 
-    const handleExportExcel = () => {
-        const headers = ["Tarih", "Öğrenci", "Mentor", "Hizmet", "Ücret (€)", "Hizmet Durumu", "Ödeme Durumu"];
-        const rows = filteredLogs.map(log => [
-            new Date(log.date).toLocaleDateString('tr-TR'),
-            log.studentName,
-            log.mentorName,
-            log.serviceName,
-            log.servicePrice.toFixed(2),
-            log.status === 'approved' ? 'Onaylandı' : log.status === 'rejected' ? 'Reddedildi' : log.status === 'submitted' ? 'Bekliyor' : 'Taslak',
-            log.paymentStatus === 'paid' ? 'Ödendi' : 'Bekliyor'
-        ]);
-
-        // Add summary
-        rows.push([]);
-        rows.push(['ÖZET']);
-        rows.push(['Toplam Onaylı', '', '', '', stats.totalApproved.toFixed(2)]);
-        rows.push(['Toplam Ödenen', '', '', '', stats.totalPaid.toFixed(2)]);
-        rows.push(['Ödeme Bekleyen', '', '', '', stats.totalPendingPayment.toFixed(2)]);
-
-        const csvContent = [
-            headers.join(','),
-            ...rows.map(r => r.map(c => `"${c}"`).join(','))
-        ].join('\n');
-
-        const BOM = '\uFEFF';
-        const blob = new Blob([BOM + csvContent], { type: 'text/csv;charset=utf-8;' });
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.setAttribute('download', `odeme_raporu_${filterMonth || 'tum'}.csv`);
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-    };
-
-    const getMonthName = (monthKey: string) => {
-        const [year, month] = monthKey.split('-');
-        const monthNames = ['Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran', 'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık'];
-        return `${monthNames[parseInt(month) - 1]} ${year}`;
-    };
-
     const SortButton = ({ label, sortKeyName }: { label: string; sortKeyName: SortKey }) => (
         <button
             onClick={() => handleSort(sortKeyName)}
@@ -233,143 +130,12 @@ export default function PayoutsClient({ logs, serviceTypes, mentors }: Props) {
         </button>
     );
 
-    const maxMentorTotal = stats.byMentor[0]?.total || 1;
-    const maxServiceTotal = stats.byService[0]?.total || 1;
-
     return (
         <div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
                 <div>
-                    <h1 style={{ fontSize: '1.8rem', color: '#11142D', marginBottom: '0.5rem' }}>Ödemeler & Rapor</h1>
-                    <p style={{ color: '#808191' }}>Mentor hakedişlerini görüntüleyin ve yönetin. ({filteredLogs.length} kayıt)</p>
-                </div>
-                <button
-                    onClick={handleExportExcel}
-                    style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '0.5rem',
-                        padding: '0.75rem 1.25rem',
-                        background: '#059669',
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: '10px',
-                        fontWeight: 600,
-                        cursor: 'pointer',
-                        fontSize: '0.9rem'
-                    }}
-                >
-                    <Download size={18} />
-                    Excel İndir
-                </button>
-            </div>
-
-            {/* Stats Cards */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1rem', marginBottom: '1.5rem' }}>
-                <div className="glass-panel" style={{ padding: '1.25rem' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                        <div style={{ width: 44, height: 44, borderRadius: 12, background: '#ecfdf5', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                            <DollarSign size={22} color="#059669" />
-                        </div>
-                        <div>
-                            <p style={{ fontSize: '1.5rem', fontWeight: 700, color: '#059669' }}>€{stats.totalApproved.toFixed(0)}</p>
-                            <p style={{ fontSize: '0.8rem', color: '#808191' }}>Toplam Onaylı</p>
-                        </div>
-                    </div>
-                </div>
-                <div className="glass-panel" style={{ padding: '1.25rem' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                        <div style={{ width: 44, height: 44, borderRadius: 12, background: '#dbeafe', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                            <TrendingUp size={22} color="#1d4ed8" />
-                        </div>
-                        <div>
-                            <p style={{ fontSize: '1.5rem', fontWeight: 700, color: '#1d4ed8' }}>€{stats.totalPaid.toFixed(0)}</p>
-                            <p style={{ fontSize: '0.8rem', color: '#808191' }}>Ödenen</p>
-                        </div>
-                    </div>
-                </div>
-                <div className="glass-panel" style={{ padding: '1.25rem' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                        <div style={{ width: 44, height: 44, borderRadius: 12, background: '#fef3c7', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                            <BarChart3 size={22} color="#b45309" />
-                        </div>
-                        <div>
-                            <p style={{ fontSize: '1.5rem', fontWeight: 700, color: '#b45309' }}>€{stats.totalPendingPayment.toFixed(0)}</p>
-                            <p style={{ fontSize: '0.8rem', color: '#808191' }}>Ödeme Bekliyor</p>
-                        </div>
-                    </div>
-                </div>
-                <div className="glass-panel" style={{ padding: '1.25rem' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                        <div style={{ width: 44, height: 44, borderRadius: 12, background: '#f3f4f6', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                            <Users size={22} color="#6b7280" />
-                        </div>
-                        <div>
-                            <p style={{ fontSize: '1.5rem', fontWeight: 700, color: '#11142D' }}>{stats.approvedCount}</p>
-                            <p style={{ fontSize: '0.8rem', color: '#808191' }}>Onaylı Hizmet</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            {/* Charts Section */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', marginBottom: '1.5rem' }}>
-                {/* Mentor Chart */}
-                <div className="glass-panel" style={{ padding: '1.5rem' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1rem' }}>
-                        <BarChart3 size={18} color="#1a56db" />
-                        <h3 style={{ fontSize: '1rem', fontWeight: 600, color: '#11142D' }}>Mentör Bazlı Hakediş</h3>
-                    </div>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                        {stats.byMentor.slice(0, 5).map((mentor, i) => (
-                            <div key={i}>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.25rem' }}>
-                                    <span style={{ fontSize: '0.85rem', color: '#374151' }}>{mentor.name}</span>
-                                    <span style={{ fontSize: '0.85rem', fontWeight: 600, color: '#059669' }}>€{mentor.total.toFixed(0)}</span>
-                                </div>
-                                <div style={{ height: 8, background: '#f3f4f6', borderRadius: 4, overflow: 'hidden' }}>
-                                    <div style={{
-                                        height: '100%',
-                                        width: `${(mentor.total / maxMentorTotal) * 100}%`,
-                                        background: 'linear-gradient(90deg, #059669, #10b981)',
-                                        borderRadius: 4
-                                    }} />
-                                </div>
-                            </div>
-                        ))}
-                        {stats.byMentor.length === 0 && (
-                            <p style={{ textAlign: 'center', color: '#9ca3af', fontSize: '0.85rem' }}>Veri yok</p>
-                        )}
-                    </div>
-                </div>
-
-                {/* Service Chart */}
-                <div className="glass-panel" style={{ padding: '1.5rem' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1rem' }}>
-                        <PieChart size={18} color="#8b5cf6" />
-                        <h3 style={{ fontSize: '1rem', fontWeight: 600, color: '#11142D' }}>Hizmet Bazlı Dağılım</h3>
-                    </div>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                        {stats.byService.slice(0, 5).map((service, i) => (
-                            <div key={i}>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.25rem' }}>
-                                    <span style={{ fontSize: '0.85rem', color: '#374151' }}>{service.name} ({service.count})</span>
-                                    <span style={{ fontSize: '0.85rem', fontWeight: 600, color: '#8b5cf6' }}>€{service.total.toFixed(0)}</span>
-                                </div>
-                                <div style={{ height: 8, background: '#f3f4f6', borderRadius: 4, overflow: 'hidden' }}>
-                                    <div style={{
-                                        height: '100%',
-                                        width: `${(service.total / maxServiceTotal) * 100}%`,
-                                        background: 'linear-gradient(90deg, #8b5cf6, #a78bfa)',
-                                        borderRadius: 4
-                                    }} />
-                                </div>
-                            </div>
-                        ))}
-                        {stats.byService.length === 0 && (
-                            <p style={{ textAlign: 'center', color: '#9ca3af', fontSize: '0.85rem' }}>Veri yok</p>
-                        )}
-                    </div>
+                    <h1 style={{ fontSize: '1.8rem', color: '#11142D', marginBottom: '0.5rem' }}>Hizmet Kayıtları</h1>
+                    <p style={{ color: '#808191' }}>Girilen tüm hizmetlerin listesi. ({filteredLogs.length} kayıt)</p>
                 </div>
             </div>
 
@@ -411,27 +177,6 @@ export default function PayoutsClient({ logs, serviceTypes, mentors }: Props) {
                             <Filter size={18} />
                             <span>Filtreler:</span>
                         </div>
-
-                        {/* Month Filter */}
-                        <select
-                            value={filterMonth}
-                            onChange={(e) => setFilterMonth(e.target.value)}
-                            style={{
-                                padding: '0.5rem 1rem',
-                                borderRadius: '8px',
-                                border: '1px solid #1a56db',
-                                background: '#eff6ff',
-                                fontSize: '0.85rem',
-                                cursor: 'pointer',
-                                fontWeight: 600,
-                                color: '#1a56db'
-                            }}
-                        >
-                            <option value="all">📅 Tüm Aylar</option>
-                            {availableMonths.map(month => (
-                                <option key={month} value={month}>{getMonthName(month)}</option>
-                            ))}
-                        </select>
 
                         {/* Mentor Filter */}
                         <select
@@ -510,14 +255,13 @@ export default function PayoutsClient({ logs, serviceTypes, mentors }: Props) {
                         </select>
 
                         {/* Clear Filters */}
-                        {(filterMentor !== 'all' || filterService !== 'all' || filterStatus !== 'all' || filterPayment !== 'all' || filterMonth !== 'all' || search !== '') && (
+                        {(filterMentor !== 'all' || filterService !== 'all' || filterStatus !== 'all' || filterPayment !== 'all' || search !== '') && (
                             <button
                                 onClick={() => {
                                     setFilterMentor('all');
                                     setFilterService('all');
                                     setFilterStatus('all');
                                     setFilterPayment('all');
-                                    setFilterMonth('all');
                                     setSearch('');
                                 }}
                                 style={{
@@ -604,6 +348,7 @@ export default function PayoutsClient({ logs, serviceTypes, mentors }: Props) {
                                         <span style={{ fontWeight: 700, color: '#059669', fontSize: '0.9rem' }}>€{log.servicePrice}</span>
                                     </td>
                                     <td style={{ textAlign: 'center' }}>
+                                        {/* Service Status - Admin can update */}
                                         <select
                                             value={log.status}
                                             onChange={(e) => handleStatusChange(log.id, e.target.value as any)}
@@ -630,6 +375,7 @@ export default function PayoutsClient({ logs, serviceTypes, mentors }: Props) {
                                         </select>
                                     </td>
                                     <td style={{ textAlign: 'center' }}>
+                                        {/* Payment Status - Admin can update */}
                                         <select
                                             value={log.paymentStatus || 'pending'}
                                             onChange={(e) => handlePaymentChange(log.id, e.target.value as any)}

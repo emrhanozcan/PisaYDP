@@ -45,3 +45,42 @@ export async function createServiceLog(formData: FormData) {
     revalidatePath(`/mentor/students/${studentId}`);
     redirect(`/mentor/students/${studentId}`);
 }
+
+// Mentor: Update service log status
+export async function updateMentorServiceStatus(logId: string, status: 'draft' | 'submitted' | 'approved' | 'rejected') {
+    const session = await getSession();
+    if (!session || session.role !== 'mentor') {
+        throw new Error("Unauthorized");
+    }
+
+    const log = db.logs.getAll().find(l => l.id === logId && l.mentorId === session.id);
+    if (!log) {
+        throw new Error("Log not found or unauthorized");
+    }
+
+    // Mentor can update to any status
+    const validStatuses = ['draft', 'submitted', 'approved', 'rejected'];
+    if (!validStatuses.includes(status)) {
+        throw new Error("Invalid status");
+    }
+
+    db.logs.update({
+        ...log,
+        status,
+        updatedAt: new Date().toISOString()
+    });
+
+    db.audit.create({
+        id: `audit-${Date.now()}`,
+        entity: 'ServiceLog',
+        entityId: logId,
+        action: 'status_change',
+        actorId: session.id,
+        changes: { status },
+        timestamp: new Date().toISOString()
+    });
+
+    revalidatePath('/mentor/earnings');
+    revalidatePath('/admin/payouts');
+    revalidatePath('/admin/logs');
+}

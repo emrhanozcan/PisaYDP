@@ -95,10 +95,30 @@
       "lastName": "Bianchi",
       "email": "giulia@ydp.it",
       "createdAt": "2026-01-30T23:00:41.868Z"
+    },
+    {
+      "id": "mentor-1770071020501",
+      "firstName": "ahmet",
+      "lastName": "yılmaz",
+      "email": "",
+      "username": "ahmetyilmaz",
+      "password": "123456",
+      "role": "mentor",
+      "createdAt": "2026-02-02T22:23:40.501Z",
+      "updatedAt": "2026-02-03T00:09:23.936Z"
     }
   ],
   "students": [],
-  "assignments": [],
+  "assignments": [
+    {
+      "id": "assign-1770071056187",
+      "studentId": "bs-1",
+      "mentorId": "mentor-1770071020501",
+      "role": "primary",
+      "startDate": "2026-02-02T22:24:16.187Z",
+      "notes": ""
+    }
+  ],
   "serviceTypes": [
     {
       "id": "st-1",
@@ -125,8 +145,88 @@
       "isActive": true
     }
   ],
-  "serviceLogs": [],
-  "auditLogs": [],
+  "serviceLogs": [
+    {
+      "id": "log-1770071232567",
+      "studentId": "bs-1",
+      "mentorId": "mentor-1770071020501",
+      "serviceTypeId": "st-1",
+      "date": "2026-02-02T22:26",
+      "durationMinutes": 120,
+      "notes": "",
+      "status": "approved",
+      "paymentStatus": "pending",
+      "createdAt": "2026-02-02T22:27:12.567Z",
+      "updatedAt": "2026-02-02T23:33:07.064Z"
+    }
+  ],
+  "auditLogs": [
+    {
+      "id": "audit-1770071020503",
+      "entity": "User",
+      "entityId": "mentor-1770071020501",
+      "action": "create",
+      "actorId": "admin-1",
+      "timestamp": "2026-02-02T22:23:40.503Z"
+    },
+    {
+      "id": "audit-1770071232568",
+      "entity": "ServiceLog",
+      "entityId": "log-1770071232567",
+      "action": "create",
+      "actorId": "mentor-1770071020501",
+      "timestamp": "2026-02-02T22:27:12.568Z"
+    },
+    {
+      "id": "audit-1770072252745",
+      "entity": "ServiceLog",
+      "entityId": "log-1770071232567",
+      "action": "status_change",
+      "actorId": "mentor-1770071020501",
+      "changes": {
+        "status": "draft"
+      },
+      "timestamp": "2026-02-02T22:44:12.745Z"
+    },
+    {
+      "id": "audit-1770072254306",
+      "entity": "ServiceLog",
+      "entityId": "log-1770071232567",
+      "action": "status_change",
+      "actorId": "mentor-1770071020501",
+      "changes": {
+        "status": "submitted"
+      },
+      "timestamp": "2026-02-02T22:44:14.306Z"
+    },
+    {
+      "id": "audit-1770075187065",
+      "entity": "ServiceLog",
+      "entityId": "log-1770071232567",
+      "action": "status_change",
+      "actorId": "mentor-1770071020501",
+      "changes": {
+        "status": "approved"
+      },
+      "timestamp": "2026-02-02T23:33:07.065Z"
+    },
+    {
+      "id": "audit-1770077363937",
+      "entity": "User",
+      "entityId": "mentor-1770071020501",
+      "action": "update",
+      "actorId": "admin-1",
+      "changes": {
+        "firstName": "ahmet",
+        "lastName": "yılmaz",
+        "email": "",
+        "phone": "",
+        "username": "ahmetyilmaz",
+        "password": "123456"
+      },
+      "timestamp": "2026-02-03T00:09:23.937Z"
+    }
+  ],
   "universities": [
     {
       "id": "uni-1",
@@ -315,7 +415,8 @@
       "grade": "",
       "accommodationCity": "",
       "passportNo": "1234567890",
-      "arrivalCity": ""
+      "arrivalCity": "",
+      "ydtSupport": "Evet"
     },
     {
       "id": "bs-2",

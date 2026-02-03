@@ -11,13 +11,19 @@ import {
 
 export default function AdminDashboard() {
     const students = db.students.getAll();
+    const branchStudents = db.branchStudents.getAll();
+    const allStudents = [...students, ...branchStudents];
+
     const mentors = db.users.getAll().filter(u => u.role === 'mentor');
     const serviceLogs = db.logs.getAll();
     const serviceTypes = db.serviceTypes.getAll();
     const pendingLogs = serviceLogs.filter(l => l.status === 'submitted');
     const approvedLogs = serviceLogs.filter(l => l.status === 'approved');
-    const activeStudents = students.filter(s => s.status === 'active');
-    const inactiveStudents = students.filter(s => s.status !== 'active');
+
+    // Sadece YDP öğrencileri aktif olarak say
+    const ydpStudents = branchStudents.filter(s => s.ydtSupport === 'Evet');
+    const activeStudents = ydpStudents.filter(s => s.status === 'active');
+    const inactiveStudents = allStudents.filter(s => s.status !== 'active');
 
     // Son 7 gün içindeki logları hesapla
     const today = new Date();
@@ -532,7 +538,7 @@ export default function AdminDashboard() {
             }}>
                 <div style={{ textAlign: 'center' }}>
                     <p style={{ color: '#94a3b8', fontSize: '0.85rem', marginBottom: '0.5rem' }}>Toplam Öğrenci</p>
-                    <p style={{ color: 'white', fontSize: '1.75rem', fontWeight: 700 }}>{students.length}</p>
+                    <p style={{ color: 'white', fontSize: '1.75rem', fontWeight: 700 }}>{allStudents.length}</p>
                 </div>
                 <div style={{ textAlign: 'center' }}>
                     <p style={{ color: '#94a3b8', fontSize: '0.85rem', marginBottom: '0.5rem' }}>Aktif Mentor</p>

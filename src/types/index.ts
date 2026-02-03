@@ -2,6 +2,7 @@ export type UserRole = 'admin' | 'mentor' | 'branch_user' | 'italy_staff';
 export type StudentStatus = 'active' | 'frozen' | 'graduated' | 'cancelled';
 export type AssignmentRole = 'primary' | 'support';
 export type ServiceStatus = 'draft' | 'submitted' | 'approved' | 'rejected' | 'returned';
+export type PaymentStatus = 'pending' | 'paid';
 
 // Branch codes for Turkey offices
 export type BranchCode = 'sariyer' | 'fethiye' | 'kadikoy' | 'ankara' | 'bursa' | 'izmir';
@@ -76,6 +77,7 @@ export interface ServiceLog {
   notes?: string;
   attachments?: string[];
   status: ServiceStatus;
+  paymentStatus?: PaymentStatus;
   adminFeedback?: string;
   createdAt: string;
   updatedAt: string;

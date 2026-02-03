@@ -14,8 +14,13 @@ export default async function MentorDashboard() {
 
     // Get my assignments
     const myAssignments = db.assignments.getAll().filter(a => a.mentorId === session.id);
-    const myStudentIds = myAssignments.map(a => a.studentId);
-    const myStudents = db.students.getAll().filter(s => myStudentIds.includes(s.id));
+    const assignedStudentIds = myAssignments.map(a => a.studentId);
+
+    // Get assigned students AND students with YDP support
+    // Get assigned students AND students with YDP support
+    const myStudents = db.branchStudents.getAll().filter(s =>
+        assignedStudentIds.includes(s.id) || s.ydtSupport === 'Evet'
+    );
 
     // Get my logs
     const myLogs = db.logs.getAll().filter(l => l.mentorId === session.id);
@@ -215,7 +220,7 @@ export default async function MentorDashboard() {
                                             <div>
                                                 <p style={{ fontWeight: 600, color: '#11142D', fontSize: '1rem' }}>{student.firstName} {student.lastName}</p>
                                                 <p style={{ fontSize: '0.75rem', color: '#9ca3af', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-                                                    🇮🇹 {student.country}
+                                                    🇮🇹 İtalya
                                                 </p>
                                             </div>
                                         </div>
@@ -240,7 +245,7 @@ export default async function MentorDashboard() {
                                     }}>
                                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.8rem', color: '#6b7280', marginBottom: '0.35rem' }}>
                                             <GraduationCap size={14} />
-                                            {student.school || 'Okul belirtilmemiş'}
+                                            {db.universities.getById(student.universityId || '')?.name || 'Okul belirtilmemiş'}
                                         </div>
                                         <div style={{ display: 'flex', gap: '1rem', fontSize: '0.75rem' }}>
                                             <span style={{ color: '#9ca3af' }}>
@@ -361,7 +366,7 @@ export default async function MentorDashboard() {
                                     background: '#f8fafc',
                                     borderRadius: '10px',
                                     borderLeft: `3px solid ${log.status === 'approved' ? '#059669' :
-                                            log.status === 'submitted' ? '#f59e0b' : '#dc2626'
+                                        log.status === 'submitted' ? '#f59e0b' : '#dc2626'
                                         }`
                                 }}>
                                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.35rem' }}>

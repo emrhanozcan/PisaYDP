@@ -14,10 +14,12 @@ export default async function LifeSupportPage() {
     // Get all students from all branches
     const allBranches: BranchCode[] = ['sariyer', 'kadikoy', 'ankara', 'izmir', 'bursa', 'fethiye'];
     const students = allBranches.flatMap(branchCode =>
-        db.branchStudents.getByBranch(branchCode).map(s => ({
-            ...s,
-            branchName: BRANCH_NAMES[branchCode]
-        }))
+        db.branchStudents.getByBranch(branchCode)
+            .filter(s => s.ydtSupport === 'Evet')
+            .map(s => ({
+                ...s,
+                branchName: BRANCH_NAMES[branchCode]
+            }))
     );
     const universities = db.universities.getAll();
 

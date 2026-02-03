@@ -16,7 +16,29 @@ export default async function MentorStudentDetailPage({ params }: { params: Prom
     const session = await getSession();
     if (!session) redirect('/login');
 
-    const student = db.students.getById(id);
+    // Try both tables - students and branchStudents
+    let student = db.students.getById(id);
+    if (!student) {
+        const branchStudent = db.branchStudents.getAll().find(s => s.id === id);
+        if (branchStudent) {
+            // Map branchStudent to student-like structure
+            const uni = db.universities.getById(branchStudent.universityId || '');
+            student = {
+                id: branchStudent.id,
+                firstName: branchStudent.firstName,
+                lastName: branchStudent.lastName,
+                email: branchStudent.email || '',
+                phone: branchStudent.phone || '',
+                country: 'İtalya',
+                city: branchStudent.city || 'Milano',
+                school: uni?.name || 'Belirtilmemiş',
+                status: branchStudent.status,
+                packageType: branchStudent.packageType || 'Standard',
+                createdAt: branchStudent.createdAt,
+                startDate: branchStudent.registrationDate || branchStudent.createdAt
+            };
+        }
+    }
 
     if (!student) {
         return (
@@ -335,7 +357,7 @@ export default async function MentorStudentDetailPage({ params }: { params: Prom
                                     background: '#f8fafc',
                                     borderRadius: '12px',
                                     borderLeft: `4px solid ${log.status === 'approved' ? '#059669' :
-                                            log.status === 'submitted' ? '#f59e0b' : '#dc2626'
+                                        log.status === 'submitted' ? '#f59e0b' : '#dc2626'
                                         }`
                                 }}>
                                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.5rem' }}>
