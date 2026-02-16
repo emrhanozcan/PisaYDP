@@ -1,0 +1,22 @@
+[
+    {
+        "id": "res-1",
+        "title": "Talebiniz Alındı",
+        "message": "Merhaba,\n\nDestek talebiniz tarafımıza ulaşmıştır. Ekibimiz konuyla ilgili incelemeleri yapıp en kısa sürede size dönüş sağlayacaktır.\n\nSaygılarımızla,\nTeknik Destek Ekibi"
+    },
+    {
+        "id": "res-2",
+        "title": "İşlem Tamamlandı",
+        "message": "Merhaba,\n\nBildirdiğiniz sorun çözümlenmiştir. Lütfen kontrol edip tarafımıza bilgi veriniz.\n\nİyi çalışmalar,\nTeknik Destek Ekibi"
+    },
+    {
+        "id": "res-3",
+        "title": "Ek Bilgi Talebi",
+        "message": "Merhaba,\n\nKonuyla ilgili daha detaylı inceleme yapabilmemiz için aşağıdaki bilgilere ihtiyacımız vardır:\n\n1. \n2. \n\nBilgileri ilettiğinizde işlemlerinize devam edilecektir.\n\nSaygılarımızla,\nTeknik Destek Ekibi"
+    },
+    {
+        "id": "res-4",
+        "title": "Erişim Sorunu Çözümü",
+        "message": "Merhaba,\n\nErişim sorununuzla ilgili gerekli yetkilendirmeler yapılmıştır. Çıkış yapıp tekrar giriş yaparak kontrol edebilirsiniz.\n\nİyi çalışmalar,\nTeknik Destek Ekibi"
+    }
+]
