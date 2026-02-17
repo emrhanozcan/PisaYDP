@@ -8,6 +8,8 @@ import StudentAvatar from '@/components/common/StudentAvatar';
 import { getSession } from '@/app/actions/auth';
 import { useRouter } from 'next/navigation';
 import { updateResidencePermit } from '@/app/actions/branch';
+import { sendManualSMS } from '@/app/actions/sms';
+import { Send } from 'lucide-react';
 
 interface ResidencePermitClientProps {
     initialStudents: (BranchStudent & { branchName: string })[];
@@ -109,6 +111,43 @@ export default function ResidencePermitClient({ initialStudents, universities }:
             // Revert state
             setStudents(initialStudents);
             setSelectedStudent(initialStudents.find(s => s.id === id) || null);
+        }
+
+        // Check for automatic SMS trigger
+        if (['residencePermitAppointmentDate', 'residencePermitTime', 'residencePermitPlace'].includes(field)) {
+            if (updatedStudent.residencePermitAppointmentDate && updatedStudent.residencePermitTime && updatedStudent.residencePermitPlace && updatedStudent.phone) {
+                // Determine if we should trigger:
+                // Trigger if it wasn't complete before OR if we are updating one of the fields (implying a change)
+                // Since we already checked field inclusion, we just need to ensure it's complete now.
+                // We use a small timeout to let the UI update first or just call it.
+                // Using a timeout to ensure the user isn't blocked immediately after hitting 'Enter' or clicking out.
+                setTimeout(() => {
+                    handleSendAppointmentReminder(updatedStudent);
+                }, 500);
+            }
+        }
+    };
+
+    const handleSendAppointmentReminder = async (student: BranchStudent & { branchName: string }) => {
+        if (!student.phone || !student.residencePermitAppointmentDate || !student.residencePermitTime || !student.residencePermitPlace) {
+            alert("Lütfen öğrencinin telefon numarasını ve randevu bilgilerini (Tarih, Saat, Yer) eksiksiz giriniz.");
+            return;
+        }
+
+        const message = `Sayın ${student.firstName} ${student.lastName}, ${student.residencePermitAppointmentDate} tarihinde saat ${student.residencePermitTime}'da ${student.residencePermitPlace} adresinde oturum izni randevunuz vardır. Lütfen gerekli evraklarla hazır bulununuz.`;
+
+        if (confirm(`Aşağıdaki mesaj gönderilecektir:\n\n"${message}"\n\nOnaylıyor musunuz?`)) {
+            try {
+                const result = await sendManualSMS([student.phone], message);
+                if (result.success) {
+                    alert("SMS başarıyla gönderildi.");
+                } else {
+                    alert("SMS gönderimi başarısız: " + (result.error || "Bilinmeyen hata"));
+                }
+            } catch (err) {
+                console.error(err);
+                alert("SMS gönderilirken bir hata oluştu.");
+            }
         }
     };
 
