@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 
 import { createStudent } from "@/app/actions/admin";
 import Link from "next/link";
@@ -101,5 +102,15 @@ export default function NewStudentPage() {
                 </div>
             </form>
         </div>
+=======
+import { db } from "@/lib/db";
+import StudentForm from "../StudentForm";
+
+export default function NewStudentPage() {
+    const universities = db.universities.getAll().sort((a, b) => a.name.localeCompare(b.name, 'tr'));
+
+    return (
+        <StudentForm universities={universities} />
+>>>>>>> 888427508d7d4764e3aecfbe87738d6ff7861c4a
     );
 }

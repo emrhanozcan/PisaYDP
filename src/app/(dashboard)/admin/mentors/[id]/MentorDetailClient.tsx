@@ -1,106 +1,118 @@
+'use client';
 
-import { db } from "@/lib/db";
-<<<<<<< HEAD
-import Link from "next/link";
+import { useState, useTransition } from 'react';
+import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import {
     ArrowLeft, Users, Calendar, Mail, Phone,
     FileText, CheckCircle2, Clock, AlertCircle,
     User, TrendingUp, Star, Activity, Award,
-    GraduationCap, MapPin, Package, Key, Lock, Shield, Eye, EyeOff
+    GraduationCap, MapPin, Key, Lock, Shield, Edit2, Save, X
 } from "lucide-react";
-=======
-import MentorDetailClient from "./MentorDetailClient";
->>>>>>> 888427508d7d4764e3aecfbe87738d6ff7861c4a
+import { updateMentor } from "@/app/actions/admin";
 
-export default async function MentorDetailPage({ params }: { params: Promise<{ id: string }> }) {
-    const { id } = await params;
-    const mentor = db.users.getById(id);
+interface MentorData {
+    id: string;
+    firstName: string;
+    lastName: string;
+    username: string;
+    email?: string;
+    phone?: string;
+    password: string;
+    createdAt: string;
+}
 
-    if (!mentor || mentor.role !== 'mentor') {
-        return (
-            <div style={{
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                justifyContent: 'center',
-                height: '50vh',
-                color: '#9ca3af'
-            }}>
-<<<<<<< HEAD
-                <Users size={64} style={{ marginBottom: '1rem', opacity: 0.3 }} />
-                <h2 style={{ fontSize: '1.5rem', color: '#374151', marginBottom: '0.5rem' }}>Mentor Bulunamadı</h2>
-                <p style={{ marginBottom: '1.5rem' }}>Bu ID ile eşleşen mentor kaydı mevcut değil.</p>
-                <Link href="/admin/mentors" className="btn btn-primary">
-                    <ArrowLeft size={16} /> Listeye Dön
-                </Link>
-=======
-                <h2 style={{ fontSize: '1.5rem', color: '#374151', marginBottom: '0.5rem' }}>Mentor Bulunamadı</h2>
-                <p style={{ marginBottom: '1.5rem' }}>Bu ID ile eşleşen mentor kaydı mevcut değil.</p>
-                <a href="/admin/mentors" className="btn btn-primary">
-                    Listeye Dön
-                </a>
->>>>>>> 888427508d7d4764e3aecfbe87738d6ff7861c4a
-            </div>
-        );
-    }
+interface AssignedStudent {
+    id: string;
+    firstName: string;
+    lastName: string;
+    country?: string;
+    packageType?: string;
+    assignment: {
+        role: string;
+    };
+    serviceCount: number;
+    approvedCount: number;
+}
 
-    const assignments = db.assignments.getAll().filter(a => a.mentorId === id);
-    const students = db.students.getAll();
-    const serviceLogs = db.logs.getAll().filter(l => l.mentorId === id);
-    const serviceTypes = db.serviceTypes.getAll();
+interface ServiceLog {
+    id: string;
+    serviceTypeId: string;
+    studentId: string;
+    status: string;
+    date: string;
+}
+
+interface ServiceType {
+    id: string;
+    name: string;
+    unitPrice: number;
+}
+
+interface Student {
+    id: string;
+    firstName: string;
+    lastName: string;
+}
+
+interface Props {
+    mentor: MentorData;
+    stats: { label: string; value: number; icon: string; color: string; bg: string }[];
+    assignedStudents: AssignedStudent[];
+    serviceLogs: ServiceLog[];
+    serviceTypes: ServiceType[];
+    students: Student[];
+    totalEarnings: number;
+    successRate: number;
+}
+
+export default function MentorDetailClient({
+    mentor,
+    stats,
+    assignedStudents,
+    serviceLogs,
+    serviceTypes,
+    students,
+    totalEarnings,
+    successRate
+}: Props) {
+    const [isEditing, setIsEditing] = useState(false);
+    const [formData, setFormData] = useState({
+        firstName: mentor.firstName,
+        lastName: mentor.lastName,
+        email: mentor.email || '',
+        phone: mentor.phone || '',
+        username: mentor.username,
+        password: mentor.password
+    });
+    const [isPending, startTransition] = useTransition();
+    const router = useRouter();
+
+    const handleSave = () => {
+        startTransition(async () => {
+            await updateMentor(mentor.id, formData);
+            setIsEditing(false);
+            router.refresh();
+        });
+    };
+
+    const handleCancel = () => {
+        setFormData({
+            firstName: mentor.firstName,
+            lastName: mentor.lastName,
+            email: mentor.email || '',
+            phone: mentor.phone || '',
+            username: mentor.username,
+            password: mentor.password
+        });
+        setIsEditing(false);
+    };
+
+    const iconMap: Record<string, any> = {
+        Users, FileText, CheckCircle2, Clock
+    };
 
     const approvedLogs = serviceLogs.filter(l => l.status === 'approved');
-    const pendingLogs = serviceLogs.filter(l => l.status === 'submitted');
-<<<<<<< HEAD
-    const rejectedLogs = serviceLogs.filter(l => l.status === 'rejected');
-
-    // Atanmış öğrenciler
-=======
-
-    // Assigned students
->>>>>>> 888427508d7d4764e3aecfbe87738d6ff7861c4a
-    const assignedStudents = assignments.map(a => {
-        const student = students.find(s => s.id === a.studentId);
-        const studentLogs = serviceLogs.filter(l => l.studentId === a.studentId);
-        return {
-<<<<<<< HEAD
-            ...student,
-            assignment: a,
-=======
-            id: student?.id || '',
-            firstName: student?.firstName || '',
-            lastName: student?.lastName || '',
-            country: student?.country,
-            packageType: student?.packageType,
-            assignment: {
-                role: a.role
-            },
->>>>>>> 888427508d7d4764e3aecfbe87738d6ff7861c4a
-            serviceCount: studentLogs.length,
-            approvedCount: studentLogs.filter(l => l.status === 'approved').length
-        };
-    }).filter(s => s.id);
-
-<<<<<<< HEAD
-    // Toplam kazanç hesabı
-=======
-    // Total earnings
->>>>>>> 888427508d7d4764e3aecfbe87738d6ff7861c4a
-    const totalEarnings = approvedLogs.reduce((sum, log) => {
-        const serviceType = serviceTypes.find(t => t.id === log.serviceTypeId);
-        return sum + (serviceType?.unitPrice || 0);
-    }, 0);
-
-<<<<<<< HEAD
-    // Başarı oranı
-    const successRate = serviceLogs.length > 0 ? Math.round((approvedLogs.length / serviceLogs.length) * 100) : 0;
-
-    const stats = [
-        { label: "Atanan Öğrenci", value: assignedStudents.length, icon: Users, color: "#008C45", bg: "#eafaf3" },
-        { label: "Toplam Hizmet", value: serviceLogs.length, icon: FileText, color: "#6366f1", bg: "#eef2ff" },
-        { label: "Onaylanan", value: approvedLogs.length, icon: CheckCircle2, color: "#059669", bg: "#ecfdf5" },
-        { label: "Bekleyen", value: pendingLogs.length, icon: Clock, color: "#f59e0b", bg: "#fef3c7" },
-    ];
 
     return (
         <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
@@ -139,7 +151,7 @@ export default async function MentorDetailPage({ params }: { params: Promise<{ i
                         flexShrink: 0,
                         position: 'relative'
                     }}>
-                        {mentor.firstName[0]}{mentor.lastName[0]}
+                        {formData.firstName[0]}{formData.lastName[0]}
                         {serviceLogs.length > 0 && (
                             <div style={{
                                 position: 'absolute',
@@ -163,12 +175,110 @@ export default async function MentorDetailPage({ params }: { params: Promise<{ i
                     <div style={{ flex: 1 }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem' }}>
                             <div>
-                                <h1 style={{ fontSize: '1.75rem', fontWeight: 700, color: '#11142D', marginBottom: '0.25rem' }}>
-                                    {mentor.firstName} {mentor.lastName}
-                                </h1>
-                                <p style={{ color: '#9ca3af', fontSize: '0.9rem' }}>@{mentor.username}</p>
+                                {isEditing ? (
+                                    <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.5rem' }}>
+                                        <input
+                                            type="text"
+                                            value={formData.firstName}
+                                            onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
+                                            placeholder="Ad"
+                                            style={{
+                                                padding: '0.5rem 0.75rem',
+                                                borderRadius: '8px',
+                                                border: '1px solid #e5e7eb',
+                                                fontSize: '1.25rem',
+                                                fontWeight: 600,
+                                                width: '150px'
+                                            }}
+                                        />
+                                        <input
+                                            type="text"
+                                            value={formData.lastName}
+                                            onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
+                                            placeholder="Soyad"
+                                            style={{
+                                                padding: '0.5rem 0.75rem',
+                                                borderRadius: '8px',
+                                                border: '1px solid #e5e7eb',
+                                                fontSize: '1.25rem',
+                                                fontWeight: 600,
+                                                width: '150px'
+                                            }}
+                                        />
+                                    </div>
+                                ) : (
+                                    <h1 style={{ fontSize: '1.75rem', fontWeight: 700, color: '#11142D', marginBottom: '0.25rem' }}>
+                                        {formData.firstName} {formData.lastName}
+                                    </h1>
+                                )}
+                                <p style={{ color: '#9ca3af', fontSize: '0.9rem' }}>@{formData.username}</p>
                             </div>
                             <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+                                {!isEditing ? (
+                                    <button
+                                        onClick={() => setIsEditing(true)}
+                                        style={{
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            gap: '0.5rem',
+                                            padding: '0.5rem 1rem',
+                                            borderRadius: '10px',
+                                            border: '1px solid #6366f1',
+                                            background: 'white',
+                                            color: '#6366f1',
+                                            fontWeight: 600,
+                                            cursor: 'pointer',
+                                            fontSize: '0.85rem'
+                                        }}
+                                    >
+                                        <Edit2 size={16} />
+                                        Düzenle
+                                    </button>
+                                ) : (
+                                    <>
+                                        <button
+                                            onClick={handleSave}
+                                            disabled={isPending}
+                                            style={{
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                gap: '0.5rem',
+                                                padding: '0.5rem 1rem',
+                                                borderRadius: '10px',
+                                                border: 'none',
+                                                background: '#059669',
+                                                color: 'white',
+                                                fontWeight: 600,
+                                                cursor: 'pointer',
+                                                fontSize: '0.85rem',
+                                                opacity: isPending ? 0.7 : 1
+                                            }}
+                                        >
+                                            <Save size={16} />
+                                            {isPending ? 'Kaydediliyor...' : 'Kaydet'}
+                                        </button>
+                                        <button
+                                            onClick={handleCancel}
+                                            disabled={isPending}
+                                            style={{
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                gap: '0.5rem',
+                                                padding: '0.5rem 1rem',
+                                                borderRadius: '10px',
+                                                border: '1px solid #e5e7eb',
+                                                background: 'white',
+                                                color: '#6b7280',
+                                                fontWeight: 600,
+                                                cursor: 'pointer',
+                                                fontSize: '0.85rem'
+                                            }}
+                                        >
+                                            <X size={16} />
+                                            İptal
+                                        </button>
+                                    </>
+                                )}
                                 <span style={{
                                     display: 'inline-flex',
                                     alignItems: 'center',
@@ -209,15 +319,47 @@ export default async function MentorDetailPage({ params }: { params: Promise<{ i
                         }}>
                             <div>
                                 <p style={{ fontSize: '0.75rem', color: '#9ca3af', marginBottom: '0.25rem', textTransform: 'uppercase' }}>E-posta</p>
-                                <p style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', color: '#374151', fontWeight: 500 }}>
-                                    <Mail size={14} /> {mentor.email || 'Belirtilmemiş'}
-                                </p>
+                                {isEditing ? (
+                                    <input
+                                        type="email"
+                                        value={formData.email}
+                                        onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                                        placeholder="E-posta"
+                                        style={{
+                                            padding: '0.5rem 0.75rem',
+                                            borderRadius: '6px',
+                                            border: '1px solid #e5e7eb',
+                                            fontSize: '0.9rem',
+                                            width: '100%'
+                                        }}
+                                    />
+                                ) : (
+                                    <p style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', color: '#374151', fontWeight: 500 }}>
+                                        <Mail size={14} /> {formData.email || 'Belirtilmemiş'}
+                                    </p>
+                                )}
                             </div>
                             <div>
                                 <p style={{ fontSize: '0.75rem', color: '#9ca3af', marginBottom: '0.25rem', textTransform: 'uppercase' }}>Telefon</p>
-                                <p style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', color: '#374151', fontWeight: 500 }}>
-                                    <Phone size={14} /> {mentor.phone || 'Belirtilmemiş'}
-                                </p>
+                                {isEditing ? (
+                                    <input
+                                        type="tel"
+                                        value={formData.phone}
+                                        onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                                        placeholder="Telefon"
+                                        style={{
+                                            padding: '0.5rem 0.75rem',
+                                            borderRadius: '6px',
+                                            border: '1px solid #e5e7eb',
+                                            fontSize: '0.9rem',
+                                            width: '100%'
+                                        }}
+                                    />
+                                ) : (
+                                    <p style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', color: '#374151', fontWeight: 500 }}>
+                                        <Phone size={14} /> {formData.phone || 'Belirtilmemiş'}
+                                    </p>
+                                )}
                             </div>
                             <div>
                                 <p style={{ fontSize: '0.75rem', color: '#9ca3af', marginBottom: '0.25rem', textTransform: 'uppercase' }}>Kayıt Tarihi</p>
@@ -238,28 +380,31 @@ export default async function MentorDetailPage({ params }: { params: Promise<{ i
 
             {/* Stats Cards */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '1rem', marginBottom: '1.5rem' }}>
-                {stats.map((stat, i) => (
-                    <div key={i} className="stat-card-enhanced">
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                            <div style={{
-                                width: 44,
-                                height: 44,
-                                borderRadius: 12,
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                background: stat.bg,
-                                color: stat.color
-                            }}>
-                                <stat.icon size={20} />
-                            </div>
-                            <div>
-                                <p style={{ fontSize: '1.5rem', fontWeight: 700, color: '#11142D', lineHeight: 1 }}>{stat.value}</p>
-                                <p style={{ fontSize: '0.8rem', color: '#808191', marginTop: '0.2rem' }}>{stat.label}</p>
+                {stats.map((stat, i) => {
+                    const IconComponent = iconMap[stat.icon] || Users;
+                    return (
+                        <div key={i} className="stat-card-enhanced">
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                                <div style={{
+                                    width: 44,
+                                    height: 44,
+                                    borderRadius: 12,
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    background: stat.bg,
+                                    color: stat.color
+                                }}>
+                                    <IconComponent size={20} />
+                                </div>
+                                <div>
+                                    <p style={{ fontSize: '1.5rem', fontWeight: 700, color: '#11142D', lineHeight: 1 }}>{stat.value}</p>
+                                    <p style={{ fontSize: '0.8rem', color: '#808191', marginTop: '0.2rem' }}>{stat.label}</p>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                ))}
+                    );
+                })}
             </div>
 
             {/* Account Information Card */}
@@ -306,18 +451,34 @@ export default async function MentorDetailPage({ params }: { params: Promise<{ i
                             <User size={16} color="#6366f1" />
                             <span style={{ fontSize: '0.75rem', color: '#9ca3af', textTransform: 'uppercase', fontWeight: 500 }}>Kullanıcı Adı</span>
                         </div>
-                        <p style={{
-                            fontSize: '1.1rem',
-                            fontWeight: 600,
-                            color: '#11142D',
-                            fontFamily: 'monospace',
-                            background: 'white',
-                            padding: '0.5rem 0.75rem',
-                            borderRadius: '6px',
-                            border: '1px solid #e5e7eb'
-                        }}>
-                            {mentor.username}
-                        </p>
+                        {isEditing ? (
+                            <input
+                                type="text"
+                                value={formData.username}
+                                onChange={(e) => setFormData({ ...formData, username: e.target.value })}
+                                style={{
+                                    width: '100%',
+                                    padding: '0.5rem 0.75rem',
+                                    borderRadius: '6px',
+                                    border: '1px solid #e5e7eb',
+                                    fontSize: '1rem',
+                                    fontFamily: 'monospace'
+                                }}
+                            />
+                        ) : (
+                            <p style={{
+                                fontSize: '1.1rem',
+                                fontWeight: 600,
+                                color: '#11142D',
+                                fontFamily: 'monospace',
+                                background: 'white',
+                                padding: '0.5rem 0.75rem',
+                                borderRadius: '6px',
+                                border: '1px solid #e5e7eb'
+                            }}>
+                                {formData.username}
+                            </p>
+                        )}
                     </div>
 
                     {/* Password */}
@@ -331,24 +492,40 @@ export default async function MentorDetailPage({ params }: { params: Promise<{ i
                             <Key size={16} color="#dc2626" />
                             <span style={{ fontSize: '0.75rem', color: '#9ca3af', textTransform: 'uppercase', fontWeight: 500 }}>Şifre</span>
                         </div>
-                        <div style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'space-between',
-                            background: 'white',
-                            padding: '0.5rem 0.75rem',
-                            borderRadius: '6px',
-                            border: '1px solid #e5e7eb'
-                        }}>
-                            <p style={{
-                                fontSize: '1.1rem',
-                                fontWeight: 600,
-                                color: '#11142D',
-                                fontFamily: 'monospace'
+                        {isEditing ? (
+                            <input
+                                type="text"
+                                value={formData.password}
+                                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                                style={{
+                                    width: '100%',
+                                    padding: '0.5rem 0.75rem',
+                                    borderRadius: '6px',
+                                    border: '1px solid #e5e7eb',
+                                    fontSize: '1rem',
+                                    fontFamily: 'monospace'
+                                }}
+                            />
+                        ) : (
+                            <div style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'space-between',
+                                background: 'white',
+                                padding: '0.5rem 0.75rem',
+                                borderRadius: '6px',
+                                border: '1px solid #e5e7eb'
                             }}>
-                                {mentor.password}
-                            </p>
-                        </div>
+                                <p style={{
+                                    fontSize: '1.1rem',
+                                    fontWeight: 600,
+                                    color: '#11142D',
+                                    fontFamily: 'monospace'
+                                }}>
+                                    {formData.password}
+                                </p>
+                            </div>
+                        )}
                         <p style={{ fontSize: '0.7rem', color: '#ef4444', marginTop: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
                             <AlertCircle size={10} />
                             Bu bilgiyi güvenli tutun
@@ -627,63 +804,5 @@ export default async function MentorDetailPage({ params }: { params: Promise<{ i
                 </div>
             </div>
         </div>
-=======
-    // Success rate
-    const successRate = serviceLogs.length > 0 ? Math.round((approvedLogs.length / serviceLogs.length) * 100) : 0;
-
-    const stats = [
-        { label: "Atanan Öğrenci", value: assignedStudents.length, icon: "Users", color: "#008C45", bg: "#eafaf3" },
-        { label: "Toplam Hizmet", value: serviceLogs.length, icon: "FileText", color: "#6366f1", bg: "#eef2ff" },
-        { label: "Onaylanan", value: approvedLogs.length, icon: "CheckCircle2", color: "#059669", bg: "#ecfdf5" },
-        { label: "Bekleyen", value: pendingLogs.length, icon: "Clock", color: "#f59e0b", bg: "#fef3c7" },
-    ];
-
-    // Prepare mentor data for client
-    const mentorData = {
-        id: mentor.id,
-        firstName: mentor.firstName,
-        lastName: mentor.lastName,
-        username: mentor.username,
-        email: mentor.email,
-        phone: mentor.phone,
-        password: mentor.password,
-        createdAt: mentor.createdAt
-    };
-
-    // Service logs data
-    const serviceLogsData = serviceLogs.map(log => ({
-        id: log.id,
-        serviceTypeId: log.serviceTypeId,
-        studentId: log.studentId,
-        status: log.status,
-        date: log.date
-    }));
-
-    // Service types data
-    const serviceTypesData = serviceTypes.map(st => ({
-        id: st.id,
-        name: st.name,
-        unitPrice: st.unitPrice
-    }));
-
-    // Students data
-    const studentsData = students.map(s => ({
-        id: s.id,
-        firstName: s.firstName,
-        lastName: s.lastName
-    }));
-
-    return (
-        <MentorDetailClient
-            mentor={mentorData}
-            stats={stats}
-            assignedStudents={assignedStudents}
-            serviceLogs={serviceLogsData}
-            serviceTypes={serviceTypesData}
-            students={studentsData}
-            totalEarnings={totalEarnings}
-            successRate={successRate}
-        />
->>>>>>> 888427508d7d4764e3aecfbe87738d6ff7861c4a
     );
 }

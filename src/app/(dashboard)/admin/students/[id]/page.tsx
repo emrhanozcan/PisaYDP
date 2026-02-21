@@ -11,7 +11,14 @@ import {
 
 export default async function StudentDetailPage({ params }: { params: Promise<{ id: string }> }) {
     const { id } = await params;
+<<<<<<< HEAD
     const student = db.students.getById(id);
+=======
+    let student: any = db.branchStudents.getById(id);
+    if (!student) {
+        student = db.students.getById(id);
+    }
+>>>>>>> 888427508d7d4764e3aecfbe87738d6ff7861c4a
 
     if (!student) {
         return (
@@ -33,6 +40,15 @@ export default async function StudentDetailPage({ params }: { params: Promise<{ 
         );
     }
 
+<<<<<<< HEAD
+=======
+    // Map university name if missing
+    if (student.universityId && !student.school) {
+        student.school = db.universities.getById(student.universityId)?.name;
+    }
+    if (!student.country) student.country = 'İtalya';
+
+>>>>>>> 888427508d7d4764e3aecfbe87738d6ff7861c4a
     const assignments = db.assignments.getAll().filter(a => a.studentId === id);
     const mentors = db.users.getAll().filter(u => u.role === 'mentor');
     const serviceLogs = db.logs.getAll().filter(l => l.studentId === id);
@@ -113,6 +129,26 @@ export default async function StudentDetailPage({ params }: { params: Promise<{ 
                                 </div>
                             </div>
                             <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+<<<<<<< HEAD
+=======
+                                <Link
+                                    href={`/admin/students/${student.id}/edit`}
+                                    style={{
+                                        display: 'inline-flex',
+                                        alignItems: 'center',
+                                        gap: '0.35rem',
+                                        padding: '0.5rem 1rem',
+                                        borderRadius: '12px',
+                                        fontSize: '0.85rem',
+                                        fontWeight: 600,
+                                        background: '#f3f4f6',
+                                        color: '#4b5563',
+                                        textDecoration: 'none'
+                                    }}
+                                >
+                                    <Edit size={14} /> Düzenle
+                                </Link>
+>>>>>>> 888427508d7d4764e3aecfbe87738d6ff7861c4a
                                 <span style={{
                                     display: 'inline-flex',
                                     alignItems: 'center',
@@ -174,6 +210,7 @@ export default async function StudentDetailPage({ params }: { params: Promise<{ 
                                     <Calendar size={14} /> {new Date(student.createdAt).toLocaleDateString('tr-TR', { year: 'numeric', month: 'long', day: 'numeric' })}
                                 </p>
                             </div>
+<<<<<<< HEAD
                             <div>
                                 <p style={{ fontSize: '0.75rem', color: '#9ca3af', marginBottom: '0.25rem', textTransform: 'uppercase' }}>Toplam Harcama</p>
                                 <p style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', color: '#059669', fontWeight: 700, fontSize: '1.1rem' }}>
@@ -181,6 +218,45 @@ export default async function StudentDetailPage({ params }: { params: Promise<{ 
                                 </p>
                             </div>
                         </div>
+=======
+                        </div>
+                        <div>
+                            <p style={{ fontSize: '0.75rem', color: '#9ca3af', marginBottom: '0.25rem', textTransform: 'uppercase' }}>Toplam Harcama</p>
+                            <p style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', color: '#059669', fontWeight: 700, fontSize: '1.1rem' }}>
+                                €{totalSpent.toLocaleString()}
+                            </p>
+                        </div>
+
+                        {/* YDP and Extra Info for Branch Students */}
+                        {student.ydtSupport && (
+                            <div style={{
+                                marginTop: '1rem',
+                                padding: '1rem',
+                                background: '#f0fdf4',
+                                borderRadius: '12px',
+                                display: 'grid',
+                                gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
+                                gap: '1rem'
+                            }}>
+                                <div>
+                                    <p style={{ fontSize: '0.75rem', color: '#166534', marginBottom: '0.25rem', fontWeight: 600 }}>YDP Desteği</p>
+                                    <p style={{ color: '#15803d' }}>{student.ydtSupport}</p>
+                                </div>
+                                <div>
+                                    <p style={{ fontSize: '0.75rem', color: '#166534', marginBottom: '0.25rem', fontWeight: 600 }}>Konaklama</p>
+                                    <p style={{ color: '#15803d' }}>{student.accommodationService || '-'}</p>
+                                </div>
+                                <div>
+                                    <p style={{ fontSize: '0.75rem', color: '#166534', marginBottom: '0.25rem', fontWeight: 600 }}>Burs Paketi</p>
+                                    <p style={{ color: '#15803d' }}>{student.scholarshipPackage || '-'}</p>
+                                </div>
+                                <div>
+                                    <p style={{ fontSize: '0.75rem', color: '#166534', marginBottom: '0.25rem', fontWeight: 600 }}>Sonuç</p>
+                                    <p style={{ color: '#15803d' }}>{student.finalStatus || '-'}</p>
+                                </div>
+                            </div>
+                        )}
+>>>>>>> 888427508d7d4764e3aecfbe87738d6ff7861c4a
                     </div>
                 </div>
             </div>
@@ -334,7 +410,11 @@ export default async function StudentDetailPage({ params }: { params: Promise<{ 
                                     background: '#f8fafc',
                                     borderRadius: '10px',
                                     borderLeft: `3px solid ${log.status === 'approved' ? '#059669' :
+<<<<<<< HEAD
                                             log.status === 'submitted' ? '#f59e0b' : '#dc2626'
+=======
+                                        log.status === 'submitted' ? '#f59e0b' : '#dc2626'
+>>>>>>> 888427508d7d4764e3aecfbe87738d6ff7861c4a
                                         }`
                                 }}>
                                     <div>
@@ -383,6 +463,10 @@ export default async function StudentDetailPage({ params }: { params: Promise<{ 
                     )}
                 </div>
             </div>
+<<<<<<< HEAD
         </div>
+=======
+        </div >
+>>>>>>> 888427508d7d4764e3aecfbe87738d6ff7861c4a
     );
 }

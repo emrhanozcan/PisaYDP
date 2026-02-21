@@ -2,7 +2,11 @@
 
 import { useState, useEffect } from 'react';
 import { BranchStudent, University, BRANCH_NAMES, BranchCode } from '@/types';
+<<<<<<< HEAD
 import { Search, Mail, Phone, Download, GraduationCap, CreditCard, FileText, MapPin, Edit2, Trash2, Plus, Save, X, Users, ChevronDown, Check } from 'lucide-react';
+=======
+import { Search, Mail, Phone, Download, GraduationCap, CreditCard, FileText, MapPin, Edit2, Trash2, Plus, Save, X, Users, ChevronDown, Check, ChevronLeft, ChevronRight } from 'lucide-react';
+>>>>>>> 888427508d7d4764e3aecfbe87738d6ff7861c4a
 
 interface StudentsClientProps {
     initialStudents: (BranchStudent & { branchName: string })[];
@@ -85,6 +89,10 @@ export default function StudentsClient({ initialStudents, universities }: Studen
                             <select
                                 value={tempValue}
                                 onChange={(e) => setTempValue(e.target.value)}
+<<<<<<< HEAD
+=======
+                                onKeyDown={(e) => { if (e.key === 'Enter') handleSave(); }}
+>>>>>>> 888427508d7d4764e3aecfbe87738d6ff7861c4a
                                 style={{ padding: '2px 4px', borderRadius: '4px', border: '1px solid #6C5CE7', fontSize: '0.8rem', outline: 'none', background: 'white', flex: 1, minWidth: 0 }}
                                 autoFocus
                             >
@@ -96,6 +104,10 @@ export default function StudentsClient({ initialStudents, universities }: Studen
                                 type="text"
                                 value={tempValue}
                                 onChange={(e) => setTempValue(e.target.value)}
+<<<<<<< HEAD
+=======
+                                onKeyDown={(e) => { if (e.key === 'Enter') handleSave(); }}
+>>>>>>> 888427508d7d4764e3aecfbe87738d6ff7861c4a
                                 style={{ padding: '2px 6px', borderRadius: '4px', border: '1px solid #6C5CE7', fontSize: '0.8rem', outline: 'none', width: '100%', flex: 1, minWidth: 0 }}
                                 autoFocus
                             />
@@ -246,11 +258,45 @@ export default function StudentsClient({ initialStudents, universities }: Studen
         return <span style={{ padding: '4px 12px', borderRadius: '12px', fontSize: '0.75rem', fontWeight: '500', background: s.bg, color: s.color }}>{status || 'Beklemede'}</span>;
     };
 
+<<<<<<< HEAD
     return (
         <div style={{ display: 'flex', height: 'calc(100vh - 140px)', gap: '1.5rem' }}>
             {/* Left Sidebar - Student List */}
             <div style={{ width: '380px', background: 'white', borderRadius: '16px', boxShadow: '0 4px 20px rgba(0,0,0,0.05)', display: 'flex', flexDirection: 'column', overflow: 'hidden', flexShrink: 0 }}>
                 <div style={{ padding: '1rem', borderBottom: '1px solid #f0f0f5' }}>
+=======
+    const [isListCollapsed, setIsListCollapsed] = useState(false);
+
+    return (
+        <div style={{ display: 'flex', height: 'calc(100vh - 140px)', gap: '1.5rem' }}>
+            {/* Left Sidebar - Student List  */}
+            <div style={{ width: isListCollapsed ? '60px' : '380px', transition: 'all 0.3s ease', background: isListCollapsed ? 'linear-gradient(to bottom, #eafaf3, #ffffff, #fbf1f1)' : 'white', borderRadius: '16px', boxShadow: '0 4px 20px rgba(0,0,0,0.05)', display: 'flex', flexDirection: 'column', overflow: 'visible', flexShrink: 0, position: 'relative' }}>
+                <button
+                    onClick={() => setIsListCollapsed(!isListCollapsed)}
+                    style={{
+                        position: 'absolute',
+                        right: '-16px',
+                        top: '50%',
+                        transform: 'translateY(-50%)',
+                        background: 'white',
+                        border: '1px solid #e0e0e0',
+                        borderRadius: '50%',
+                        width: '32px',
+                        height: '32px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        cursor: 'pointer',
+                        color: '#008C45',
+                        zIndex: 20,
+                        boxShadow: '0 2px 8px rgba(0,0,0,0.15)'
+                    }}
+                >
+                    {isListCollapsed ? <ChevronRight size={20} /> : <ChevronLeft size={20} />}
+                </button>
+
+                <div style={{ padding: '1rem', borderBottom: '1px solid #f0f0f5', display: 'flex', flexDirection: 'column', gap: '0.5rem', opacity: isListCollapsed ? 0 : 1, pointerEvents: isListCollapsed ? 'none' : 'auto', transition: 'opacity 0.2s', visibility: isListCollapsed ? 'hidden' : 'visible' }}>
+>>>>>>> 888427508d7d4764e3aecfbe87738d6ff7861c4a
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
                         <span style={{ fontWeight: '600', color: '#1a1a2e' }}>Öğrenciler ({filteredStudents.length})</span>
                         <button onClick={() => handleOpenModal()} style={{ padding: '6px 12px', background: 'linear-gradient(135deg, #6C5CE7, #a29bfe)', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px', fontSize: '0.75rem', fontWeight: '500' }}>
@@ -279,7 +325,11 @@ export default function StudentsClient({ initialStudents, universities }: Studen
                         <option value="SOSPESO">SOSPESO</option>
                     </select>
                 </div>
+<<<<<<< HEAD
                 <div style={{ flex: 1, overflowY: 'auto' }}>
+=======
+                <div style={{ flex: 1, overflowY: 'auto', opacity: isListCollapsed ? 0 : 1, pointerEvents: isListCollapsed ? 'none' : 'auto', transition: 'opacity 0.2s', visibility: isListCollapsed ? 'hidden' : 'visible' }}>
+>>>>>>> 888427508d7d4764e3aecfbe87738d6ff7861c4a
                     {filteredStudents.map(student => (
                         <div key={student.id} onClick={() => setSelectedStudent(student)} style={{ padding: '12px 16px', cursor: 'pointer', background: selectedStudent?.id === student.id ? '#f0f4ff' : 'transparent', borderLeft: selectedStudent?.id === student.id ? '3px solid #6C5CE7' : '3px solid transparent', borderBottom: '1px solid #f8f8f8', transition: 'all 0.15s' }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
@@ -324,8 +374,13 @@ export default function StudentsClient({ initialStudents, universities }: Studen
                             {/* Kişisel Bilgiler */}
                             <InfoCard title="Kişisel Bilgiler" color="#6C5CE7" icon={<Mail size={18} />}>
                                 <InlineEditableRow label="E-mail" value={selectedStudent.email} field="email" onUpdate={(v) => handleUpdateField(selectedStudent.id, 'email', v)} />
+<<<<<<< HEAD
                                 <InlineEditableRow label="Telefon" value={selectedStudent.phone} field="phone" onUpdate={(v) => handleUpdateField(selectedStudent.id, 'phone', v)} icon={<Phone size={14} color="#808191" />} />
                                 <InlineEditableRow label="Şehir" value={selectedStudent.city} field="city" type="select" options={CITIES.map(c => ({ value: c.name, label: c.name }))} onUpdate={(v) => handleUpdateField(selectedStudent.id, 'city', v)} badge color={CITIES.find(c => c.name === selectedStudent.city)?.color} />
+=======
+                                <InlineEditableRow label="Telefon" value={selectedStudent.phone} field="phone" onUpdate={(v) => handleUpdateField(selectedStudent.id, 'phone', v)} />
+                                <InlineEditableRow label="Şehir" value={selectedStudent.city} field="city" onUpdate={(v) => handleUpdateField(selectedStudent.id, 'city', v)} />
+>>>>>>> 888427508d7d4764e3aecfbe87738d6ff7861c4a
                                 <InlineEditableRow label="Pasaport No" value={selectedStudent.passportNo} field="passportNo" onUpdate={(v) => handleUpdateField(selectedStudent.id, 'passportNo', v)} />
                                 <InlineEditableRow label="Seri No" value={selectedStudent.serialNumber} field="serialNumber" onUpdate={(v) => handleUpdateField(selectedStudent.id, 'serialNumber', v)} />
                             </InfoCard>
@@ -361,7 +416,11 @@ export default function StudentsClient({ initialStudents, universities }: Studen
                                 <InlineEditableRow label="Danışmanlık" value={selectedStudent.supportPackage} field="supportPackage" type="select" options={['Evet', 'Hayır'].map(o => ({ value: o, label: o }))} onUpdate={(v) => handleUpdateField(selectedStudent.id, 'supportPackage', v)} />
                                 <InlineEditableRow label="Konaklama" value={selectedStudent.accommodationService} field="accommodationService" type="select" options={['Evet', 'Hayır'].map(o => ({ value: o, label: o }))} onUpdate={(v) => handleUpdateField(selectedStudent.id, 'accommodationService', v)} />
                                 <InlineEditableRow label="Burs Paketi" value={selectedStudent.scholarshipPackage} field="scholarshipPackage" type="select" options={['Evet', 'Hayır'].map(o => ({ value: o, label: o }))} onUpdate={(v) => handleUpdateField(selectedStudent.id, 'scholarshipPackage', v)} />
+<<<<<<< HEAD
                                 <InlineEditableRow label="YDT" value={selectedStudent.ydtSupport} field="ydtSupport" type="select" options={['Evet', 'Hayır'].map(o => ({ value: o, label: o }))} onUpdate={(v) => handleUpdateField(selectedStudent.id, 'ydtSupport', v)} />
+=======
+                                <InlineEditableRow label="YDP" value={selectedStudent.ydtSupport} field="ydtSupport" type="select" options={['Evet', 'Hayır'].map(o => ({ value: o, label: o }))} onUpdate={(v) => handleUpdateField(selectedStudent.id, 'ydtSupport', v)} />
+>>>>>>> 888427508d7d4764e3aecfbe87738d6ff7861c4a
                             </InfoCard>
                         </div>
 
@@ -423,7 +482,11 @@ export default function StudentsClient({ initialStudents, universities }: Studen
                                 <InputField label="E-mail" value={editingStudent.email || ''} onChange={(v) => setEditingStudent(p => ({ ...p, email: v }))} />
                                 <InputField label="Pasaport No" value={editingStudent.passportNo || ''} onChange={(v) => setEditingStudent(p => ({ ...p, passportNo: v }))} />
                                 <InputField label="Seri No" value={editingStudent.serialNumber || ''} onChange={(v) => setEditingStudent(p => ({ ...p, serialNumber: v }))} />
+<<<<<<< HEAD
                                 <SelectField label="Şehir" value={editingStudent.city || ''} onChange={(v) => setEditingStudent(p => ({ ...p, city: v }))} options={CITIES.map(c => ({ value: c.name, label: c.name }))} />
+=======
+                                <InputField label="Şehir" value={editingStudent.city || ''} onChange={(v) => setEditingStudent(p => ({ ...p, city: v }))} />
+>>>>>>> 888427508d7d4764e3aecfbe87738d6ff7861c4a
                             </div>
 
                             <SectionHeader title="Eğitim Bilgileri" color="#00B894" />
@@ -457,7 +520,11 @@ export default function StudentsClient({ initialStudents, universities }: Studen
                                 <SelectField label="Danışmanlık" value={editingStudent.supportPackage || 'Hayır'} onChange={(v) => setEditingStudent(p => ({ ...p, supportPackage: v as 'Evet' | 'Hayır' }))} options={[{ value: 'Evet', label: 'Evet' }, { value: 'Hayır', label: 'Hayır' }]} />
                                 <SelectField label="Konaklama" value={editingStudent.accommodationService || 'Hayır'} onChange={(v) => setEditingStudent(p => ({ ...p, accommodationService: v as 'Evet' | 'Hayır' }))} options={[{ value: 'Evet', label: 'Evet' }, { value: 'Hayır', label: 'Hayır' }]} />
                                 <SelectField label="Burs Paketi" value={editingStudent.scholarshipPackage || 'Hayır'} onChange={(v) => setEditingStudent(p => ({ ...p, scholarshipPackage: v as 'Evet' | 'Hayır' }))} options={[{ value: 'Evet', label: 'Evet' }, { value: 'Hayır', label: 'Hayır' }]} />
+<<<<<<< HEAD
                                 <SelectField label="YDT" value={editingStudent.ydtSupport || 'Hayır'} onChange={(v) => setEditingStudent(p => ({ ...p, ydtSupport: v as 'Evet' | 'Hayır' }))} options={[{ value: 'Evet', label: 'Evet' }, { value: 'Hayır', label: 'Hayır' }]} />
+=======
+                                <SelectField label="YDP" value={editingStudent.ydtSupport || 'Hayır'} onChange={(v) => setEditingStudent(p => ({ ...p, ydtSupport: v as 'Evet' | 'Hayır' }))} options={[{ value: 'Evet', label: 'Evet' }, { value: 'Hayır', label: 'Hayır' }]} />
+>>>>>>> 888427508d7d4764e3aecfbe87738d6ff7861c4a
                                 <div style={{ gridColumn: 'span 3' }}>
                                     <InputField label="Açıklama" value={editingStudent.description || ''} onChange={(v) => setEditingStudent(p => ({ ...p, description: v }))} />
                                 </div>

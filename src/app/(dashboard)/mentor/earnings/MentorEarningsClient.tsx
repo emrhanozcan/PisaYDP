@@ -1,131 +1,75 @@
+'use client';
 
-import { getSession } from "@/app/actions/auth";
-import { db } from "@/lib/db";
-<<<<<<< HEAD
+import { useState, useTransition } from 'react';
+import { useRouter } from 'next/navigation';
 import {
     Wallet, TrendingUp, CheckCircle, Clock,
-    Calendar, FileText, Award, AlertCircle,
-    Euro, ArrowUpRight, Filter
+    FileText, Award
 } from "lucide-react";
-import Link from "next/link";
-=======
-import MentorEarningsClient from "./MentorEarningsClient";
->>>>>>> 888427508d7d4764e3aecfbe87738d6ff7861c4a
+import { updateMentorServiceStatus } from '@/app/actions/mentor';
 
-export default async function MentorEarningsPage() {
-    const session = await getSession();
-    if (!session) return null;
+interface LogData {
+    id: string;
+    studentId: string;
+    studentName: string;
+    serviceTypeId: string;
+    serviceName: string;
+    servicePrice: number;
+    date: string;
+    durationMinutes: number;
+    status: string;
+    paymentStatus?: string;
+}
 
-    // Get my data
-    const myLogs = db.logs.getAll().filter(l => l.mentorId === session.id);
-    const serviceTypes = db.serviceTypes.getAll();
-    const students = db.students.getAll();
-<<<<<<< HEAD
-=======
-    const branchStudents = db.branchStudents.getAll();
->>>>>>> 888427508d7d4764e3aecfbe87738d6ff7861c4a
-    const myAssignments = db.assignments.getAll().filter(a => a.mentorId === session.id);
-    const myStudentIds = myAssignments.map(a => a.studentId);
-    const myStudents = students.filter(s => myStudentIds.includes(s.id));
+interface StudentBreakdown {
+    id: string;
+    firstName: string;
+    lastName: string;
+    serviceCount: number;
+    earnings: number;
+}
 
-<<<<<<< HEAD
-    // Status counts
-    const approvedLogs = myLogs.filter(l => l.status === 'approved');
-    const pendingLogs = myLogs.filter(l => l.status === 'submitted');
-    const rejectedLogs = myLogs.filter(l => l.status === 'rejected');
-=======
-    // Helper to find student from either table
-    const findStudent = (studentId: string) => {
-        const student = students.find(s => s.id === studentId);
-        if (student) return { firstName: student.firstName, lastName: student.lastName };
-        const branchStudent = branchStudents.find(s => s.id === studentId);
-        if (branchStudent) return { firstName: branchStudent.firstName, lastName: branchStudent.lastName };
-        return { firstName: 'Bilinmeyen', lastName: 'Öğrenci' };
+interface ServiceBreakdown {
+    id: string;
+    name: string;
+    unitPrice: number;
+    count: number;
+    total: number;
+}
+
+interface Props {
+    logs: LogData[];
+    approvedEarnings: number;
+    pendingEarnings: number;
+    totalHours: number;
+    approvedCount: number;
+    serviceBreakdown: ServiceBreakdown[];
+    studentBreakdown: StudentBreakdown[];
+}
+
+export default function MentorEarningsClient({
+    logs,
+    approvedEarnings,
+    pendingEarnings,
+    totalHours,
+    approvedCount,
+    serviceBreakdown,
+    studentBreakdown
+}: Props) {
+    const [isPending, startTransition] = useTransition();
+    const router = useRouter();
+
+    const handleStatusChange = (logId: string, newStatus: 'draft' | 'submitted' | 'approved' | 'rejected') => {
+        startTransition(async () => {
+            await updateMentorServiceStatus(logId, newStatus);
+            router.refresh();
+        });
     };
 
-    // Status counts
-    const approvedLogs = myLogs.filter(l => l.status === 'approved');
-    const pendingLogs = myLogs.filter(l => l.status === 'submitted');
->>>>>>> 888427508d7d4764e3aecfbe87738d6ff7861c4a
-
-    // Earnings calculations
-    const approvedEarnings = approvedLogs.reduce((acc, log) => {
-        const service = serviceTypes.find(s => s.id === log.serviceTypeId);
-        return acc + (service?.unitPrice || 0);
-    }, 0);
-
-    const pendingEarnings = pendingLogs.reduce((acc, log) => {
-        const service = serviceTypes.find(s => s.id === log.serviceTypeId);
-        return acc + (service?.unitPrice || 0);
-    }, 0);
-
-<<<<<<< HEAD
-    const totalEarnings = approvedEarnings;
-    const totalHours = myLogs.reduce((acc, log) => acc + log.durationMinutes, 0) / 60;
-
-=======
-    const totalHours = myLogs.reduce((acc, log) => acc + log.durationMinutes, 0) / 60;
-
-    // Transform logs for client
-    const logsData = myLogs.slice().reverse().map(log => {
-        const student = findStudent(log.studentId);
-        const service = serviceTypes.find(s => s.id === log.serviceTypeId);
-        return {
-            id: log.id,
-            studentId: log.studentId,
-            studentName: `${student.firstName} ${student.lastName}`,
-            serviceTypeId: log.serviceTypeId,
-            serviceName: service?.name || 'Bilinmiyor',
-            servicePrice: service?.unitPrice || 0,
-            date: log.date,
-            durationMinutes: log.durationMinutes,
-            status: log.status,
-            paymentStatus: log.paymentStatus
-        };
-    });
-
->>>>>>> 888427508d7d4764e3aecfbe87738d6ff7861c4a
-    // Service type breakdown
-    const serviceBreakdown = serviceTypes.map(type => {
-        const typeLogs = approvedLogs.filter(l => l.serviceTypeId === type.id);
-        return {
-<<<<<<< HEAD
-            ...type,
-=======
-            id: type.id,
-            name: type.name,
-            unitPrice: type.unitPrice,
->>>>>>> 888427508d7d4764e3aecfbe87738d6ff7861c4a
-            count: typeLogs.length,
-            total: typeLogs.length * type.unitPrice
-        };
-    }).filter(t => t.count > 0).sort((a, b) => b.total - a.total);
-
-    // Student breakdown
-    const studentBreakdown = myStudents.map(student => {
-        const studentLogs = approvedLogs.filter(l => l.studentId === student.id);
-        const studentEarnings = studentLogs.reduce((acc, log) => {
-            const service = serviceTypes.find(s => s.id === log.serviceTypeId);
-            return acc + (service?.unitPrice || 0);
-        }, 0);
-        return {
-<<<<<<< HEAD
-            ...student,
-=======
-            id: student.id,
-            firstName: student.firstName,
-            lastName: student.lastName,
->>>>>>> 888427508d7d4764e3aecfbe87738d6ff7861c4a
-            serviceCount: studentLogs.length,
-            earnings: studentEarnings
-        };
-    }).sort((a, b) => b.earnings - a.earnings);
-
-<<<<<<< HEAD
     const stats = [
-        { label: "Toplam Kazanç", value: `€${totalEarnings}`, icon: Wallet, color: "#059669", bg: "#ecfdf5", highlight: true },
+        { label: "Toplam Kazanç", value: `€${approvedEarnings}`, icon: Wallet, color: "#059669", bg: "#ecfdf5", highlight: true },
         { label: "Bekleyen", value: `€${pendingEarnings}`, icon: Clock, color: "#f59e0b", bg: "#fef3c7" },
-        { label: "Onaylı Hizmet", value: approvedLogs.length.toString(), icon: CheckCircle, color: "#6366f1", bg: "#eef2ff" },
+        { label: "Onaylı Hizmet", value: approvedCount.toString(), icon: CheckCircle, color: "#6366f1", bg: "#eef2ff" },
         { label: "Toplam Süre", value: `${totalHours.toFixed(1)} saat`, icon: TrendingUp, color: "#8b5cf6", bg: "#f5f3ff" },
     ];
 
@@ -189,7 +133,7 @@ export default async function MentorEarningsPage() {
                             </div>
                             <div>
                                 <h2 style={{ fontSize: '1.1rem', color: '#11142D', fontWeight: 600 }}>Hizmet Kayıtları</h2>
-                                <p style={{ fontSize: '0.8rem', color: '#808191' }}>{myLogs.length} toplam kayıt</p>
+                                <p style={{ fontSize: '0.8rem', color: '#808191' }}>{logs.length} toplam kayıt</p>
                             </div>
                         </div>
                     </div>
@@ -203,76 +147,101 @@ export default async function MentorEarningsPage() {
                                     <th style={{ textAlign: 'left', padding: '0.75rem 0.5rem', fontSize: '0.75rem', color: '#9ca3af', fontWeight: 600, textTransform: 'uppercase' }}>Öğrenci</th>
                                     <th style={{ textAlign: 'left', padding: '0.75rem 0.5rem', fontSize: '0.75rem', color: '#9ca3af', fontWeight: 600, textTransform: 'uppercase' }}>Hizmet</th>
                                     <th style={{ textAlign: 'center', padding: '0.75rem 0.5rem', fontSize: '0.75rem', color: '#9ca3af', fontWeight: 600, textTransform: 'uppercase' }}>Durum</th>
+                                    <th style={{ textAlign: 'center', padding: '0.75rem 0.5rem', fontSize: '0.75rem', color: '#9ca3af', fontWeight: 600, textTransform: 'uppercase' }}>Ödeme</th>
                                     <th style={{ textAlign: 'right', padding: '0.75rem 0.5rem', fontSize: '0.75rem', color: '#9ca3af', fontWeight: 600, textTransform: 'uppercase' }}>Tutar</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {myLogs.slice().reverse().slice(0, 15).map(log => {
-                                    const type = serviceTypes.find(t => t.id === log.serviceTypeId);
-                                    const student = students.find(s => s.id === log.studentId);
-                                    return (
-                                        <tr key={log.id} style={{ borderBottom: '1px solid #f8fafc' }}>
-                                            <td style={{ padding: '0.875rem 0.5rem', fontSize: '0.85rem', color: '#6b7280' }}>
-                                                {new Date(log.date).toLocaleDateString('tr-TR')}
-                                            </td>
-                                            <td style={{ padding: '0.875rem 0.5rem' }}>
-                                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                                                    <div style={{
-                                                        width: 28,
-                                                        height: 28,
-                                                        borderRadius: '50%',
-                                                        background: '#008C45',
-                                                        color: 'white',
-                                                        display: 'flex',
-                                                        alignItems: 'center',
-                                                        justifyContent: 'center',
-                                                        fontSize: '0.65rem',
-                                                        fontWeight: 600
-                                                    }}>
-                                                        {student?.firstName[0]}{student?.lastName[0]}
-                                                    </div>
-                                                    <span style={{ fontSize: '0.85rem', color: '#374151' }}>{student?.firstName} {student?.lastName}</span>
+                                {logs.slice(0, 15).map(log => (
+                                    <tr key={log.id} style={{ borderBottom: '1px solid #f8fafc' }}>
+                                        <td style={{ padding: '0.875rem 0.5rem', fontSize: '0.85rem', color: '#6b7280' }}>
+                                            {new Date(log.date).toLocaleDateString('tr-TR')}
+                                        </td>
+                                        <td style={{ padding: '0.875rem 0.5rem' }}>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                                <div style={{
+                                                    width: 28,
+                                                    height: 28,
+                                                    borderRadius: '50%',
+                                                    background: '#008C45',
+                                                    color: 'white',
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    justifyContent: 'center',
+                                                    fontSize: '0.65rem',
+                                                    fontWeight: 600
+                                                }}>
+                                                    {log.studentName.split(' ').map(n => n[0]).join('')}
                                                 </div>
-                                            </td>
-                                            <td style={{ padding: '0.875rem 0.5rem', fontSize: '0.85rem', color: '#374151' }}>
-                                                {type?.name}
-                                            </td>
-                                            <td style={{ padding: '0.875rem 0.5rem', textAlign: 'center' }}>
+                                                <span style={{ fontSize: '0.85rem', color: '#374151' }}>{log.studentName}</span>
+                                            </div>
+                                        </td>
+                                        <td style={{ padding: '0.875rem 0.5rem', fontSize: '0.85rem', color: '#374151' }}>
+                                            {log.serviceName}
+                                        </td>
+                                        <td style={{ padding: '0.875rem 0.5rem', textAlign: 'center' }}>
+                                            {/* Status Dropdown - Mentor can change all statuses */}
+                                            <select
+                                                value={log.status}
+                                                onChange={(e) => handleStatusChange(log.id, e.target.value as any)}
+                                                disabled={isPending}
+                                                style={{
+                                                    padding: '0.35rem 0.6rem',
+                                                    borderRadius: '8px',
+                                                    fontSize: '0.75rem',
+                                                    fontWeight: 600,
+                                                    border: 'none',
+                                                    cursor: 'pointer',
+                                                    background: log.status === 'approved' ? '#ecfdf5' :
+                                                        log.status === 'rejected' ? '#fef2f2' :
+                                                            log.status === 'submitted' ? '#fef3c7' : '#f3f4f6',
+                                                    color: log.status === 'approved' ? '#059669' :
+                                                        log.status === 'rejected' ? '#dc2626' :
+                                                            log.status === 'submitted' ? '#b45309' : '#6b7280'
+                                                }}
+                                            >
+                                                <option value="draft">📝 Taslak</option>
+                                                <option value="submitted">⏳ Onay Bekliyor</option>
+                                                <option value="approved">✅ Onaylandı</option>
+                                                <option value="rejected">❌ Reddedildi</option>
+                                            </select>
+                                        </td>
+                                        <td style={{ padding: '0.875rem 0.5rem', textAlign: 'center' }}>
+                                            {log.status === 'approved' ? (
                                                 <span style={{
                                                     display: 'inline-block',
                                                     padding: '0.25rem 0.6rem',
                                                     borderRadius: '12px',
                                                     fontSize: '0.7rem',
                                                     fontWeight: 600,
-                                                    background: log.status === 'approved' ? '#ecfdf5' :
-                                                        log.status === 'submitted' ? '#fef3c7' : '#fef2f2',
-                                                    color: log.status === 'approved' ? '#059669' :
-                                                        log.status === 'submitted' ? '#b45309' : '#dc2626'
+                                                    background: log.paymentStatus === 'paid' ? '#dbeafe' : '#f3f4f6',
+                                                    color: log.paymentStatus === 'paid' ? '#1d4ed8' : '#6b7280'
                                                 }}>
-                                                    {log.status === 'approved' ? 'Onaylandı' :
-                                                        log.status === 'submitted' ? 'Bekliyor' : 'Reddedildi'}
+                                                    {log.paymentStatus === 'paid' ? '✅ Ödendi' : '⏳ Bekliyor'}
                                                 </span>
-                                            </td>
-                                            <td style={{ padding: '0.875rem 0.5rem', textAlign: 'right', fontWeight: 600, color: log.status === 'approved' ? '#059669' : '#9ca3af' }}>
-                                                €{type?.unitPrice || 0}
-                                            </td>
-                                        </tr>
-                                    );
-                                })}
+                                            ) : (
+                                                <span style={{ fontSize: '0.7rem', color: '#d1d5db' }}>-</span>
+                                            )}
+                                        </td>
+                                        <td style={{ padding: '0.875rem 0.5rem', textAlign: 'right', fontWeight: 600, color: log.status === 'approved' ? '#059669' : '#9ca3af' }}>
+                                            €{log.servicePrice}
+                                        </td>
+                                    </tr>
+                                ))}
                             </tbody>
                         </table>
                     </div>
 
-                    {myLogs.length === 0 && (
+                    {logs.length === 0 && (
                         <div style={{ textAlign: 'center', padding: '3rem', color: '#9ca3af' }}>
                             <FileText size={48} style={{ marginBottom: '1rem', opacity: 0.3 }} />
                             <p>Henüz hizmet kaydınız bulunmuyor</p>
                         </div>
                     )}
 
-                    {myLogs.length > 15 && (
+                    {logs.length > 15 && (
                         <p style={{ textAlign: 'center', marginTop: '1rem', fontSize: '0.85rem', color: '#9ca3af' }}>
-                            Son 15 kayıt gösteriliyor ({myLogs.length - 15} daha var)
+                            Son 15 kayıt gösteriliyor ({logs.length - 15} daha var)
                         </p>
                     )}
                 </div>
@@ -292,7 +261,7 @@ export default async function MentorEarningsPage() {
                         </div>
 
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                            {serviceBreakdown.map((service, i) => (
+                            {serviceBreakdown.map((service) => (
                                 <div key={service.id} style={{
                                     display: 'flex',
                                     justifyContent: 'space-between',
@@ -330,7 +299,7 @@ export default async function MentorEarningsPage() {
                         </div>
 
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                            {studentBreakdown.slice(0, 5).map((student, i) => (
+                            {studentBreakdown.slice(0, 5).map((student) => (
                                 <div key={student.id} style={{
                                     display: 'flex',
                                     justifyContent: 'space-between',
@@ -398,17 +367,5 @@ export default async function MentorEarningsPage() {
                 </div>
             </div>
         </div>
-=======
-    return (
-        <MentorEarningsClient
-            logs={logsData}
-            approvedEarnings={approvedEarnings}
-            pendingEarnings={pendingEarnings}
-            totalHours={totalHours}
-            approvedCount={approvedLogs.length}
-            serviceBreakdown={serviceBreakdown}
-            studentBreakdown={studentBreakdown}
-        />
->>>>>>> 888427508d7d4764e3aecfbe87738d6ff7861c4a
     );
 }
