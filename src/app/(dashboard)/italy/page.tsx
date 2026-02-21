@@ -1,59 +1,15 @@
 import { getSession } from "@/app/actions/auth";
-<<<<<<< HEAD
-import { db } from "@/lib/db";
-import { redirect } from "next/navigation";
-import { BranchCode, BRANCH_NAMES } from "@/types";
-import UniversitiesClient from "./universities/UniversitiesClient";
-
-export default async function UniversitiesPage() {
-=======
 import { getAllBranchesStats } from "@/app/actions/italy";
 import { redirect } from "next/navigation";
 import { Users, CheckCircle, Clock, XCircle, DollarSign, Building2, TrendingUp, GraduationCap } from "lucide-react";
 
 export default async function ItalyDashboard() {
->>>>>>> 888427508d7d4764e3aecfbe87738d6ff7861c4a
     const session = await getSession();
 
     if (!session || session.role !== 'italy_staff') {
         redirect('/login');
     }
 
-<<<<<<< HEAD
-    // Get all universities
-    const universities = db.universities.getAll();
-
-    // Get user favorites
-    const favorites = db.userFavorites.getByUser(session.id);
-    const favoriteIds = favorites.map(f => f.universityId);
-
-    // Get all students from all branches
-    const allBranches: BranchCode[] = ['sariyer', 'kadikoy', 'ankara', 'izmir', 'bursa', 'fethiye'];
-    const allStudents = allBranches.flatMap(branchCode =>
-        db.branchStudents.getByBranch(branchCode).map(s => ({
-            ...s,
-            branchName: BRANCH_NAMES[branchCode]
-        }))
-    );
-
-    return (
-        <div>
-            <div style={{ marginBottom: '0.5rem' }}>
-                <h1 style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#1a1a2e' }}>
-                    Üniversiteler
-                </h1>
-                <p style={{ color: '#808191', fontSize: '0.9rem', marginTop: '0.25rem' }}>
-                    İtalya üniversitelerini görüntüleyin.
-                </p>
-            </div>
-
-            <UniversitiesClient
-                universities={universities}
-                allStudents={allStudents}
-                initialFavorites={favoriteIds}
-                userId={session.id}
-            />
-=======
     const { branches, totals } = await getAllBranchesStats();
 
     const acceptRate = totals.total > 0 ? Math.round((totals.accepted / totals.total) * 100) : 0;
@@ -194,7 +150,6 @@ function MiniStat({ icon, label, value, color }: { icon: React.ReactNode; label:
                 <span style={{ fontSize: '0.8rem', color: '#666' }}>{label}</span>
             </div>
             <span style={{ fontSize: '0.9rem', fontWeight: '600', color: '#1a1a2e' }}>{value}</span>
->>>>>>> 888427508d7d4764e3aecfbe87738d6ff7861c4a
         </div>
     );
 }
