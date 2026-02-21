@@ -1,36 +1,4 @@
-
 import { db } from "@/lib/db";
-<<<<<<< HEAD
-import {
-    User, Search, MapPin, Eye, GraduationCap, Package,
-    UserPlus, TrendingUp, Users, Calendar, Mail, Phone,
-    ChevronRight, Filter, Download, MoreHorizontal
-} from "lucide-react";
-import Link from "next/link";
-
-export default function StudentsPage() {
-    const students = db.students.getAll().sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-    const activeStudents = students.filter(s => s.status === 'active');
-    const inactiveStudents = students.filter(s => s.status !== 'active');
-    const assignments = db.assignments.getAll();
-    const serviceLogs = db.logs.getAll();
-
-    // Öğrenci istatistikleri
-    const getStudentStats = (studentId: string) => {
-        const studentAssignments = assignments.filter(a => a.studentId === studentId);
-        const studentLogs = serviceLogs.filter(l => l.studentId === studentId);
-        return {
-            mentorCount: studentAssignments.length,
-            serviceCount: studentLogs.length,
-            completedServices: studentLogs.filter(l => l.status === 'approved').length
-        };
-    };
-
-    const stats = [
-        { label: "Toplam Öğrenci", value: students.length, icon: Users, color: "#008C45", bg: "#eafaf3" },
-        { label: "Aktif Öğrenci", value: activeStudents.length, icon: TrendingUp, color: "#059669", bg: "#ecfdf5" },
-        { label: "Pasif Öğrenci", value: inactiveStudents.length, icon: User, color: "#6b7280", bg: "#f3f4f6" },
-=======
 import Link from "next/link";
 import {
     Users, GraduationCap, FileText, AlertCircle,
@@ -136,19 +104,10 @@ export default function AdminDashboard() {
         { label: "Yeni Mentor", icon: Users, href: "/admin/mentors/new", color: "#6366f1" },
         { label: "Hizmet Kayıtları", icon: ClipboardList, href: "/admin/services", color: "#CD212A" },
         { label: "Ayarlar", icon: Settings, href: "/admin/settings", color: "#64748b" },
->>>>>>> 888427508d7d4764e3aecfbe87738d6ff7861c4a
     ];
 
     return (
         <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
-<<<<<<< HEAD
-            {/* Header */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '2rem', flexWrap: 'wrap', gap: '1rem' }}>
-                <div>
-                    <h1 style={{ fontSize: '2rem', color: '#11142D', marginBottom: '0.5rem', fontWeight: 700 }}>Öğrenciler</h1>
-                    <p style={{ color: '#808191', fontSize: '1rem' }}>
-                        Sistemde kayıtlı tüm öğrencileri görüntüleyin ve yönetin
-=======
             {/* Header Section */}
             <div style={{ marginBottom: '2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem' }}>
                 <div>
@@ -157,49 +116,10 @@ export default function AdminDashboard() {
                     </h1>
                     <p style={{ color: '#808191', fontSize: '1rem' }}>
                         Sistem genel durumu ve önemli bildirimler • {new Date().toLocaleDateString('tr-TR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
->>>>>>> 888427508d7d4764e3aecfbe87738d6ff7861c4a
                     </p>
                 </div>
                 <div style={{ display: 'flex', gap: '0.75rem' }}>
                     <button className="btn btn-secondary" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-<<<<<<< HEAD
-                        <Download size={18} />
-                        Dışa Aktar
-                    </button>
-                    <Link
-                        href="/admin/students/new"
-                        className="btn btn-primary"
-                        style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}
-                    >
-                        <UserPlus size={18} />
-                        Yeni Öğrenci
-                    </Link>
-                </div>
-            </div>
-
-            {/* Stats Cards */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', marginBottom: '2rem' }}>
-                {stats.map((stat, i) => (
-                    <div key={i} className="stat-card-enhanced">
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                            <div style={{
-                                width: 48,
-                                height: 48,
-                                borderRadius: 12,
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                background: stat.bg,
-                                color: stat.color
-                            }}>
-                                <stat.icon size={22} />
-                            </div>
-                            <div>
-                                <p style={{ fontSize: '1.75rem', fontWeight: 700, color: '#11142D', lineHeight: 1 }}>{stat.value}</p>
-                                <p style={{ fontSize: '0.85rem', color: '#808191', marginTop: '0.25rem' }}>{stat.label}</p>
-                            </div>
-                        </div>
-=======
                         <Calendar size={18} />
                         Bu Ay
                     </button>
@@ -259,221 +179,10 @@ export default function AdminDashboard() {
                             <p style={{ fontSize: '0.9rem', color: '#808191', marginTop: '0.5rem', fontWeight: 500 }}>{stat.label}</p>
                             <p style={{ fontSize: '0.75rem', color: '#B2B3BD', marginTop: '0.25rem' }}>{stat.subtitle}</p>
                         </div>
->>>>>>> 888427508d7d4764e3aecfbe87738d6ff7861c4a
                     </div>
                 ))}
             </div>
 
-<<<<<<< HEAD
-            {/* Main Content */}
-            <div className="glass-panel" style={{ padding: '1.5rem' }}>
-                {/* Search and Filters */}
-                <div style={{ marginBottom: '1.5rem', display: 'flex', gap: '1rem', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between' }}>
-                    <div style={{ position: 'relative', flex: 1, minWidth: '300px', maxWidth: '400px' }}>
-                        <Search size={20} style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: '#B2B3BD' }} />
-                        <input
-                            type="text"
-                            placeholder="İsim, okul veya ülke ara..."
-                            style={{
-                                width: '100%',
-                                padding: '0.875rem 1rem 0.875rem 3rem',
-                                borderRadius: '12px',
-                                border: '1px solid #E4E5E7',
-                                background: '#F9FAFC',
-                                fontSize: '0.9rem',
-                                outline: 'none'
-                            }}
-                        />
-                    </div>
-                    <div style={{ display: 'flex', gap: '0.5rem' }}>
-                        <button style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '0.5rem',
-                            padding: '0.75rem 1rem',
-                            border: '1px solid #E4E5E7',
-                            borderRadius: '10px',
-                            background: 'white',
-                            color: '#6b7280',
-                            fontSize: '0.85rem',
-                            cursor: 'pointer'
-                        }}>
-                            <Filter size={16} />
-                            Filtrele
-                        </button>
-                    </div>
-                </div>
-
-                {/* Table */}
-                <div className="table-wrapper">
-                    <table className="table dashboard-table">
-                        <thead>
-                            <tr>
-                                <th style={{ width: '5%' }}>#</th>
-                                <th style={{ width: '22%' }}>Öğrenci</th>
-                                <th style={{ width: '15%' }}>🇮🇹 Şehir</th>
-                                <th style={{ width: '18%' }}>Okul</th>
-                                <th style={{ width: '12%' }}>Paket</th>
-                                <th style={{ width: '10%' }}>Hizmet</th>
-                                <th style={{ width: '8%' }}>Durum</th>
-                                <th style={{ width: '10%', textAlign: 'right' }}>İşlemler</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {students.map((student, index) => {
-                                const stats = getStudentStats(student.id);
-                                return (
-                                    <tr key={student.id}>
-                                        <td style={{ color: '#9ca3af', fontSize: '0.85rem' }}>{index + 1}</td>
-                                        <td>
-                                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                                                <div style={{
-                                                    width: 40,
-                                                    height: 40,
-                                                    borderRadius: '50%',
-                                                    background: 'linear-gradient(135deg, #008C45 0%, #16a34a 100%)',
-                                                    color: 'white',
-                                                    display: 'flex',
-                                                    alignItems: 'center',
-                                                    justifyContent: 'center',
-                                                    fontWeight: 600,
-                                                    fontSize: '0.85rem'
-                                                }}>
-                                                    {student.firstName[0]}{student.lastName[0]}
-                                                </div>
-                                                <div>
-                                                    <p style={{ fontWeight: 600, color: '#11142D', marginBottom: '2px' }}>
-                                                        {student.firstName} {student.lastName}
-                                                    </p>
-                                                    <p style={{ fontSize: '0.75rem', color: '#9ca3af' }}>
-                                                        {student.email || 'E-posta yok'}
-                                                    </p>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#6b7280', fontSize: '0.875rem' }}>
-                                                <span>🇮🇹</span>
-                                                {student.country}
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#6b7280', fontSize: '0.875rem' }}>
-                                                <GraduationCap size={14} />
-                                                <span style={{ maxWidth: '150px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                                                    {student.school}
-                                                </span>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <span style={{
-                                                padding: '0.35rem 0.75rem',
-                                                background: '#eff6ff',
-                                                color: '#2563eb',
-                                                borderRadius: '8px',
-                                                fontSize: '0.8rem',
-                                                fontWeight: 500
-                                            }}>
-                                                {student.packageType}
-                                            </span>
-                                        </td>
-                                        <td>
-                                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                                                <span style={{
-                                                    padding: '0.25rem 0.5rem',
-                                                    background: stats.serviceCount > 0 ? '#f0fdf4' : '#f9fafb',
-                                                    color: stats.serviceCount > 0 ? '#15803d' : '#9ca3af',
-                                                    borderRadius: '6px',
-                                                    fontSize: '0.75rem',
-                                                    fontWeight: 600
-                                                }}>
-                                                    {stats.completedServices}/{stats.serviceCount}
-                                                </span>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <span style={{
-                                                display: 'inline-flex',
-                                                alignItems: 'center',
-                                                gap: '0.25rem',
-                                                padding: '0.35rem 0.75rem',
-                                                borderRadius: '20px',
-                                                fontSize: '0.75rem',
-                                                fontWeight: 600,
-                                                background: student.status === 'active' ? '#ecfdf5' : '#fef2f2',
-                                                color: student.status === 'active' ? '#059669' : '#dc2626'
-                                            }}>
-                                                <span style={{
-                                                    width: 6,
-                                                    height: 6,
-                                                    borderRadius: '50%',
-                                                    background: student.status === 'active' ? '#059669' : '#dc2626'
-                                                }} />
-                                                {student.status === 'active' ? 'Aktif' : 'Pasif'}
-                                            </span>
-                                        </td>
-                                        <td style={{ textAlign: 'right' }}>
-                                            <Link
-                                                href={`/admin/students/${student.id}`}
-                                                className="quick-action-card"
-                                                style={{
-                                                    display: 'inline-flex',
-                                                    alignItems: 'center',
-                                                    justifyContent: 'center',
-                                                    padding: '0.5rem 0.75rem',
-                                                    background: '#008C45',
-                                                    color: 'white',
-                                                    border: 'none',
-                                                    borderRadius: '8px',
-                                                    fontSize: '0.75rem',
-                                                    fontWeight: 500,
-                                                    gap: '0.35rem'
-                                                }}
-                                            >
-                                                Detay <ChevronRight size={14} />
-                                            </Link>
-                                        </td>
-                                    </tr>
-                                );
-                            })}
-                            {students.length === 0 && (
-                                <tr>
-                                    <td colSpan={8} style={{ textAlign: 'center', padding: '4rem', color: '#B2B3BD' }}>
-                                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem' }}>
-                                            <Users size={48} style={{ opacity: 0.3 }} />
-                                            <div>
-                                                <p style={{ fontWeight: 500, marginBottom: '0.5rem' }}>Henüz kayıtlı öğrenci yok</p>
-                                                <Link href="/admin/students/new" style={{ color: '#008C45', fontWeight: 500 }}>
-                                                    İlk öğrenciyi ekleyin →
-                                                </Link>
-                                            </div>
-                                        </div>
-                                    </td>
-                                </tr>
-                            )}
-                        </tbody>
-                    </table>
-                </div>
-
-                {/* Footer */}
-                {students.length > 0 && (
-                    <div style={{
-                        marginTop: '1.5rem',
-                        paddingTop: '1rem',
-                        borderTop: '1px solid #f1f5f9',
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                        color: '#9ca3af',
-                        fontSize: '0.85rem'
-                    }}>
-                        <p>Toplam {students.length} öğrenci gösteriliyor</p>
-                        <div style={{ display: 'flex', gap: '0.5rem' }}>
-                            <span style={{ padding: '0.5rem 0.75rem', background: '#f8fafc', borderRadius: '6px' }}>1</span>
-                        </div>
-                    </div>
-                )}
-=======
             {/* Quick Actions */}
             <div className="glass-panel" style={{ padding: '1.5rem', marginBottom: '2rem' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
@@ -623,8 +332,7 @@ export default function AdminDashboard() {
                                                 height: '100%',
                                                 width: `${percentage}%`,
                                                 background: colors[i % colors.length],
-                                                borderRadius: 4,
-                                                transition: 'width 0.5s ease'
+                                                borderRadius: 4
                                             }} />
                                         </div>
                                     </div>
@@ -632,172 +340,73 @@ export default function AdminDashboard() {
                             })}
                         </div>
                     )}
-
-                    {/* Revenue Summary */}
-                    <div style={{
-                        marginTop: '1.5rem',
-                        padding: '1rem',
-                        background: 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)',
-                        borderRadius: '0.75rem',
-                        border: '1px solid #bbf7d0'
-                    }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                            <Euro size={24} color="#16a34a" />
-                            <div>
-                                <p style={{ fontSize: '0.8rem', color: '#16a34a', fontWeight: 500 }}>Tahmini Toplam Gelir</p>
-                                <p style={{ fontSize: '1.5rem', fontWeight: 700, color: '#15803d' }}>€{totalRevenue.toLocaleString()}</p>
-                            </div>
-                        </div>
-                    </div>
                 </div>
             </div>
 
-            {/* Recent Activities - Enhanced */}
+            {/* Recent Pending Logs */}
             <div className="glass-panel" style={{ padding: '1.5rem' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                        <div style={{ width: 40, height: 40, borderRadius: 10, background: '#fff7ed', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                            <Activity size={20} color="#f59e0b" />
+                        <div style={{ width: 40, height: 40, borderRadius: 10, background: '#fef3c7', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                            <Clock size={20} color="#f59e0b" />
                         </div>
                         <div>
-                            <h2 style={{ fontSize: '1.1rem', color: '#11142D', fontWeight: 600 }}>Son Hareketler</h2>
-                            <p style={{ fontSize: '0.8rem', color: '#808191' }}>Onay bekleyen işlemler</p>
+                            <h2 style={{ fontSize: '1.1rem', color: '#11142D', fontWeight: 600 }}>Son Onay Bekleyenler</h2>
+                            <p style={{ fontSize: '0.8rem', color: '#808191' }}>Hızlı inceleme ve aksiyon</p>
                         </div>
                     </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                        <span style={{
-                            padding: '0.35rem 0.75rem',
-                            background: pendingLogs.length > 0 ? '#fef3c7' : '#ecfdf5',
-                            color: pendingLogs.length > 0 ? '#b45309' : '#059669',
-                            borderRadius: '20px',
-                            fontSize: '0.8rem',
-                            fontWeight: 600
-                        }}>
-                            {pendingLogs.length} bekleyen
-                        </span>
-                    </div>
+                    <Link href="/admin/services" style={{ fontSize: '0.85rem', color: '#008C45', fontWeight: 500, textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                        Hepsini Gör <ArrowRight size={14} />
+                    </Link>
                 </div>
 
-                {pendingLogs.length === 0 ? (
-                    <div style={{ textAlign: 'center', padding: '3rem', color: '#B2B3BD' }}>
-                        <CheckCircle2 size={48} style={{ marginBottom: '1rem', opacity: 0.5 }} />
-                        <p style={{ fontSize: '1rem', fontWeight: 500 }}>Tüm işlemler tamamlandı!</p>
-                        <p style={{ fontSize: '0.85rem', marginTop: '0.5rem' }}>Onay bekleyen kayıt bulunmuyor.</p>
-                    </div>
-                ) : (
-                    <div className="table-wrapper">
-                        <table className="table">
-                            <thead>
+                <div className="table-wrapper">
+                    <table className="table">
+                        <thead>
+                            <tr>
+                                <th>Öğrenci</th>
+                                <th>Hizmet</th>
+                                <th>Mentor</th>
+                                <th>Tarih</th>
+                                <th style={{ textAlign: 'right' }}>İşlem</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {pendingLogs.slice(0, 10).map((log) => {
+                                const type = serviceTypes.find(t => t.id === log.serviceTypeId);
+                                const student = allStudents.find(s => s.id === log.studentId);
+                                const mentor = mentors.find(m => m.id === log.mentorId);
+                                return (
+                                    <tr key={log.id}>
+                                        <td>
+                                            <div style={{ fontWeight: 500, color: '#11142D' }}>{student?.firstName} {student?.lastName}</div>
+                                            <div style={{ fontSize: '0.75rem', color: '#808191' }}>{student && 'city' in student ? student.city : 'Türkiye'}</div>
+                                        </td>
+                                        <td>
+                                            <div style={{ fontWeight: 500, color: '#11142D' }}>{type?.name}</div>
+                                            <div style={{ fontSize: '0.75rem', color: '#808191' }}>{log.durationMinutes} dk</div>
+                                        </td>
+                                        <td>{mentor?.firstName} {mentor?.lastName}</td>
+                                        <td>{new Date(log.date).toLocaleDateString('tr-TR')}</td>
+                                        <td style={{ textAlign: 'right' }}>
+                                            <Link href="/admin/services" className="quick-action-card" style={{ padding: '0.5rem', background: '#f8fafc', borderRadius: '8px', color: '#64748b' }}>
+                                                <ArrowRight size={16} />
+                                            </Link>
+                                        </td>
+                                    </tr>
+                                );
+                            })}
+                            {pendingLogs.length === 0 && (
                                 <tr>
-                                    <th style={{ width: '50px' }}>#</th>
-                                    <th>Mentor</th>
-                                    <th>Öğrenci</th>
-                                    <th>Hizmet</th>
-                                    <th>Tarih</th>
-                                    <th>Durum</th>
-                                    <th style={{ width: '100px' }}>İşlem</th>
+                                    <td colSpan={5} style={{ textAlign: 'center', padding: '3rem', color: '#B2B3BD' }}>
+                                        <CheckCircle2 size={32} style={{ marginBottom: '0.5rem', opacity: 0.5 }} />
+                                        <p>Şu an onay bekleyen kayıt bulunmuyor.</p>
+                                    </td>
                                 </tr>
-                            </thead>
-                            <tbody>
-                                {pendingLogs.slice(0, 10).map((log, index) => {
-                                    const mentor = db.users.getById(log.mentorId);
-                                    const student = db.students.getById(log.studentId);
-                                    const service = serviceTypes.find(t => t.id === log.serviceTypeId);
-                                    return (
-                                        <tr key={log.id} style={{ transition: 'background 0.2s' }}>
-                                            <td style={{ color: '#9ca3af', fontSize: '0.85rem' }}>{index + 1}</td>
-                                            <td>
-                                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                                                    <div style={{
-                                                        width: 32,
-                                                        height: 32,
-                                                        borderRadius: '50%',
-                                                        background: '#6366f1',
-                                                        color: 'white',
-                                                        display: 'flex',
-                                                        alignItems: 'center',
-                                                        justifyContent: 'center',
-                                                        fontSize: '0.75rem',
-                                                        fontWeight: 600
-                                                    }}>
-                                                        {mentor?.firstName?.[0]}{mentor?.lastName?.[0]}
-                                                    </div>
-                                                    <span style={{ fontWeight: 500 }}>{mentor?.firstName} {mentor?.lastName}</span>
-                                                </div>
-                                            </td>
-                                            <td>
-                                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                                                    <div style={{
-                                                        width: 32,
-                                                        height: 32,
-                                                        borderRadius: '50%',
-                                                        background: '#008C45',
-                                                        color: 'white',
-                                                        display: 'flex',
-                                                        alignItems: 'center',
-                                                        justifyContent: 'center',
-                                                        fontSize: '0.75rem',
-                                                        fontWeight: 600
-                                                    }}>
-                                                        {student?.firstName?.[0]}{student?.lastName?.[0]}
-                                                    </div>
-                                                    <span style={{ fontWeight: 500 }}>{student?.firstName} {student?.lastName}</span>
-                                                </div>
-                                            </td>
-                                            <td>
-                                                <span style={{
-                                                    padding: '0.25rem 0.75rem',
-                                                    background: '#f1f5f9',
-                                                    borderRadius: '6px',
-                                                    fontSize: '0.85rem',
-                                                    color: '#475569'
-                                                }}>
-                                                    {service?.name}
-                                                </span>
-                                            </td>
-                                            <td>
-                                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#808191' }}>
-                                                    <Clock size={14} />
-                                                    <span style={{ fontSize: '0.85rem' }}>{log.date.split('T')[0]}</span>
-                                                </div>
-                                            </td>
-                                            <td>
-                                                <span className="status-badge status-pending" style={{
-                                                    display: 'inline-flex',
-                                                    alignItems: 'center',
-                                                    gap: '0.25rem',
-                                                    padding: '0.35rem 0.75rem'
-                                                }}>
-                                                    <AlertCircle size={12} />
-                                                    Onay Bekliyor
-                                                </span>
-                                            </td>
-                                            <td>
-                                                <Link href={`/admin/services`} style={{ textDecoration: 'none' }}>
-                                                    <button style={{
-                                                        padding: '0.4rem 0.75rem',
-                                                        background: '#008C45',
-                                                        color: 'white',
-                                                        border: 'none',
-                                                        borderRadius: '6px',
-                                                        fontSize: '0.75rem',
-                                                        fontWeight: 500,
-                                                        cursor: 'pointer',
-                                                        display: 'flex',
-                                                        alignItems: 'center',
-                                                        gap: '0.25rem'
-                                                    }}>
-                                                        İncele <ArrowRight size={12} />
-                                                    </button>
-                                                </Link>
-                                            </td>
-                                        </tr>
-                                    );
-                                })}
-                            </tbody>
-                        </table>
-                    </div>
-                )}
+                            )}
+                        </tbody>
+                    </table>
+                </div>
 
                 {pendingLogs.length > 10 && (
                     <div style={{ textAlign: 'center', marginTop: '1rem' }}>
@@ -842,7 +451,6 @@ export default function AdminDashboard() {
                     <p style={{ color: '#94a3b8', fontSize: '0.85rem', marginBottom: '0.5rem' }}>Hizmet Türü</p>
                     <p style={{ color: 'white', fontSize: '1.75rem', fontWeight: 700 }}>{serviceTypes.filter(s => s.isActive).length}</p>
                 </div>
->>>>>>> 888427508d7d4764e3aecfbe87738d6ff7861c4a
             </div>
         </div>
     );

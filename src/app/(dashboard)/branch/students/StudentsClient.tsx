@@ -206,13 +206,8 @@ export default function StudentsClient({ initialStudents, universities, branchCo
                             {/* Kişisel Bilgiler */}
                             <InfoCard title="Kişisel Bilgiler" color="#6C5CE7" icon={<Mail size={18} />}>
                                 <InlineEditableRow label="E-mail" value={selectedStudent.email} field="email" onUpdate={(v) => handleUpdateField(selectedStudent.id, 'email', v)} />
-<<<<<<< HEAD
                                 <InlineEditableRow label="Telefon" value={selectedStudent.phone} field="phone" onUpdate={(v) => handleUpdateField(selectedStudent.id, 'phone', v)} icon={<Phone size={14} color="#808191" />} />
                                 <InlineEditableRow label="Şehir" value={selectedStudent.city} field="city" type="select" options={CITIES.map(c => ({ value: c.name, label: c.name }))} onUpdate={(v) => handleUpdateField(selectedStudent.id, 'city', v)} badge color={CITIES.find(c => c.name === selectedStudent.city)?.color} />
-=======
-                                <InlineEditableRow label="Telefon" value={selectedStudent.phone} field="phone" onUpdate={(v) => handleUpdateField(selectedStudent.id, 'phone', v)} />
-                                <InlineEditableRow label="Şehir" value={selectedStudent.city} field="city" onUpdate={(v) => handleUpdateField(selectedStudent.id, 'city', v)} />
->>>>>>> 888427508d7d4764e3aecfbe87738d6ff7861c4a
                                 <InlineEditableRow label="Pasaport No" value={selectedStudent.passportNo} field="passportNo" onUpdate={(v) => handleUpdateField(selectedStudent.id, 'passportNo', v)} />
                                 <InlineEditableRow label="Seri No" value={selectedStudent.serialNumber} field="serialNumber" onUpdate={(v) => handleUpdateField(selectedStudent.id, 'serialNumber', v)} />
                             </InfoCard>
@@ -248,11 +243,7 @@ export default function StudentsClient({ initialStudents, universities, branchCo
                                 <InlineEditableRow label="Danışmanlık" value={selectedStudent.supportPackage} field="supportPackage" type="select" options={['Evet', 'Hayır'].map(o => ({ value: o, label: o }))} onUpdate={(v) => handleUpdateField(selectedStudent.id, 'supportPackage', v)} />
                                 <InlineEditableRow label="Konaklama" value={selectedStudent.accommodationService} field="accommodationService" type="select" options={['Evet', 'Hayır'].map(o => ({ value: o, label: o }))} onUpdate={(v) => handleUpdateField(selectedStudent.id, 'accommodationService', v)} />
                                 <InlineEditableRow label="Burs Paketi" value={selectedStudent.scholarshipPackage} field="scholarshipPackage" type="select" options={['Evet', 'Hayır'].map(o => ({ value: o, label: o }))} onUpdate={(v) => handleUpdateField(selectedStudent.id, 'scholarshipPackage', v)} />
-<<<<<<< HEAD
                                 <InlineEditableRow label="YDT" value={selectedStudent.ydtSupport} field="ydtSupport" type="select" options={['Evet', 'Hayır'].map(o => ({ value: o, label: o }))} onUpdate={(v) => handleUpdateField(selectedStudent.id, 'ydtSupport', v)} />
-=======
-                                <InlineEditableRow label="YDP" value={selectedStudent.ydtSupport} field="ydtSupport" type="select" options={['Evet', 'Hayır'].map(o => ({ value: o, label: o }))} onUpdate={(v) => handleUpdateField(selectedStudent.id, 'ydtSupport', v)} />
->>>>>>> 888427508d7d4764e3aecfbe87738d6ff7861c4a
                             </InfoCard>
                         </div>
 
@@ -308,11 +299,7 @@ export default function StudentsClient({ initialStudents, universities, branchCo
                                 <InputField label="E-mail" value={editingStudent.email || ''} onChange={(v) => setEditingStudent(p => ({ ...p, email: v }))} />
                                 <InputField label="Pasaport No" value={editingStudent.passportNo || ''} onChange={(v) => setEditingStudent(p => ({ ...p, passportNo: v }))} />
                                 <InputField label="Seri No" value={editingStudent.serialNumber || ''} onChange={(v) => setEditingStudent(p => ({ ...p, serialNumber: v }))} />
-<<<<<<< HEAD
                                 <SelectField label="Şehir" value={editingStudent.city || ''} onChange={(v) => setEditingStudent(p => ({ ...p, city: v }))} options={CITIES.map(c => ({ value: c.name, label: c.name }))} />
-=======
-                                <InputField label="Şehir" value={editingStudent.city || ''} onChange={(v) => setEditingStudent(p => ({ ...p, city: v }))} />
->>>>>>> 888427508d7d4764e3aecfbe87738d6ff7861c4a
                             </div>
 
                             <SectionHeader title="Eğitim Bilgileri" color="#00B894" />
@@ -346,11 +333,7 @@ export default function StudentsClient({ initialStudents, universities, branchCo
                                 <SelectField label="Danışmanlık" value={editingStudent.supportPackage || 'Hayır'} onChange={(v) => setEditingStudent(p => ({ ...p, supportPackage: v as 'Evet' | 'Hayır' }))} options={[{ value: 'Evet', label: 'Evet' }, { value: 'Hayır', label: 'Hayır' }]} />
                                 <SelectField label="Konaklama" value={editingStudent.accommodationService || 'Hayır'} onChange={(v) => setEditingStudent(p => ({ ...p, accommodationService: v as 'Evet' | 'Hayır' }))} options={[{ value: 'Evet', label: 'Evet' }, { value: 'Hayır', label: 'Hayır' }]} />
                                 <SelectField label="Burs Paketi" value={editingStudent.scholarshipPackage || 'Hayır'} onChange={(v) => setEditingStudent(p => ({ ...p, scholarshipPackage: v as 'Evet' | 'Hayır' }))} options={[{ value: 'Evet', label: 'Evet' }, { value: 'Hayır', label: 'Hayır' }]} />
-<<<<<<< HEAD
                                 <SelectField label="YDT" value={editingStudent.ydtSupport || 'Hayır'} onChange={(v) => setEditingStudent(p => ({ ...p, ydtSupport: v as 'Evet' | 'Hayır' }))} options={[{ value: 'Evet', label: 'Evet' }, { value: 'Hayır', label: 'Hayır' }]} />
-=======
-                                <SelectField label="YDP" value={editingStudent.ydtSupport || 'Hayır'} onChange={(v) => setEditingStudent(p => ({ ...p, ydtSupport: v as 'Evet' | 'Hayır' }))} options={[{ value: 'Evet', label: 'Evet' }, { value: 'Hayır', label: 'Hayır' }]} />
->>>>>>> 888427508d7d4764e3aecfbe87738d6ff7861c4a
                                 <div style={{ gridColumn: 'span 3' }}>
                                     <InputField label="Açıklama" value={editingStudent.description || ''} onChange={(v) => setEditingStudent(p => ({ ...p, description: v }))} />
                                 </div>
@@ -385,20 +368,6 @@ function InfoCard({ title, color, icon, children }: { title: string; color: stri
     );
 }
 
-function InfoRow({ label, value, icon, badge, color, style }: { label: string; value?: string; icon?: React.ReactNode; badge?: boolean; color?: string; style?: React.CSSProperties }) {
-    return (
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', ...style }}>
-            {icon}
-            <span style={{ color: '#808191', fontSize: '0.8rem', minWidth: '90px' }}>{label}:</span>
-            {badge ? (
-                <span style={{ padding: '2px 8px', borderRadius: '10px', fontSize: '0.75rem', background: color ? `${color}20` : (value === 'Kabul' || value === 'Tamamlandı' ? '#E8F5E9' : value === 'Red' ? '#FFEBEE' : '#FFF8E1'), color: color || (value === 'Kabul' || value === 'Tamamlandı' ? '#2E7D32' : value === 'Red' ? '#C62828' : '#F57F17') }}>{value || '-'}</span>
-            ) : (
-                <span style={{ fontWeight: '500', color: '#333', fontSize: '0.85rem' }}>{value || '-'}</span>
-            )}
-        </div>
-    );
-}
-
 function SectionHeader({ title, color }: { title: string; color: string }) {
     return (
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '0.75rem' }}>
@@ -417,8 +386,6 @@ function InputField({ label, value, onChange, type = 'text' }: { label: string; 
     );
 }
 
-
-
 function SelectField({ label, value, onChange, options }: { label: string; value: string; onChange: (v: string) => void; options: { value: string; label: string }[] }) {
     return (
         <div>
@@ -430,8 +397,6 @@ function SelectField({ label, value, onChange, options }: { label: string; value
         </div>
     );
 }
-
-
 
 function InlineEditableRow({ label, value, displayValue, icon, field, onUpdate, type = 'text', options, badge, color, style }: { label: string; value?: string; displayValue?: string; icon?: React.ReactNode; field: keyof BranchStudent; onUpdate: (val: string) => void; type?: 'text' | 'select'; options?: { value: string; label: string }[]; badge?: boolean; color?: string; style?: React.CSSProperties }) {
     const [isEditing, setIsEditing] = useState(false);

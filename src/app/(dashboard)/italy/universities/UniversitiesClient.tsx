@@ -2,11 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { University, BranchStudent, BRANCH_NAMES, BranchCode } from '@/types';
-<<<<<<< HEAD
-import { Star, Search, Download, CheckCircle, Clock, XCircle, Edit2, Trash2, Upload, Plus, Save, X, Mail, Phone, MapPin, GraduationCap, CreditCard, FileText, Users } from 'lucide-react';
-=======
 import { Star, Search, Download, CheckCircle, Clock, XCircle, Edit2, Trash2, Upload, Plus, Save, X, Mail, Phone, MapPin, GraduationCap, CreditCard, FileText, Users, ChevronLeft, ChevronRight } from 'lucide-react';
->>>>>>> 888427508d7d4764e3aecfbe87738d6ff7861c4a
 
 interface UniversitiesClientProps {
     universities: University[];
@@ -203,13 +199,6 @@ export default function UniversitiesClient({ universities, allStudents, initialF
 
     const allBranches: BranchCode[] = ['sariyer', 'kadikoy', 'ankara', 'izmir', 'bursa', 'fethiye'];
 
-<<<<<<< HEAD
-    return (
-        <div style={{ display: 'flex', gap: '1rem', height: 'calc(100vh - 100px)' }}>
-            {/* Left Sidebar - University List */}
-            <div style={{ width: '320px', background: 'white', borderRadius: '16px', boxShadow: '0 2px 12px rgba(0,0,0,0.04)', display: 'flex', flexDirection: 'column', overflow: 'hidden', flexShrink: 0 }}>
-                <div style={{ padding: '1rem', borderBottom: '1px solid #f0f0f5' }}>
-=======
     const [isListCollapsed, setIsListCollapsed] = useState(false);
 
     return (
@@ -241,7 +230,6 @@ export default function UniversitiesClient({ universities, allStudents, initialF
                 </button>
 
                 <div style={{ padding: '1rem', borderBottom: '1px solid #f0f0f5', opacity: isListCollapsed ? 0 : 1, transition: 'opacity 0.2s', pointerEvents: isListCollapsed ? 'none' : 'auto', whiteSpace: 'nowrap', visibility: isListCollapsed ? 'hidden' : 'visible' }}>
->>>>>>> 888427508d7d4764e3aecfbe87738d6ff7861c4a
                     <h2 style={{ fontSize: '1rem', fontWeight: '600', color: '#1a1a2e', margin: '0 0 0.75rem 0' }}>Üniversiteler</h2>
                     <div style={{ position: 'relative' }}>
                         <Search size={16} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#808191' }} />
@@ -249,11 +237,7 @@ export default function UniversitiesClient({ universities, allStudents, initialF
                             style={{ width: '100%', padding: '10px 10px 10px 36px', border: '1px solid #e8e8ef', borderRadius: '10px', fontSize: '0.85rem', background: '#fafafc', outline: 'none' }} />
                     </div>
                 </div>
-<<<<<<< HEAD
-                <div style={{ flex: 1, overflowY: 'auto' }}>
-=======
                 <div style={{ flex: 1, overflowY: 'auto', opacity: isListCollapsed ? 0 : 1, transition: 'opacity 0.2s', pointerEvents: isListCollapsed ? 'none' : 'auto', visibility: isListCollapsed ? 'hidden' : 'visible' }}>
->>>>>>> 888427508d7d4764e3aecfbe87738d6ff7861c4a
                     {filteredUniversities.map(uni => (
                         <div key={uni.id} onClick={() => setSelectedUni(uni)}
                             onMouseEnter={(e) => { const a = e.currentTarget.querySelector('.actions') as HTMLElement; if (a) a.style.opacity = '1'; }}
@@ -489,11 +473,7 @@ export default function UniversitiesClient({ universities, allStudents, initialF
                                 <SelectField label="Danışmanlık" value={editingStudent.supportPackage || 'Hayır'} onChange={(v) => setEditingStudent(p => ({ ...p, supportPackage: v as 'Evet' | 'Hayır' }))} options={[{ value: 'Evet', label: 'Evet' }, { value: 'Hayır', label: 'Hayır' }]} />
                                 <SelectField label="Konaklama" value={editingStudent.accommodationService || 'Hayır'} onChange={(v) => setEditingStudent(p => ({ ...p, accommodationService: v as 'Evet' | 'Hayır' }))} options={[{ value: 'Evet', label: 'Evet' }, { value: 'Hayır', label: 'Hayır' }]} />
                                 <SelectField label="Burs Paketi" value={editingStudent.scholarshipPackage || 'Hayır'} onChange={(v) => setEditingStudent(p => ({ ...p, scholarshipPackage: v as 'Evet' | 'Hayır' }))} options={[{ value: 'Evet', label: 'Evet' }, { value: 'Hayır', label: 'Hayır' }]} />
-<<<<<<< HEAD
-                                <SelectField label="YDT" value={editingStudent.ydtSupport || 'Hayır'} onChange={(v) => setEditingStudent(p => ({ ...p, ydtSupport: v as 'Evet' | 'Hayır' }))} options={[{ value: 'Evet', label: 'Evet' }, { value: 'Hayır', label: 'Hayır' }]} />
-=======
                                 <SelectField label="YDP" value={editingStudent.ydtSupport || 'Hayır'} onChange={(v) => setEditingStudent(p => ({ ...p, ydtSupport: v as 'Evet' | 'Hayır' }))} options={[{ value: 'Evet', label: 'Evet' }, { value: 'Hayır', label: 'Hayır' }]} />
->>>>>>> 888427508d7d4764e3aecfbe87738d6ff7861c4a
                                 <div style={{ gridColumn: 'span 3' }}>
                                     <InputField label="Açıklama" value={editingStudent.description || ''} onChange={(v) => setEditingStudent(p => ({ ...p, description: v }))} />
                                 </div>

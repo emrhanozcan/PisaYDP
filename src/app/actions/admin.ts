@@ -129,9 +129,6 @@ export async function deleteServiceType(id: string) {
     db.serviceTypes.delete(id);
     revalidatePath('/admin/settings');
 }
-<<<<<<< HEAD
-=======
-
 // Admin: Update payment status of a service log
 export async function updatePaymentStatus(logId: string, paymentStatus: 'pending' | 'paid') {
     const log = db.logs.getAll().find(l => l.id === logId);
@@ -198,11 +195,10 @@ export async function updateMentor(mentorId: string, data: {
         entityId: mentorId,
         action: 'update',
         actorId: 'admin-1',
-        changes: data,
+        changes: data as any,
         timestamp: new Date().toISOString()
     });
 
     revalidatePath('/admin/mentors');
     revalidatePath(`/admin/mentors/${mentorId}`);
 }
->>>>>>> 888427508d7d4764e3aecfbe87738d6ff7861c4a

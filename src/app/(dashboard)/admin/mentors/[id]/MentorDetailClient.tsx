@@ -11,7 +11,7 @@ import {
 } from "lucide-react";
 import { updateMentor } from "@/app/actions/admin";
 
-interface MentorData {
+export interface MentorData {
     id: string;
     firstName: string;
     lastName: string;

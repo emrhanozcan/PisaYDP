@@ -1,19 +1,10 @@
 import { getSession } from "@/app/actions/auth";
-<<<<<<< HEAD
-import { getUniversities, getUserFavorites } from "@/app/actions/branch";
-import { redirect } from "next/navigation";
-import { BranchCode } from "@/types";
-import UniversitiesClient from "./UniversitiesClient";
-
-export default async function UniversitiesPage() {
-=======
 import { getBranchStats } from "@/app/actions/branch";
 import { redirect } from "next/navigation";
 import { BRANCH_NAMES, BranchCode } from "@/types";
 import { Users, CheckCircle, Clock, XCircle, Building2, Briefcase, Home, ArrowUpRight, GraduationCap, TrendingUp, DollarSign } from "lucide-react";
 
 export default async function BranchDashboard() {
->>>>>>> 888427508d7d4764e3aecfbe87738d6ff7861c4a
     const session = await getSession();
 
     if (!session || session.role !== 'branch_user') {
@@ -21,32 +12,6 @@ export default async function BranchDashboard() {
     }
 
     const branchCode = session.branchCode as BranchCode;
-<<<<<<< HEAD
-    const universities = await getUniversities();
-    const favorites = await getUserFavorites(session.id);
-    const favoriteIds = favorites.map(f => f.universityId);
-
-    return (
-        <div>
-            <div style={{ marginBottom: '1.5rem' }}>
-                <h1 style={{ fontSize: '1.75rem', fontWeight: 'bold', color: '#1a1a2e' }}>
-                    Üniversiteler
-                </h1>
-                <p style={{ color: '#808191', marginTop: '0.5rem' }}>
-                    İtalya üniversitelerini görüntüleyin ve yönetin.
-                </p>
-            </div>
-
-            <UniversitiesClient
-                universities={universities}
-                initialFavorites={favoriteIds}
-                branchCode={branchCode}
-                userId={session.id}
-            />
-        </div>
-    );
-}
-=======
     const branchName = BRANCH_NAMES[branchCode] || branchCode;
     const stats = await getBranchStats(branchCode);
 
@@ -248,4 +213,3 @@ function QuickLink({ href, label, color }: { href: string; label: string; color:
         </a>
     );
 }
->>>>>>> 888427508d7d4764e3aecfbe87738d6ff7861c4a

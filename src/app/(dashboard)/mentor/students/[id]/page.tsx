@@ -16,9 +16,6 @@ export default async function MentorStudentDetailPage({ params }: { params: Prom
     const session = await getSession();
     if (!session) redirect('/login');
 
-<<<<<<< HEAD
-    const student = db.students.getById(id);
-=======
     // Try both tables - students and branchStudents
     let student = db.students.getById(id);
     if (!student) {
@@ -42,7 +39,6 @@ export default async function MentorStudentDetailPage({ params }: { params: Prom
             };
         }
     }
->>>>>>> 888427508d7d4764e3aecfbe87738d6ff7861c4a
 
     if (!student) {
         return (
@@ -361,11 +357,7 @@ export default async function MentorStudentDetailPage({ params }: { params: Prom
                                     background: '#f8fafc',
                                     borderRadius: '12px',
                                     borderLeft: `4px solid ${log.status === 'approved' ? '#059669' :
-<<<<<<< HEAD
-                                            log.status === 'submitted' ? '#f59e0b' : '#dc2626'
-=======
                                         log.status === 'submitted' ? '#f59e0b' : '#dc2626'
->>>>>>> 888427508d7d4764e3aecfbe87738d6ff7861c4a
                                         }`
                                 }}>
                                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.5rem' }}>
