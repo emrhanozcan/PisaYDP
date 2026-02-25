@@ -15,11 +15,15 @@ export default async function GuardianServicePage() {
     const allBranches: BranchCode[] = ['sariyer', 'kadikoy', 'ankara', 'izmir', 'bursa', 'fethiye'];
     const students = (await Promise.all(allBranches.map(async branchCode => {
         const branchStudents = await db.branchStudents.getByBranch(branchCode);
-        return branchStudents.map(s => ({
-            ...s,
-            branchName: BRANCH_NAMES[branchCode]
-        }));
+        return branchStudents
+            .filter(s => s.guardianService === 'Evet')
+
+            .map(s => ({
+                ...s,
+                branchName: BRANCH_NAMES[branchCode]
+            }));
     }))).flat();
+
     const universities = await db.universities.getAll();
 
     return (

@@ -22,7 +22,8 @@ import {
     Bell,
     X,
     Award,
-    Activity
+    Activity,
+    UserPlus
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { logout } from "@/app/actions/auth";
@@ -384,6 +385,8 @@ export default function Sidebar({ userRole, firstName, lastName, photoUrl, userI
                                 <SidebarLink onClick={() => setMobileOpen(false)} collapsed={collapsed} href="/branch/guardian-service" icon={<Shield size={20} />} label="Vasi Hizmeti" />
                                 <SidebarLink onClick={() => setMobileOpen(false)} collapsed={collapsed} href="/branch/life-support" icon={<HeartHandshake size={20} />} label="Yaşam Destek Hizmeti" />
                                 <SidebarLink onClick={() => setMobileOpen(false)} collapsed={collapsed} href="/branch/scholarship" icon={<Award size={20} />} label="Burs Hizmeti" />
+                                <SidebarLink onClick={() => setMobileOpen(false)} collapsed={collapsed} href="/branch/leads" icon={<UserPlus size={20} />} label="Leadler" />
+                                <SidebarLink onClick={() => setMobileOpen(false)} collapsed={collapsed} href="/branch/sms" icon={<MessageCircle size={20} />} label="SMS Gönder" />
                             </>
                         )}
 
@@ -399,6 +402,7 @@ export default function Sidebar({ userRole, firstName, lastName, photoUrl, userI
                                 <SidebarLink onClick={() => setMobileOpen(false)} collapsed={collapsed} href="/italy/guardian-service" icon={<Shield size={20} />} label="Vasi Hizmeti" />
                                 <SidebarLink onClick={() => setMobileOpen(false)} collapsed={collapsed} href="/italy/life-support" icon={<HeartHandshake size={20} />} label="Yaşam Destek Hizmeti" />
                                 <SidebarLink onClick={() => setMobileOpen(false)} collapsed={collapsed} href="/italy/scholarship" icon={<Award size={20} />} label="Burs Hizmeti" />
+                                <SidebarLink onClick={() => setMobileOpen(false)} collapsed={collapsed} href="/italy/leads" icon={<UserPlus size={20} />} label="Leadler" />
                                 <SidebarLink onClick={() => setMobileOpen(false)} collapsed={collapsed} href="/italy/sms" icon={<MessageCircle size={20} />} label="SMS Gönder" />
                             </>
                         )}

@@ -18,6 +18,8 @@ export const metadata: Metadata = {
   description: "İtalya'da eğitim danışmanlığı - Yaşam Destek Paketi Takip Sistemi | PisaYDP",
 };
 
+import StyledJsxRegistry from "./registry";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -26,10 +28,13 @@ export default function RootLayout({
   return (
     <html lang="tr">
       <body>
-        <main className="min-h-screen">
-          {children}
-        </main>
+        <StyledJsxRegistry>
+          <main className="min-h-screen">
+            {children}
+          </main>
+        </StyledJsxRegistry>
       </body>
     </html>
   );
 }
+

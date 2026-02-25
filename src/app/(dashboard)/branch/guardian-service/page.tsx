@@ -14,10 +14,13 @@ export default async function GuardianServicePage() {
     const branchCode = session.branchCode as BranchCode;
 
     // Get only students from this branch
-    const students = (await db.branchStudents.getByBranch(branchCode)).map(s => ({
-        ...s,
-        branchName: BRANCH_NAMES[branchCode]
-    }));
+    const students = (await db.branchStudents.getByBranch(branchCode))
+        .filter(s => s.guardianService === 'Evet')
+        .map(s => ({
+            ...s,
+            branchName: BRANCH_NAMES[branchCode]
+        }));
+
     const universities = await db.universities.getAll();
 
     return (

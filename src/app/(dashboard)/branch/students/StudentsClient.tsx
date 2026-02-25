@@ -17,7 +17,7 @@ const EMPTY_STUDENT: Partial<BranchStudent> = {
     firstName: '', lastName: '', phone: '', email: '', universityId: '', program: 'Lisans', grade: '1', city: 'Milano', passportNo: '', notes: '',
     infoDate: '', infoStatus: 'Hayır', offerLetter: 'Bekleniyor', applicationDeadline: '', applicationFee: '', dsuFee: '', visaFee: '',
     examResult: '', selectionResult: '', visaResult: '', finalStatus: 'Beklemede', paymentStatus: 'Bekleniyor',
-    packageType: '', accommodationService: 'Hayır', supportPackage: 'Hayır', scholarshipPackage: 'Hayır', ydtSupport: 'Hayır',
+    packageType: '', accommodationService: 'Hayır', supportPackage: 'Hayır', scholarshipPackage: 'Hayır', guardianService: 'Hayır', ydtSupport: 'Hayır',
     status: 'active', registrationDate: new Date().toISOString().split('T')[0],
     serialNumber: '', description: '', parentName: '', parentPhone: '', parentEmail: '', fee: ''
 };
@@ -96,12 +96,13 @@ export default function StudentsClient({ initialStudents, universities, branchCo
         label: string;
     } | null>(null);
 
-    const SENSITIVE_FIELDS = ['finalStatus', 'supportPackage', 'accommodationService', 'scholarshipPackage', 'ydtSupport'];
+    const SENSITIVE_FIELDS = ['finalStatus', 'supportPackage', 'accommodationService', 'scholarshipPackage', 'guardianService', 'ydtSupport'];
     const FIELD_LABELS: Record<string, string> = {
         finalStatus: 'Sonuç',
         supportPackage: 'Danışmanlık',
         accommodationService: 'Konaklama',
         scholarshipPackage: 'Burs Paketi',
+        guardianService: 'Vasi Hizmeti',
         ydtSupport: 'YDP Desteği'
     };
 
@@ -410,6 +411,7 @@ export default function StudentsClient({ initialStudents, universities, branchCo
                                 <InlineEditableRow label="Danışmanlık" value={selectedStudent.supportPackage} field="supportPackage" type="select" options={['Evet', 'Hayır'].map(o => ({ value: o, label: o }))} onUpdate={(v) => handleUpdateField(selectedStudent.id, 'supportPackage', v)} />
                                 <InlineEditableRow label="Konaklama" value={selectedStudent.accommodationService} field="accommodationService" type="select" options={['Evet', 'Hayır'].map(o => ({ value: o, label: o }))} onUpdate={(v) => handleUpdateField(selectedStudent.id, 'accommodationService', v)} />
                                 <InlineEditableRow label="Burs Paketi" value={selectedStudent.scholarshipPackage} field="scholarshipPackage" type="select" options={['Evet', 'Hayır'].map(o => ({ value: o, label: o }))} onUpdate={(v) => handleUpdateField(selectedStudent.id, 'scholarshipPackage', v)} />
+                                <InlineEditableRow label="Vasi Hizmeti" value={selectedStudent.guardianService} field="guardianService" type="select" options={['Evet', 'Hayır'].map(o => ({ value: o, label: o }))} onUpdate={(v) => handleUpdateField(selectedStudent.id, 'guardianService', v)} />
                                 <InlineEditableRow label="YDP" value={selectedStudent.ydtSupport} field="ydtSupport" type="select" options={['Evet', 'Hayır'].map(o => ({ value: o, label: o }))} onUpdate={(v) => handleUpdateField(selectedStudent.id, 'ydtSupport', v)} />
                             </InfoCard>
                         </div>

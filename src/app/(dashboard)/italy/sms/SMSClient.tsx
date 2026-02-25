@@ -1,12 +1,13 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Send, Search, Check, AlertCircle, Loader2, Phone, X, User, Plus, Trash2 } from 'lucide-react';
+import { Send, Search, Check, AlertCircle, Loader2, Phone, X, User, Plus, Trash2, Users, School } from 'lucide-react';
 import { sendManualSMS } from '@/app/actions/sms';
-import { BranchStudent, BRANCH_NAMES } from '@/types';
+import { BranchStudent, BRANCH_NAMES, University } from '@/types';
 
 interface SMSClientProps {
     students: (BranchStudent & { branchName: string })[];
+    universities: University[];
 }
 
 interface Recipient {
@@ -17,9 +18,13 @@ interface Recipient {
     photoUrl?: string;
 }
 
-export default function SMSClient({ students }: SMSClientProps) {
+export default function SMSClient({ students, universities }: SMSClientProps) {
     const [searchTerm, setSearchTerm] = useState('');
     const [filteredStudents, setFilteredStudents] = useState<(BranchStudent & { branchName: string })[]>([]);
+
+    // Multi-select state
+    const [isUniDropdownOpen, setIsUniDropdownOpen] = useState(false);
+    const [selectedUniIds, setSelectedUniIds] = useState<string[]>([]);
 
     // Recipients list
     const [recipients, setRecipients] = useState<Recipient[]>([]);
@@ -112,6 +117,134 @@ export default function SMSClient({ students }: SMSClientProps) {
                 <p style={{ color: '#808191', fontSize: '1rem' }}>
                     Birden fazla öğrenci seçerek veya numara ekleyerek toplu SMS gönderin.
                 </p>
+            </div>
+
+            {/* Quick Selection Area */}
+            <div style={{ background: 'white', borderRadius: '24px', boxShadow: '0 10px 40px rgba(0,0,0,0.08)', padding: '1.5rem', border: '1px solid #f3f4f6', marginBottom: '2rem' }}>
+                <h2 style={{ fontSize: '1.1rem', fontWeight: '700', color: '#1a1a2e', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <Users size={20} color="#6C5CE7" />
+                    Hızlı Seçim Araçları
+                </h2>
+                <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', alignItems: 'center' }}>
+                    <button
+                        onClick={() => {
+                            const validStudents = students.filter(s => s.finalStatus !== 'Red' && s.status !== 'cancelled' && s.phone);
+                            const newRecipients = validStudents.map(s => ({
+                                id: s.id,
+                                name: `${s.firstName} ${s.lastName}`,
+                                phone: s.phone!,
+                                type: 'student' as const,
+                                photoUrl: s.photoUrl
+                            }));
+
+                            // Merge avoiding duplicates
+                            setRecipients(prev => {
+                                const existIds = new Set(prev.map(r => r.id));
+                                const uniqueNew = newRecipients.filter(r => !existIds.has(r.id));
+                                return [...prev, ...uniqueNew];
+                            });
+                            alert(`${newRecipients.length} uygun öğrenci listeye eklendi.`);
+                        }}
+                        style={{
+                            padding: '10px 16px',
+                            borderRadius: '12px',
+                            background: '#e0e7ff',
+                            color: '#4338ca',
+                            border: '1px solid #c7d2fe',
+                            fontWeight: '600',
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '8px',
+                            fontSize: '0.9rem',
+                            transition: 'all 0.2s'
+                        }}
+                        onMouseEnter={(e) => e.currentTarget.style.background = '#dbeafe'}
+                        onMouseLeave={(e) => e.currentTarget.style.background = '#e0e7ff'}
+                    >
+                        <Check size={16} />
+                        Tüm Uygun Öğrencileri Ekle (Reddedilmemiş)
+                    </button>
+
+                    <div style={{ height: '30px', width: '1px', background: '#e5e7eb', margin: '0 8px' }}></div>
+
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <School size={18} color="#6b7280" />
+                        <select
+                            onChange={(e) => {
+                                const uniId = e.target.value;
+                                if (!uniId) return;
+
+                                const uniName = universities.find(u => u.id === uniId)?.name;
+                                const validStudents = students.filter(s => s.universityId === uniId && s.finalStatus !== 'Red' && s.status !== 'cancelled' && s.phone);
+
+                                if (validStudents.length === 0) {
+                                    alert('Bu üniversiteye ait uygun öğrenci bulunamadı.');
+                                    e.target.value = "";
+                                    return;
+                                }
+
+                                const newRecipients = validStudents.map(s => ({
+                                    id: s.id,
+                                    name: `${s.firstName} ${s.lastName}`,
+                                    phone: s.phone!,
+                                    type: 'student' as const,
+                                    photoUrl: s.photoUrl
+                                }));
+
+                                setRecipients(prev => {
+                                    const existIds = new Set(prev.map(r => r.id));
+                                    const uniqueNew = newRecipients.filter(r => !existIds.has(r.id));
+                                    return [...prev, ...uniqueNew];
+                                });
+
+                                alert(`${uniName} için ${validStudents.length} öğrenci eklendi.`);
+                                e.target.value = ""; // Reset select
+                            }}
+                            style={{
+                                padding: '10px 12px',
+                                borderRadius: '12px',
+                                border: '1px solid #e5e7eb',
+                                background: '#f9fafb',
+                                fontSize: '0.9rem',
+                                outline: 'none',
+                                cursor: 'pointer',
+                                minWidth: '200px'
+                            }}
+                        >
+                            <option value="">Üniversiteye Göre Ekle...</option>
+                            {universities.map(u => (
+                                <option key={u.id} value={u.id}>{u.name}</option>
+                            ))}
+                        </select>
+                    </div>
+
+                    <div style={{ flex: 1 }}></div>
+
+                    <button
+                        onClick={() => {
+                            if (confirm('Listeyi temizlemek istediğinize emin misiniz?')) {
+                                setRecipients([]);
+                            }
+                        }}
+                        style={{
+                            padding: '10px 16px',
+                            borderRadius: '12px',
+                            background: '#fee2e2',
+                            color: '#b91c1c',
+                            border: '1px solid #fecaca',
+                            fontWeight: '600',
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '8px',
+                            fontSize: '0.9rem'
+                        }}
+                    >
+                        <Trash2 size={16} />
+                        Listeyi Temizle
+                    </button>
+                </div>
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1.2fr) minmax(0, 0.8fr)', gap: '1.5rem', alignItems: 'start' }}>

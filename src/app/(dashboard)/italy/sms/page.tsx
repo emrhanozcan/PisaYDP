@@ -11,8 +11,10 @@ export default async function SMSPage() {
         redirect('/login');
     }
 
+
     // Get all students using the same logic as the Students page
     const allStudents = await db.branchStudents.getAll();
+    const universities = await db.universities.getAll();
 
     // Add branch names to students
     const students = allStudents.map(s => ({
@@ -21,6 +23,6 @@ export default async function SMSPage() {
     }));
 
     return (
-        <SMSClient students={students} />
+        <SMSClient students={students} universities={universities} />
     );
 }

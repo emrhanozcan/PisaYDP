@@ -101,6 +101,98 @@ export interface AuditLog {
 // Branch User Types
 // =====================
 
+export type LeadStatus = 'new_lead' | 'lead' | 'contacted' | 'no_answer' | 'busy' | 'meeting_scheduled' | 'proposal_sent' | 'accepted' | 'rejected' | 'enrolled';
+
+export const LEAD_STATUS_LABELS: Record<LeadStatus, string> = {
+  new_lead: 'Yeni Lead',
+  lead: 'Lead (Eski)',
+  contacted: 'İletişime Geçildi',
+  no_answer: 'Cevap Yok',
+  busy: 'Meşgul',
+  meeting_scheduled: 'Randevu',
+  proposal_sent: 'Teklif Gönderildi',
+  accepted: 'Kabul',
+  rejected: 'Red',
+  enrolled: 'Kayıt'
+};
+
+export interface Lead {
+  id: string;
+  firstName: string;
+  lastName?: string;
+  emails: string[];
+  phone?: string;
+  nationality?: string;
+
+  hasItalyResidencePermit?: boolean;
+  hasOtherCitizenship?: boolean;
+  otherCitizenshipCountry?: string;
+
+  contactRole: 'student' | 'guardian';
+  studentInfo?: any; // JSONB
+  guardianInfo?: any; // JSONB
+
+  educationLevel?: string;
+  englishLevel?: string;
+  italianLevel?: string;
+  workExperience?: string;
+  // medicalTrack removed
+  interestedPrograms: string[];
+  interestedUniversities: string[];
+  interestedCountries: string[];
+  interestedServices: string[];
+
+  serviceYear?: string;
+  academicYear?: string;
+  registrationYear?: string;
+
+  meetingDate?: string;
+  meetingTime?: string;
+  meetingConsultant?: string;
+  meetingType?: string;
+  meetingSummary?: string;
+
+  discussedPrice?: number;
+  additionalPayment?: number;
+  hasDiscount?: boolean;
+  discountInfo?: string;
+  priceNotes?: string;
+
+  source?: string;
+  referenceSource?: string;
+  status: LeadStatus;
+  priority?: 'low' | 'medium' | 'high';
+  trackingStatus?: string;
+
+  isSeriousCandidate?: boolean;
+  visaInfoProvided?: boolean;
+  contractSent?: boolean;
+  formCompleted?: boolean;
+  emailSent?: boolean;
+  isRegistered?: boolean;
+
+  followUpRequired?: boolean;
+  followUpInfo?: any; // JSONB
+
+  createdBy?: string;
+  branchId?: string;
+  assignedConsultants?: string[];
+  notes?: string;
+
+  createdAt: string;
+  updatedAt: string;
+
+  // Virtual fields (joins)
+  consultant?: {
+    id: string;
+    name: string;
+  };
+  branch?: {
+    id: string;
+    name: string;
+  };
+}
+
 export interface University {
   id: string;
   name: string;
@@ -234,11 +326,14 @@ export interface BranchStudent {
   consultantName?: string;
   consultantContact?: string;
 
+  guardianService?: 'Evet' | 'Hayır'; // Vasi Hizmeti seçeneği
+
   status: StudentStatus;
   registrationDate: string;
   createdAt: string;
   photoUrl?: string;
 }
+
 
 export interface UserFavorite {
   userId: string;

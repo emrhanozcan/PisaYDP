@@ -1,6 +1,7 @@
 
 import { supabase } from '@/lib/supabase';
-import { User, Student, MentorAssignment, ServiceLog, ServiceType, AuditLog, University, BranchStudent, StudentEducation, UserFavorite, BranchCode, SupportTicket, TicketResponse, Notification, ServiceNote, ServiceUpload, ScholarshipTracking } from '@/types';
+import { User, Student, MentorAssignment, ServiceLog, ServiceType, AuditLog, University, BranchStudent, StudentEducation, UserFavorite, BranchCode, SupportTicket, TicketResponse, Notification, ServiceNote, ServiceUpload, ScholarshipTracking, Lead } from '@/types';
+
 
 // Helpers for Case Conversion
 function toCamelCase(str: string): string {
@@ -42,8 +43,9 @@ const BRANCH_STUDENT_WRITABLE_FIELDS = new Set([
     'residence_permit_place', 'residence_permit_time', 'residence_permit_status', 'codice_fiscale_handler',
     'codice_fiscale_arrival_date', 'codice_fiscale_appointment_date', 'codice_fiscale_place', 'codice_fiscale_time',
     'codice_fiscale_status', 'consultant_name', 'consultant_contact', 'status', 'registration_date', 'photo_url',
-    'scholarship_types'
+    'scholarship_types', 'guardian_service'
 ]);
+
 
 const STUDENT_WRITABLE_FIELDS = new Set([
     'first_name', 'last_name', 'country', 'city', 'school', 'program', 'email', 'phone',
@@ -108,6 +110,13 @@ export const db = {
             const { data, error } = await supabase.from('users').update(payload).eq('id', user.id).select().single();
             if (error) throw error;
             return mapToCamelCase(data) as User;
+        }
+    },
+    profiles: {
+        getById: async (id: string) => {
+            const { data, error } = await supabase.from('profiles').select('*').eq('id', id).single();
+            if (error) return null;
+            return mapToCamelCase(data);
         }
     },
     students: {
@@ -788,6 +797,78 @@ export const db = {
 
             if (error) throw error;
             return mapToCamelCase(result) as ScholarshipTracking;
+            if (error) throw error;
+            return mapToCamelCase(result) as ScholarshipTracking;
+        }
+    },
+    leads: {
+        getAll: async () => {
+            const { data, error } = await supabase
+                .from('leads')
+                .select('*')
+                .order('created_at', { ascending: false });
+            if (error) throw error;
+            return mapToCamelCase(data) as Lead[];
+        },
+        getByBranch: async (branchId: string) => {
+            const { data, error } = await supabase
+                .from('leads')
+                .select('*')
+                .eq('branch_id', branchId)
+                .order('created_at', { ascending: false });
+            if (error) throw error;
+            return mapToCamelCase(data) as Lead[];
+        },
+        create: async (lead: Partial<Lead>) => {
+            const payload = mapToSnakeCase(lead);
+
+            // Remove id if empty
+            if (!payload.id) delete payload.id;
+            // Remove created_at/updated_at to let DB handle defaults if not provided
+            if (!payload.created_at) delete payload.created_at;
+            if (!payload.updated_at) delete payload.updated_at;
+
+            // FIX: Sanitize UUID fields (empty string -> null)
+            const uuidFields = ['meeting_consultant', 'created_by', 'branch_id'];
+            uuidFields.forEach(field => {
+                if (payload[field] === '') {
+                    payload[field] = null;
+                }
+            });
+
+            // FIX: Sanitize UUID Arrays
+            if (payload.assigned_consultants && Array.isArray(payload.assigned_consultants)) {
+                payload.assigned_consultants = payload.assigned_consultants.filter((id: string) => id && id.trim() !== '');
+            }
+
+            const { data, error } = await supabase.from('leads').insert(payload).select().single();
+            if (error) throw error;
+            return mapToCamelCase(data) as Lead;
+        },
+        update: async (lead: Partial<Lead> & { id: string }) => {
+            const payload = mapToSnakeCase(lead);
+            const { id, ...rest } = payload;
+
+            // FIX: Sanitize UUID fields
+            const uuidFields = ['meeting_consultant', 'created_by', 'branch_id'];
+            uuidFields.forEach(field => {
+                if (rest[field] === '') {
+                    rest[field] = null;
+                }
+            });
+
+            // FIX: Sanitize UUID Arrays
+            if (rest.assigned_consultants && Array.isArray(rest.assigned_consultants)) {
+                rest.assigned_consultants = rest.assigned_consultants.filter((uid: string) => uid && uid.trim() !== '');
+            }
+
+            const { data, error } = await supabase.from('leads').update({ ...rest, updated_at: new Date().toISOString() }).eq('id', id).select().single();
+            if (error) throw error;
+            return mapToCamelCase(data) as Lead;
+        },
+        delete: async (id: string) => {
+            const { error } = await supabase.from('leads').delete().eq('id', id);
+            if (error) throw error;
         }
     }
 };

@@ -154,11 +154,7 @@ export default function LoginPage() {
                 </div>
             </div>
 
-            <style jsx global>{`
-                ::placeholder { color: #A0A3BD; opacity: 1; }
-                :-ms-input-placeholder { color: #A0A3BD; }
-                ::-ms-input-placeholder { color: #A0A3BD; }
-            `}</style>
         </div>
     );
 }
+

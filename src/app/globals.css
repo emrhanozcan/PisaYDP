@@ -1049,3 +1049,8 @@ a {
 .dashboard-table tbody tr:hover {
   background: #f8fafc;
 }
+
+/* LoginPage Placeholder Styles */
+::placeholder { color: #A0A3BD; opacity: 1; }
+:-ms-input-placeholder { color: #A0A3BD; }
+::-ms-input-placeholder { color: #A0A3BD; }
