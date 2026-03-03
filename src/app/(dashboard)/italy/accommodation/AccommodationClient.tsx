@@ -87,13 +87,20 @@ export default function AccommodationClient({ initialStudents, universities, bra
         setStudents(prev => prev.map(s => s.id === id ? updatedStudent : s));
 
         try {
-            await fetch('/api/branch/students', {
+            const response = await fetch('/api/branch/students', {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ id, [field]: value })
             });
+            if (!response.ok) {
+                throw new Error('API request failed');
+            }
         } catch (error) {
             console.error('Failed to update student', error);
+            // Revert on error
+            setStudents(prev => prev.map(s => s.id === id ? selectedStudent : s));
+            setSelectedStudent(selectedStudent);
+            alert('Güncelleme sırasında bir hata oluştu.');
         }
     };
 

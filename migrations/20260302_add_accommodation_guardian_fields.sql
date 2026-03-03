@@ -1,0 +1,38 @@
+-- Add missing accommodation, guardian, arrival, and ydt columns to branch_students
+ALTER TABLE branch_students
+ADD COLUMN IF NOT EXISTS accommodation_city VARCHAR(255),
+ADD COLUMN IF NOT EXISTS accommodation_type VARCHAR(255),
+ADD COLUMN IF NOT EXISTS accommodation_address TEXT,
+ADD COLUMN IF NOT EXISTS accommodation_monthly_rent VARCHAR(255),
+ADD COLUMN IF NOT EXISTS accommodation_diff_payment VARCHAR(255),
+ADD COLUMN IF NOT EXISTS accommodation_payment_status VARCHAR(255),
+ADD COLUMN IF NOT EXISTS accommodation_date DATE,
+ADD COLUMN IF NOT EXISTS accommodation_status VARCHAR(255),
+
+ADD COLUMN IF NOT EXISTS guardian_operator VARCHAR(255),
+ADD COLUMN IF NOT EXISTS guardian_arrival_date DATE,
+ADD COLUMN IF NOT EXISTS guardian_city VARCHAR(255),
+ADD COLUMN IF NOT EXISTS guardian_location VARCHAR(255),
+ADD COLUMN IF NOT EXISTS guardian_time VARCHAR(255),
+ADD COLUMN IF NOT EXISTS guardian_status VARCHAR(255),
+
+ADD COLUMN IF NOT EXISTS arrival_city VARCHAR(255),
+ADD COLUMN IF NOT EXISTS arrival_payment_status VARCHAR(255),
+ADD COLUMN IF NOT EXISTS arrival_operator VARCHAR(255),
+ADD COLUMN IF NOT EXISTS arrival_date DATE,
+ADD COLUMN IF NOT EXISTS arrival_airport VARCHAR(255),
+ADD COLUMN IF NOT EXISTS arrival_time VARCHAR(255),
+ADD COLUMN IF NOT EXISTS flight_code VARCHAR(255),
+ADD COLUMN IF NOT EXISTS arrival_accommodation VARCHAR(255),
+ADD COLUMN IF NOT EXISTS arrival_status VARCHAR(255),
+
+ADD COLUMN IF NOT EXISTS ydt_welcome_date DATE,
+ADD COLUMN IF NOT EXISTS ydt_welcome_status VARCHAR(255),
+ADD COLUMN IF NOT EXISTS ydt_school_reg_date DATE,
+ADD COLUMN IF NOT EXISTS ydt_school_reg_status VARCHAR(255),
+ADD COLUMN IF NOT EXISTS ydt_res_permit_date DATE,
+ADD COLUMN IF NOT EXISTS ydt_res_permit_status VARCHAR(255),
+ADD COLUMN IF NOT EXISTS ydt_sim_date DATE,
+ADD COLUMN IF NOT EXISTS ydt_sim_status VARCHAR(255),
+ADD COLUMN IF NOT EXISTS ydt_bank_date DATE,
+ADD COLUMN IF NOT EXISTS ydt_bank_status VARCHAR(255);

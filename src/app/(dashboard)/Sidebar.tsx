@@ -178,7 +178,7 @@ export default function Sidebar({ userRole, firstName, lastName, photoUrl, userI
                     {collapsed ? <ChevronRight size={20} /> : <ChevronLeft size={20} />}
                 </button>
 
-                <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'visible' }}>
+                <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'visible', minHeight: 0 }}>
 
                     <div className="brand-area" style={{ padding: collapsed ? '1.5rem 1rem' : '2rem', justifyContent: collapsed ? 'center' : 'flex-start', position: 'relative' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
@@ -467,8 +467,32 @@ export default function Sidebar({ userRole, firstName, lastName, photoUrl, userI
                     </nav>
 
                     <div style={{ padding: collapsed ? '0 1rem 2rem' : '0 2rem 2rem', display: 'flex', justifyContent: collapsed ? 'center' : 'flex-start' }}>
-                        <form action={logout}>
-                            <button type="submit" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', color: '#999', background: 'none', border: 'none', cursor: 'pointer', fontSize: '0.9rem' }}>
+                        <form action={logout} style={{ width: '100%' }}>
+                            <button
+                                type="submit"
+                                style={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: collapsed ? 'center' : 'flex-start',
+                                    gap: '0.75rem',
+                                    color: '#E53935',
+                                    background: '#FFEBEE',
+                                    border: 'none',
+                                    cursor: 'pointer',
+                                    fontSize: '0.9rem',
+                                    fontWeight: '500',
+                                    padding: collapsed ? '0.75rem' : '0.75rem 1.25rem',
+                                    borderRadius: '10px',
+                                    width: '100%',
+                                    transition: 'all 0.2s ease',
+                                }}
+                                onMouseEnter={(e) => {
+                                    e.currentTarget.style.background = '#FFCDD2';
+                                }}
+                                onMouseLeave={(e) => {
+                                    e.currentTarget.style.background = '#FFEBEE';
+                                }}
+                            >
                                 <LogOut size={18} /> {!collapsed && 'Oturumu Kapat'}
                             </button>
                         </form>

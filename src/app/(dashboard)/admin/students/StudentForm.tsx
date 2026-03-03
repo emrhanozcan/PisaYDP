@@ -26,7 +26,7 @@ export default function StudentForm({ universities, initialData, isEditing = fal
         const base: Partial<BranchStudent> = initialData || {
             firstName: '', lastName: '', phone: '', email: '', universityId: '', program: 'Lisans', grade: '1', city: 'Milano', passportNo: '', notes: '',
             examResult: '', selectionResult: '', visaResult: '', finalStatus: 'Beklemede', paymentStatus: 'Bekleniyor',
-            packageType: 'Standard', accommodationService: 'Hayır', supportPackage: 'Hayır', scholarshipPackage: 'Hayır', ydtSupport: 'Hayır',
+            packageType: 'Standard', accommodationService: 'Hayır', supportPackage: 'Hayır', scholarshipPackage: 'Hayır', ydtSupport: 'Hayır', guardianService: 'Hayır',
             status: 'active', registrationDate: new Date().toISOString().split('T')[0],
             scholarshipTypes: [],
             serialNumber: '', description: '', parentName: '', parentPhone: '', parentEmail: '', fee: '', iban: '', department: '',
