@@ -5,7 +5,7 @@ export default async function LeadsPage() {
     // Fetch leads data from the database
     // Note: If the table doesn't exist yet, this might error. 
     // We handle it gracefully or let Next.js show an error boundary.
-    let leads = [];
+    let leads: any[] = [];
     try {
         leads = await db.leads.getAll();
     } catch (error) {
