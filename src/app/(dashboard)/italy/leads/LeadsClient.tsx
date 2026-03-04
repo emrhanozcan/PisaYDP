@@ -10,7 +10,7 @@ import {
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import AddLeadModal from './AddLeadModal';
-import { createLead, updateLead } from '@/app/actions/leads';
+import { createLead, updateLead, deleteLead } from '@/app/actions/leads';
 import LeadForm from './LeadForm';
 // Assuming we might need to update a lead (client-side or separate action)
 // For now we reuse createLead logic or add updateLead later. 
@@ -38,7 +38,7 @@ export default function LeadsClient({ initialLeads, branchId }: LeadsClientProps
 
     // Filter Logic
     const filteredLeads = leads.filter(l => {
-        const fullSearch = `${l.firstName} ${l.lastName || ''} ${l.emails.join(' ')} ${l.phone || ''}`.toLowerCase();
+        const fullSearch = `${l.firstName} ${l.lastName || ''} ${(l.emails || []).join(' ')} ${l.phone || ''}`.toLowerCase();
         const matchSearch = fullSearch.includes(searchTerm.toLowerCase());
         const matchStatus = !statusFilter || l.status === statusFilter;
         return matchSearch && matchStatus;
@@ -72,6 +72,18 @@ export default function LeadsClient({ initialLeads, branchId }: LeadsClientProps
             setLeads(prev => [savedLead, ...prev]);
         }
         router.refresh(); // Ensure strict sync
+    };
+
+    const handleDeleteLead = async (id: string) => {
+        if (!confirm('Bu leadi silmek istediğinize emin misiniz?')) return;
+        const res = await deleteLead(id);
+        if (res.success) {
+            setLeads(prev => prev.filter(l => l.id !== id));
+            setSelectedLead(null);
+            router.refresh();
+        } else {
+            alert('Silme işlemi başarısız: ' + res.error);
+        }
     };
 
     // Helper for badge color matches
@@ -205,6 +217,7 @@ export default function LeadsClient({ initialLeads, branchId }: LeadsClientProps
                                 </div>
                                 <div className="no-print" style={{ display: 'flex', gap: '8px' }}>
                                     <button onClick={() => setIsEditing(true)} style={{ padding: '8px 14px', background: '#f8f9ff', border: '1px solid #e0e0e0', borderRadius: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.8rem' }}><Edit2 size={14} /> Düzenle</button>
+                                    <button onClick={() => handleDeleteLead(selectedLead.id)} style={{ padding: '8px 14px', background: '#fff1f0', color: '#cf1322', border: '1px solid #ffa39e', borderRadius: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.8rem' }}><Trash2 size={14} /> Sil</button>
                                 </div>
                             </div>
 
@@ -212,7 +225,7 @@ export default function LeadsClient({ initialLeads, branchId }: LeadsClientProps
                             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1rem' }}>
                                 {/* Kişisel Bilgiler */}
                                 <InfoCard title="İletişim Bilgileri" color="#6C5CE7" icon={<Mail size={18} />}>
-                                    <InfoRow label="Email" value={selectedLead.emails.join(', ')} />
+                                    <InfoRow label="Email" value={(selectedLead.emails || []).join(', ')} />
                                     <InfoRow label="Telefon" value={selectedLead.phone} />
                                     <InfoRow label="Uyruk" value={selectedLead.nationality} />
                                     <InfoRow label="Şehir" value={selectedLead.studentInfo?.city || '-'} />

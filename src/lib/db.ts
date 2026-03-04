@@ -836,6 +836,14 @@ export const db = {
                 }
             });
 
+            // FIX: Sanitize Date/Time fields (empty string -> null)
+            const dateFields = ['meeting_date', 'meeting_time'];
+            dateFields.forEach(field => {
+                if (payload[field] === '') {
+                    payload[field] = null;
+                }
+            });
+
             // FIX: Sanitize UUID Arrays
             if (payload.assigned_consultants && Array.isArray(payload.assigned_consultants)) {
                 payload.assigned_consultants = payload.assigned_consultants.filter((id: string) => id && id.trim() !== '');
@@ -852,6 +860,14 @@ export const db = {
             // FIX: Sanitize UUID fields
             const uuidFields = ['meeting_consultant', 'created_by', 'branch_id'];
             uuidFields.forEach(field => {
+                if (rest[field] === '') {
+                    rest[field] = null;
+                }
+            });
+
+            // FIX: Sanitize Date/Time fields
+            const dateFields = ['meeting_date', 'meeting_time'];
+            dateFields.forEach(field => {
                 if (rest[field] === '') {
                     rest[field] = null;
                 }

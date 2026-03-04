@@ -124,7 +124,10 @@ export default function LeadForm({ initialData, onSave, onCancel, isSubmitting =
                 phone: initialData.phone || '',
                 nationality: initialData.nationality || 'Türkiye',
                 contact_role: initialData.contactRole || 'student',
-                student_info: initialData.studentInfo || prev.student_info,
+                student_info: initialData.studentInfo ? {
+                    ...initialData.studentInfo,
+                    emails: initialData.studentInfo.emails && initialData.studentInfo.emails.length > 0 ? initialData.studentInfo.emails : ['']
+                } : prev.student_info,
 
                 interested_services: initialData.interestedServices || [],
                 service_year: initialData.serviceYear || '2025',

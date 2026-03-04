@@ -11,16 +11,15 @@ export default async function BranchLeadsPage() {
         redirect('/login');
     }
 
-    // Get the user's branch_id from their profile
-    const profile = await db.profiles.getById(session.id);
-    const branchId = profile?.branchId;
+    // Get the user's branch_code from their session
+    const branchCode = session.branchCode as string;
 
     let leads: Lead[] = [];
-    if (branchId) {
-        leads = await db.leads.getByBranch(branchId);
+    if (branchCode) {
+        leads = await db.leads.getByBranch(branchCode);
     } else {
-        // Fallback or warning if branchId is missing
-        console.warn(`User ${session.id} has no branchId assigned in their profile.`);
+        // Fallback or warning if branchCode is missing
+        console.warn(`User ${session.id} has no branchCode assigned in their session.`);
         leads = [];
     }
 
@@ -30,7 +29,7 @@ export default async function BranchLeadsPage() {
                 <h1 className="text-2xl font-bold text-gray-800">Şube Lead Yönetimi</h1>
                 <p className="text-gray-600">Şubenize atanan veya şubeniz tarafından oluşturulan leadler.</p>
             </div>
-            <LeadsClient initialLeads={leads} branchId={branchId} />
+            <LeadsClient initialLeads={leads} branchId={branchCode} />
         </div>
     );
 }
