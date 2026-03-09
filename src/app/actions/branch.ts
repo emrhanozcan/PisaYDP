@@ -3,6 +3,7 @@
 import { db } from '@/lib/db';
 import { BranchCode, BranchStudent, University, StudentEducation } from '@/types';
 import { revalidatePath } from 'next/cache';
+import { getSession } from '@/app/actions/auth';
 
 // Get all universities sorted alphabetically
 export async function getUniversities() {
@@ -69,6 +70,11 @@ function sanitizePayload<T extends Record<string, any>>(data: T): T {
 
 // Create branch student
 export async function createBranchStudent(student: Omit<BranchStudent, 'createdAt'>) {
+    const session = await getSession();
+    if (!session || (session.role !== 'admin' && session.role !== 'branch_user' && session.role !== 'italy_staff')) {
+        throw new Error("Unauthorized");
+    }
+
     try {
         const sanitizedStudent = sanitizePayload(student);
         const newStudentData: any = {
@@ -109,6 +115,11 @@ export async function createBranchStudent(student: Omit<BranchStudent, 'createdA
 
 // Update branch student
 export async function updateBranchStudent(id: string, data: Partial<BranchStudent>) {
+    const session = await getSession();
+    if (!session || (session.role !== 'admin' && session.role !== 'branch_user' && session.role !== 'italy_staff')) {
+        throw new Error("Unauthorized");
+    }
+
     try {
         const student = await db.branchStudents.getById(id);
         if (student) {
@@ -172,6 +183,11 @@ export async function updateResidencePermit(id: string, data: Partial<BranchStud
 
 // Delete branch student
 export async function deleteBranchStudent(id: string) {
+    const session = await getSession();
+    if (!session || (session.role !== 'admin' && session.role !== 'branch_user' && session.role !== 'italy_staff')) {
+        throw new Error("Unauthorized");
+    }
+
     try {
         await db.assignments.deleteByStudentId(id);
         await db.logs.deleteByStudentId(id);

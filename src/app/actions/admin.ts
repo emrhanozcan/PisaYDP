@@ -4,6 +4,7 @@ import { db } from "@/lib/db";
 import { User, Student, ServiceType } from "@/types";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { getSession } from "@/app/actions/auth";
 
 export async function createMentor(formData: FormData) {
     const firstName = formData.get('firstName') as string;
@@ -11,6 +12,11 @@ export async function createMentor(formData: FormData) {
     const email = formData.get('email') as string;
     const username = formData.get('username') as string;
     const password = formData.get('password') as string; // Temporary password
+
+    const session = await getSession(); // Get session for actorId and role check
+    if (!session || (session.role !== 'admin' && session.role !== 'italy_staff')) {
+        throw new Error("Unauthorized");
+    }
 
     const newMentor: User = {
         id: `mentor-${Date.now()}`,
@@ -30,7 +36,7 @@ export async function createMentor(formData: FormData) {
         entity: 'User',
         entityId: newMentor.id,
         action: 'create',
-        actorId: 'admin-1', // In real app get from session
+        actorId: session.id,
         timestamp: new Date().toISOString()
     });
 
@@ -80,6 +86,11 @@ export async function createStudent(formData: FormData) {
 }
 
 export async function assignMentor(formData: FormData) {
+    const session = await getSession();
+    if (!session || (session.role !== 'admin' && session.role !== 'italy_staff')) {
+        throw new Error("Unauthorized");
+    }
+
     const studentId = formData.get('studentId') as string;
     const mentorId = formData.get('mentorId') as string;
     const role = formData.get('role') as 'primary' | 'support';
@@ -106,6 +117,11 @@ export async function toggleUserStatus(userId: string) {
 }
 
 export async function createServiceType(formData: FormData) {
+    const session = await getSession();
+    if (!session || (session.role !== 'admin' && session.role !== 'italy_staff')) {
+        throw new Error("Unauthorized");
+    }
+
     const name = formData.get('name') as string;
     const category = formData.get('category') as string;
     const pricingModel = formData.get('pricingModel') as 'fixed' | 'hourly';
@@ -126,12 +142,21 @@ export async function createServiceType(formData: FormData) {
 }
 
 export async function deleteServiceType(id: string) {
+    const session = await getSession();
+    if (!session || (session.role !== 'admin' && session.role !== 'italy_staff')) {
+        throw new Error("Unauthorized");
+    }
     await db.serviceTypes.delete(id);
     revalidatePath('/admin/settings');
 }
 
 // Admin: Update payment status of a service log
 export async function updatePaymentStatus(logId: string, paymentStatus: 'pending' | 'paid') {
+    const session = await getSession();
+    if (!session || (session.role !== 'admin' && session.role !== 'italy_staff')) {
+        throw new Error("Unauthorized");
+    }
+
     const logs = await db.logs.getAll();
     const log = logs.find(l => l.id === logId);
     if (!log) return;
@@ -148,6 +173,11 @@ export async function updatePaymentStatus(logId: string, paymentStatus: 'pending
 
 // Admin: Update service log status (approve/reject)
 export async function updateServiceLogStatus(logId: string, status: 'approved' | 'rejected' | 'submitted', feedback?: string) {
+    const session = await getSession();
+    if (!session || (session.role !== 'admin' && session.role !== 'italy_staff')) {
+        throw new Error("Unauthorized");
+    }
+
     const logs = await db.logs.getAll();
     const log = logs.find(l => l.id === logId);
     if (!log) return;
@@ -174,6 +204,11 @@ export async function updateMentor(mentorId: string, data: {
     username?: string;
     password?: string;
 }) {
+    const session = await getSession();
+    if (!session || (session.role !== 'admin' && session.role !== 'italy_staff')) {
+        throw new Error("Unauthorized");
+    }
+
     const mentor = await db.users.getById(mentorId);
     if (!mentor || mentor.role !== 'mentor') {
         throw new Error('Mentor not found');
@@ -208,6 +243,11 @@ export async function updateMentor(mentorId: string, data: {
 import { supabase } from "@/lib/supabase";
 
 export async function removeMentorFromStudent(studentId: string, mentorId: string) {
+    const session = await getSession();
+    if (!session || (session.role !== 'admin' && session.role !== 'italy_staff')) {
+        throw new Error("Unauthorized");
+    }
+
     // We need to delete the specific assignment
     const { error } = await supabase.from('mentor_assignments')
         .delete()
@@ -232,6 +272,11 @@ export async function removeMentorFromStudent(studentId: string, mentorId: strin
 }
 
 export async function processRemovalRequest(ticketId: string, approved: boolean) {
+    const session = await getSession();
+    if (!session || (session.role !== 'admin' && session.role !== 'italy_staff')) {
+        throw new Error("Unauthorized");
+    }
+
     const ticket = await db.supportTickets.getById(ticketId);
     if (!ticket) throw new Error("Ticket not found");
 
@@ -284,6 +329,11 @@ export async function processRemovalRequest(ticketId: string, approved: boolean)
 
 // Admin: Update service log details (notes and attachments)
 export async function updateServiceLogDetails(formData: FormData) {
+    const session = await getSession();
+    if (!session || (session.role !== 'admin' && session.role !== 'italy_staff')) {
+        throw new Error("Unauthorized");
+    }
+
     const logId = formData.get('logId') as string;
     const notes = formData.get('notes') as string || '';
     const files = formData.getAll('attachments') as File[];

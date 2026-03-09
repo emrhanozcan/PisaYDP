@@ -18,8 +18,8 @@ export async function deleteServiceLogAttachment(logId: string, attachmentUrl: s
     }
 
     // Authorization check
-    // Admin can delete any. Mentor can only delete their own.
-    if (session.role !== 'admin' && (session.role !== 'mentor' || log.mentorId !== session.id)) {
+    // Admin and Italy Staff can delete any. Mentor can only delete their own.
+    if (session.role !== 'admin' && session.role !== 'italy_staff' && (session.role !== 'mentor' || log.mentorId !== session.id)) {
         throw new Error("Unauthorized access to this log");
     }
 

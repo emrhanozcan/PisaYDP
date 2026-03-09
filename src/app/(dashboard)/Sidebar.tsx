@@ -404,6 +404,13 @@ export default function Sidebar({ userRole, firstName, lastName, photoUrl, userI
                                 <SidebarLink onClick={() => setMobileOpen(false)} collapsed={collapsed} href="/italy/scholarship" icon={<Award size={20} />} label="Burs Hizmeti" />
                                 <SidebarLink onClick={() => setMobileOpen(false)} collapsed={collapsed} href="/italy/leads" icon={<UserPlus size={20} />} label="Leadler" />
                                 <SidebarLink onClick={() => setMobileOpen(false)} collapsed={collapsed} href="/italy/sms" icon={<MessageCircle size={20} />} label="SMS Gönder" />
+
+                                {!collapsed && <div className="nav-section-title" style={{ marginTop: '1.5rem' }}>Mentor Yönetimi</div>}
+                                <SidebarLink onClick={() => setMobileOpen(false)} collapsed={collapsed} href="/admin/students" icon={<GraduationCap size={20} />} label="Mentor Öğrenciler" />
+                                <SidebarLink onClick={() => setMobileOpen(false)} collapsed={collapsed} href="/admin/mentors" icon={<Users size={20} />} label="Mentorlar" />
+                                <SidebarLink onClick={() => setMobileOpen(false)} collapsed={collapsed} href="/admin/services" icon={<FileText size={20} />} label="Hizmet Kayıtları" />
+                                <SidebarLink onClick={() => setMobileOpen(false)} collapsed={collapsed} href="/admin/payouts" icon={<Wallet size={20} />} label="Ödemeler & Rapor" />
+                                <SidebarLink onClick={() => setMobileOpen(false)} collapsed={collapsed} href="/admin/settings" icon={<Settings size={20} />} label="Sistem Ayarlar" />
                             </>
                         )}
 

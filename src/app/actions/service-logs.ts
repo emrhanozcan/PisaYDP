@@ -9,7 +9,7 @@ import { getSession } from "@/app/actions/auth";
 // Shared: Create Service Log (Optimized with Supabase Storage)
 export async function createServiceLog(formData: FormData) {
     const session = await getSession();
-    if (!session || (session.role !== 'mentor' && session.role !== 'admin')) {
+    if (!session || (session.role !== 'mentor' && session.role !== 'admin' && session.role !== 'italy_staff')) {
         throw new Error("Unauthorized");
     }
 
@@ -106,7 +106,7 @@ export async function createServiceLog(formData: FormData) {
 // Shared: Update Service Log (Mentor & Admin)
 export async function updateServiceLogDetails(formData: FormData) {
     const session = await getSession();
-    if (!session || (session.role !== 'mentor' && session.role !== 'admin')) {
+    if (!session || (session.role !== 'mentor' && session.role !== 'admin' && session.role !== 'italy_staff')) {
         throw new Error("Unauthorized");
     }
 
