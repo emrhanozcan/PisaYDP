@@ -7,14 +7,19 @@ import {
     ArrowLeft, UserPlus, Calendar, MapPin, School,
     Mail, Phone, Package, FileText, CheckCircle2,
     Clock, AlertCircle, User, TrendingUp, Edit,
-    ChevronRight, Star, Activity, Trash2, X, AlertTriangle, UserMinus
+    ChevronRight, Star, Activity, Trash2, X, AlertTriangle, UserMinus, Plus, Check, RotateCcw
 } from "lucide-react";
-import { assignMentor, removeMentorFromStudent } from "@/app/actions/admin";
+import {
+    assignMentor,
+    removeMentorFromStudent,
+} from "@/app/actions/admin";
 import { deleteBranchStudent } from "@/app/actions/branch";
+import { createServiceLog, updateServiceLogStatus } from "@/app/actions/service-logs";
 import StudentAvatar from "@/components/common/StudentAvatar";
 import UserAvatar from "@/components/common/UserAvatar";
 import { getSession } from "@/app/actions/auth";
 import AssignMentorForm from "./AssignMentorForm";
+import AdminServiceLogForm from "./AdminServiceLogForm";
 
 interface StudentDetailViewProps {
     student: any;
@@ -343,100 +348,126 @@ export default function StudentDetailView({
             </div>
 
             {/* Two Column Layout */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: '1.5rem' }}>
-                {/* Mentor Assignments */}
-                <div className="glass-panel" style={{ padding: '1.5rem' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                            <div style={{ width: 40, height: 40, borderRadius: 10, background: '#eef2ff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                <UserPlus size={20} color="#6366f1" />
-                            </div>
-                            <div>
-                                <h2 style={{ fontSize: '1.1rem', color: '#11142D', fontWeight: 600 }}>Mentor Atamaları</h2>
-                                <p style={{ fontSize: '0.8rem', color: '#808191' }}>{assignments.length} mentor atanmış</p>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(450px, 1fr))', gap: '1.5rem' }}>
+                {/* Column 1: Assignments & Logging */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                    {/* Mentor Assignments */}
+                    <div className="glass-panel" style={{ padding: '1.5rem' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                                <div style={{ width: 40, height: 40, borderRadius: 10, background: '#eef2ff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                    <UserPlus size={20} color="#6366f1" />
+                                </div>
+                                <div>
+                                    <h2 style={{ fontSize: '1.1rem', color: '#11142D', fontWeight: 600 }}>Mentor Atamaları</h2>
+                                    <p style={{ fontSize: '0.8rem', color: '#808191' }}>{assignments.length} mentor atanmış</p>
+                                </div>
                             </div>
                         </div>
-                    </div>
 
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                        {assignments.map(assign => {
-                            const mentor = mentors.find(u => u.id === assign.mentorId);
-                            return (
-                                <div key={assign.id} style={{
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'space-between',
-                                    padding: '1rem',
-                                    background: '#f8fafc',
-                                    borderRadius: '12px',
-                                    border: '1px solid #f1f5f9'
-                                }}>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                                        <UserAvatar
-                                            userId={mentor?.id || ''}
-                                            firstName={mentor?.firstName || ''}
-                                            lastName={mentor?.lastName || ''}
-                                            photoUrl={mentor?.photoUrl}
-                                            size={44}
-                                            canEdit={false}
-                                        />
-                                        <div>
-                                            <p style={{ fontWeight: 600, color: '#11142D' }}>
-                                                {mentor ? `${mentor.firstName} ${mentor.lastName}` : 'Bilinmeyen Mentor'}
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                            {assignments.map(assign => {
+                                const mentor = mentors.find(u => u.id === assign.mentorId);
+                                return (
+                                    <div key={assign.id} style={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'space-between',
+                                        padding: '1rem',
+                                        background: '#f8fafc',
+                                        borderRadius: '12px',
+                                        border: '1px solid #f1f5f9'
+                                    }}>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                                            <UserAvatar
+                                                userId={mentor?.id || ''}
+                                                firstName={mentor?.firstName || ''}
+                                                lastName={mentor?.lastName || ''}
+                                                photoUrl={mentor?.photoUrl}
+                                                size={44}
+                                                canEdit={false}
+                                            />
+                                            <div>
+                                                <p style={{ fontWeight: 600, color: '#11142D' }}>
+                                                    {mentor ? `${mentor.firstName} ${mentor.lastName}` : 'Bilinmeyen Mentor'}
+                                                </p>
+                                                <p style={{ fontSize: '0.75rem', color: '#9ca3af', textTransform: 'capitalize' }}>
+                                                    {assign.role === 'primary' ? '⭐ Ana Mentor' : 'Destek Mentor'}
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <div style={{ textAlign: 'right', display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.25rem' }}>
+                                            <p style={{ fontSize: '0.75rem', color: '#9ca3af' }}>
+                                                <Calendar size={12} style={{ display: 'inline', verticalAlign: 'middle', marginRight: '0.25rem' }} />
+                                                {new Date(assign.startDate).toLocaleDateString('tr-TR')}
                                             </p>
-                                            <p style={{ fontSize: '0.75rem', color: '#9ca3af', textTransform: 'capitalize' }}>
-                                                {assign.role === 'primary' ? '⭐ Ana Mentor' : 'Destek Mentor'}
-                                            </p>
+                                            <button
+                                                onClick={() => handleRemoveMentor(assign.mentorId)}
+                                                style={{
+                                                    fontSize: '0.75rem',
+                                                    color: '#dc2626',
+                                                    background: '#fef2f2',
+                                                    padding: '0.25rem 0.5rem',
+                                                    borderRadius: '6px',
+                                                    border: '1px solid #fee2e2',
+                                                    cursor: 'pointer',
+                                                    fontWeight: 600,
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    gap: '0.25rem'
+                                                }}
+                                            >
+                                                <UserMinus size={12} /> Bağlantıyı Kes
+                                            </button>
                                         </div>
                                     </div>
-                                    <div style={{ textAlign: 'right', display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.25rem' }}>
-                                        <p style={{ fontSize: '0.75rem', color: '#9ca3af' }}>
-                                            <Calendar size={12} style={{ display: 'inline', verticalAlign: 'middle', marginRight: '0.25rem' }} />
-                                            {new Date(assign.startDate).toLocaleDateString('tr-TR')}
-                                        </p>
-                                        <button
-                                            onClick={() => handleRemoveMentor(assign.mentorId)}
-                                            style={{
-                                                fontSize: '0.75rem',
-                                                color: '#dc2626',
-                                                background: '#fef2f2',
-                                                padding: '0.25rem 0.5rem',
-                                                borderRadius: '6px',
-                                                border: '1px solid #fee2e2',
-                                                cursor: 'pointer',
-                                                fontWeight: 600,
-                                                display: 'flex',
-                                                alignItems: 'center',
-                                                gap: '0.25rem'
-                                            }}
-                                        >
-                                            <UserMinus size={12} /> Bağlantıyı Kes
-                                        </button>
-                                    </div>
-                                </div>
-                            );
-                        })}
+                                );
+                            })}
 
-                        {assignments.length === 0 && (
-                            <div style={{
-                                textAlign: 'center',
-                                padding: '2rem',
-                                color: '#9ca3af',
-                                border: '2px dashed #e5e7eb',
-                                borderRadius: '12px'
-                            }}>
-                                <UserPlus size={32} style={{ marginBottom: '0.5rem', opacity: 0.5 }} />
-                                <p>Henüz mentor atanmamış</p>
-                            </div>
-                        )}
+                            {assignments.length === 0 && (
+                                <div style={{
+                                    textAlign: 'center',
+                                    padding: '2rem',
+                                    color: '#9ca3af',
+                                    border: '2px dashed #e5e7eb',
+                                    borderRadius: '12px'
+                                }}>
+                                    <UserPlus size={32} style={{ marginBottom: '0.5rem', opacity: 0.5 }} />
+                                    <p>Henüz mentor atanmamış</p>
+                                </div>
+                            )}
+                        </div>
+
+                        <AssignMentorForm studentId={student.id} mentors={mentors} serviceTypes={serviceTypes} />
                     </div>
 
-                    <AssignMentorForm studentId={student.id} mentors={mentors} />
+                    {/* Admin Service Logging */}
+                    <div className="glass-panel" style={{ padding: '1.5rem' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1.5rem' }}>
+                            <div style={{ width: 44, height: 44, borderRadius: 12, background: '#eafaf3', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                <Activity size={22} color="#008C45" />
+                            </div>
+                            <div>
+                                <h2 style={{ fontSize: '1.1rem', color: '#11142D', fontWeight: 600 }}>Hizmet Girişi (Yönetici)</h2>
+                                <p style={{ fontSize: '0.8rem', color: '#808191' }}>Öğrenciye mentor adına hizmet ekleyin</p>
+                            </div>
+                        </div>
+
+                        <AdminServiceLogForm
+                            studentId={student.id}
+                            assignedMentors={assignments.map(a => {
+                                const m = mentors.find(u => u.id === a.mentorId);
+                                return m ? { id: m.id, firstName: m.firstName, lastName: m.lastName } : null;
+                            }).filter(m => m !== null) as any[]}
+                            serviceTypes={serviceTypes.filter(t => t.isActive)}
+                        />
+                    </div>
                 </div>
 
-                {/* Service History */}
-                <div className="glass-panel" style={{ padding: '1.5rem' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+                {/* Column 2: Service History */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                    <div className="glass-panel" style={{ padding: '1.5rem', flex: 1 }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                             <div style={{ width: 40, height: 40, borderRadius: 10, background: '#fef3c7', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                                 <Activity size={20} color="#f59e0b" />
@@ -490,18 +521,26 @@ export default function StudentDetailView({
                                             </div>
                                         </div>
                                         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                                            {(log.unitPrice !== undefined || serviceType?.unitPrice) && (
+                                                <span style={{ fontSize: '0.85rem', fontWeight: 600, color: '#475569' }}>
+                                                    €{log.unitPrice !== undefined ? log.unitPrice : serviceType?.unitPrice}
+                                                </span>
+                                            )}
                                             <span style={{
                                                 padding: '0.25rem 0.6rem',
                                                 borderRadius: '12px',
                                                 fontSize: '0.7rem',
                                                 fontWeight: 600,
                                                 background: log.status === 'approved' ? '#ecfdf5' :
-                                                    log.status === 'submitted' ? '#fef3c7' : '#fef2f2',
+                                                    log.status === 'assigned' ? '#eef2ff' :
+                                                        log.status === 'submitted' ? '#fef3c7' : '#fef2f2',
                                                 color: log.status === 'approved' ? '#059669' :
-                                                    log.status === 'submitted' ? '#b45309' : '#dc2626'
+                                                    log.status === 'assigned' ? '#6366f1' :
+                                                        log.status === 'submitted' ? '#b45309' : '#dc2626'
                                             }}>
                                                 {log.status === 'approved' ? 'Onaylandı' :
-                                                    log.status === 'submitted' ? 'Bekliyor' : 'Reddedildi'}
+                                                    log.status === 'assigned' ? 'Mentor Atandı' :
+                                                        log.status === 'submitted' ? 'İnceleme Bekliyor' : 'Reddedildi'}
                                             </span>
                                             {isExpanded ? <Clock size={16} color="#6b7280" /> : <Activity size={16} color="#9ca3af" />}
                                         </div>
@@ -559,6 +598,83 @@ export default function StudentDetailView({
                                             {!log.notes && (!log.attachments || log.attachments.length === 0) && (
                                                 <p style={{ color: '#9ca3af', fontStyle: 'italic' }}>Detay bulunmuyor.</p>
                                             )}
+
+                                            {log.status === 'submitted' && (
+                                                <div style={{
+                                                    display: 'flex',
+                                                    gap: '0.75rem',
+                                                    marginTop: '1.5rem',
+                                                    paddingTop: '1rem',
+                                                    borderTop: '1px solid #f1f5f9'
+                                                }}>
+                                                    <button
+                                                        onClick={() => {
+                                                            if (confirm('Bu hizmet kaydını onaylamak istediğinize emin misiniz?')) {
+                                                                updateServiceLogStatus(log.id, 'approved');
+                                                            }
+                                                        }}
+                                                        style={{
+                                                            padding: '0.5rem 1rem',
+                                                            borderRadius: '8px',
+                                                            backgroundColor: '#059669',
+                                                            color: 'white',
+                                                            border: 'none',
+                                                            fontSize: '0.8rem',
+                                                            fontWeight: 600,
+                                                            cursor: 'pointer',
+                                                            display: 'flex',
+                                                            alignItems: 'center',
+                                                            gap: '0.35rem'
+                                                        }}
+                                                    >
+                                                        <Check size={14} /> Onayla
+                                                    </button>
+                                                    <button
+                                                        onClick={() => {
+                                                            if (confirm('Bu hizmet kaydını reddetmek istediğinize emin misiniz?')) {
+                                                                updateServiceLogStatus(log.id, 'rejected');
+                                                            }
+                                                        }}
+                                                        style={{
+                                                            padding: '0.5rem 1rem',
+                                                            borderRadius: '8px',
+                                                            backgroundColor: '#dc2626',
+                                                            color: 'white',
+                                                            border: 'none',
+                                                            fontSize: '0.8rem',
+                                                            fontWeight: 600,
+                                                            cursor: 'pointer',
+                                                            display: 'flex',
+                                                            alignItems: 'center',
+                                                            gap: '0.35rem'
+                                                        }}
+                                                    >
+                                                        <X size={14} /> Reddet
+                                                    </button>
+                                                    <button
+                                                        onClick={() => {
+                                                            if (confirm('Bu kaydı düzeltmesi için mentora geri göndermek istiyor musunuz?')) {
+                                                                updateServiceLogStatus(log.id, 'returned');
+                                                            }
+                                                        }}
+                                                        style={{
+                                                            padding: '0.5rem 1rem',
+                                                            borderRadius: '8px',
+                                                            backgroundColor: '#f59e0b',
+                                                            color: 'white',
+                                                            border: 'none',
+                                                            fontSize: '0.8rem',
+                                                            fontWeight: 600,
+                                                            cursor: 'pointer',
+                                                            display: 'flex',
+                                                            alignItems: 'center',
+                                                            gap: '0.35rem'
+                                                        }}
+                                                    >
+                                                        <RotateCcw size={14} /> Geri Gönder
+                                                    </button>
+                                                </div>
+                                            )}
                                         </div>
                                     )}
                                 </div>
@@ -588,7 +704,9 @@ export default function StudentDetailView({
                     )}
                 </div>
             </div>
-            {/* Delete Confirmation Modal */}
+        </div>
+
+        {/* Delete Confirmation Modal */}
             {showDeleteModal && (
                 <div style={{
                     position: 'fixed',

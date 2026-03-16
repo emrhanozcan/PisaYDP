@@ -1,7 +1,7 @@
 export type UserRole = 'admin' | 'mentor' | 'branch_user' | 'italy_staff' | 'technical_support';
 export type StudentStatus = 'active' | 'frozen' | 'graduated' | 'cancelled';
 export type AssignmentRole = 'primary' | 'support';
-export type ServiceStatus = 'draft' | 'submitted' | 'approved' | 'rejected' | 'returned';
+export type ServiceStatus = 'assigned' | 'draft' | 'submitted' | 'approved' | 'rejected' | 'returned';
 export type PaymentStatus = 'pending' | 'paid';
 
 // Branch codes for Turkey offices
@@ -59,6 +59,7 @@ export interface MentorAssignment {
   startDate: string;
   endDate?: string;
   notes?: string;
+  allowedServiceIds?: string[];
 }
 
 export interface ServiceType {
@@ -81,6 +82,7 @@ export interface ServiceLog {
   attachments?: string[];
   status: ServiceStatus;
   paymentStatus?: PaymentStatus;
+  unitPrice?: number;
   adminFeedback?: string;
   lastEditorRole?: 'mentor' | 'admin';
   createdAt: string;

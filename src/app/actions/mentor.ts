@@ -8,8 +8,8 @@ import { getSession } from "./auth";
 
 export async function createServiceLog(formData: FormData) {
     const session = await getSession();
-    if (!session || session.role !== 'mentor') {
-        throw new Error("Unauthorized");
+    if (!session || session.role === 'mentor') {
+        throw new Error("Yetkisiz işlem: Hizmet girişleri artık sadece yönetim tarafından yapılmaktadır.");
     }
 
     const studentId = formData.get('studentId') as string;
@@ -17,6 +17,21 @@ export async function createServiceLog(formData: FormData) {
     const date = formData.get('date') as string; // defaults to 'datetime-local' string
     const duration = parseInt(formData.get('duration') as string || '0');
     const notes = formData.get('notes') as string;
+
+    // Verify service type is allowed for this mentor-student assignment
+    const assignments = await db.assignments.getByStudentId(studentId);
+    const assignment = assignments.find(a => a.mentorId === session.id);
+    
+    if (!assignment) {
+        throw new Error("Bu öğrenci için atamanız bulunamadı.");
+    }
+
+    // Only enforce if allowedServiceIds exists (new assignments)
+    if (assignment.allowedServiceIds !== undefined) {
+        if (!assignment.allowedServiceIds.includes(serviceTypeId)) {
+            throw new Error("Bu hizmeti bu öğrenci için girme yetkiniz bulunmuyor. Lütfen yönetici ile iletişime geçin.");
+        }
+    }
 
     // Handle File Uploads
     const attachments: string[] = [];

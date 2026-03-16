@@ -6,31 +6,55 @@ import {
 } from "lucide-react";
 
 export async function getStudentFullDetails(studentId: string) {
-    let student: any = await db.branchStudents.getById(studentId);
-    if (!student) {
-        student = await db.students.getById(studentId);
-    } else if (student.email) {
-        // If it's a branch student, try to find global counterpart for freshest photo
-        const allGlobalStudents = await db.students.getAll();
-        const globalMatch = allGlobalStudents.find(s => s.email?.toLowerCase() === student.email.toLowerCase());
-        if (globalMatch?.photoUrl) {
-            student.photoUrl = globalMatch.photoUrl;
+    console.log('[getStudentFullDetails] Fetching details for:', studentId);
+    if (!studentId || studentId === 'undefined') {
+        console.error('[getStudentFullDetails] Invalid studentId');
+        return null;
+    }
+
+    let student: any;
+    try {
+        console.log('[getStudentFullDetails] Fetching from branch_students...');
+        student = await db.branchStudents.getById(studentId);
+        if (!student) {
+            console.log('[getStudentFullDetails] Fetching from students...');
+            student = await db.students.getById(studentId);
         }
+    } catch (e) {
+        console.error('[getStudentFullDetails] Error fetching student:', e);
+        throw e;
     }
 
     if (!student) {
         return null;
+    } else if (student.email) {
+        // If it's a branch student, try to find global counterpart for freshest photo
+        try {
+            const allGlobalStudents = await db.students.getAll();
+            const globalMatch = allGlobalStudents.find(s => s.email?.toLowerCase() === student.email.toLowerCase());
+            if (globalMatch?.photoUrl) {
+                student.photoUrl = globalMatch.photoUrl;
+            }
+        } catch (e) {
+            console.error('[getStudentFullDetails] Error fetching all global students for photo:', e);
+            // Continue without photo if error
+        }
     }
 
-    // Map university name if missing
     // Map university name(s)
     let schoolNames: string[] = [];
 
     if (student.educations && student.educations.length > 0) {
         // Fetch all universities in parallel for efficiency
-        const uniPromises = student.educations.map((edu: any) =>
-            edu.universityId ? db.universities.getById(edu.universityId) : Promise.resolve(null)
-        );
+        const uniPromises = student.educations.map(async (edu: any) => {
+            if (!edu.universityId) return null;
+            try {
+                return await db.universities.getById(edu.universityId);
+            } catch (e) {
+                console.error(`[getStudentFullDetails] Error fetching uni ${edu.universityId}:`, e);
+                return null;
+            }
+        });
         const universities = await Promise.all(uniPromises);
         schoolNames = universities
             .filter((u: any) => u !== null && u.name)
@@ -38,8 +62,12 @@ export async function getStudentFullDetails(studentId: string) {
     }
 
     if (schoolNames.length === 0 && student.universityId) {
-        const uni = await db.universities.getById(student.universityId);
-        if (uni?.name) schoolNames.push(uni.name);
+        try {
+            const uni = await db.universities.getById(student.universityId);
+            if (uni?.name) schoolNames.push(uni.name);
+        } catch (e) {
+            console.error('[getStudentFullDetails] Error fetching legacy uni:', e);
+        }
     }
 
     if (schoolNames.length > 0) {
@@ -47,17 +75,15 @@ export async function getStudentFullDetails(studentId: string) {
     }
     if (!student.country) student.country = 'İtalya';
 
-    if (schoolNames.length > 0) {
-        student.school = schoolNames.join(', ');
-    }
-    if (!student.country) student.country = 'İtalya';
+    console.log('[getStudentFullDetails] Fetching assignments and logs...');
+    const [assignments, allUsers, serviceLogs, serviceTypes] = await Promise.all([
+        db.assignments.getByStudentId(studentId),
+        db.users.getAll(),
+        db.logs.getByStudentId(studentId),
+        db.serviceTypes.getAll()
+    ]);
 
-    const assignments = await db.assignments.getByStudentId(studentId);
-    const allUsers = await db.users.getAll();
     const mentors = allUsers.filter(u => u.role === 'mentor');
-    const serviceLogs = await db.logs.getByStudentId(studentId);
-    const serviceTypes = await db.serviceTypes.getAll();
-
     const approvedLogs = serviceLogs.filter(l => l.status === 'approved');
     const pendingLogs = serviceLogs.filter(l => l.status === 'submitted');
 

@@ -9,8 +9,8 @@ import { getSession } from "@/app/actions/auth";
 // Shared: Create Service Log (Optimized with Supabase Storage)
 export async function createServiceLog(formData: FormData) {
     const session = await getSession();
-    if (!session || (session.role !== 'mentor' && session.role !== 'admin' && session.role !== 'italy_staff')) {
-        throw new Error("Unauthorized");
+    if (!session || (session.role !== 'admin' && session.role !== 'italy_staff')) {
+        throw new Error("Yetkisiz işlem: Hizmet kaydı sadece yöneticiler ve İtalya personeli tarafından oluşturulabilir.");
     }
 
     const studentId = formData.get('studentId') as string;
@@ -62,26 +62,29 @@ export async function createServiceLog(formData: FormData) {
         });
     }
 
-    const logId = `log-${Date.now()}`;
-    const newLog: ServiceLog = {
-        id: logId,
+    const mentorId = formData.get('mentorId') as string;
+    const unitPriceRaw = formData.get('unitPrice') as string;
+    const customUnitPrice = unitPriceRaw ? parseFloat(unitPriceRaw) : undefined;
+
+    if (!mentorId) {
+        throw new Error("Lütfen hizmeti gerçekleştiren mentoru seçiniz.");
+    }
+
+    const newLog: any = {
+        id: crypto.randomUUID(),
         studentId,
-        mentorId: session.role === 'mentor' ? session.id : (formData.get('mentorId') as string || session.id), // Admin might assign another mentor? For now assume session.id if mentor, or form field if admin
+        mentorId: mentorId,
         serviceTypeId,
         date: date || new Date().toISOString(),
-        durationMinutes: duration,
+        durationMinutes: isNaN(duration) ? 0 : duration,
         notes,
         attachments,
-        status: session.role === 'admin' ? 'approved' : 'submitted', // Admin creates as approved?
-        paymentStatus: session.role === 'admin' ? 'paid' : 'pending', // Optional default
+        status: 'assigned',
+        paymentStatus: 'pending',
+        unitPrice: (customUnitPrice !== undefined && !isNaN(customUnitPrice)) ? customUnitPrice : undefined,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString()
     };
-
-    // Correction: Admin might be creating ON BEHALF of a mentor.
-    // If Admin, they must specify mentorId. if not specified, maybe current user?
-    // Let's stick to simple "Mentor creates for themselves" for now unless Admin UI allows selecting mentor.
-    // The current UI (Mentor Dashboard) only allows Mentor to create. Admin creation UI is not specified yet, so this function primarily replaces `actions/mentor.ts`.
 
     await db.logs.create(newLog);
 
@@ -94,13 +97,13 @@ export async function createServiceLog(formData: FormData) {
         timestamp: new Date().toISOString()
     });
 
-    revalidatePath(`/mentor/students/${studentId}`);
-    if (session.role === 'admin') {
-        revalidatePath(`/admin/payouts`);
-    }
-    // Optimization: Don't redirect if it's an AJAX/modal form? 
-    // The original `createServiceLog` redirected.
-    redirect(`/mentor/students/${studentId}`);
+    revalidatePath(`/admin/students/${studentId}`);
+    revalidatePath(`/admin/services`);
+    revalidatePath(`/admin/payouts`);
+    
+    // Redirect depends on how it's used. If from admin panel, stay there.
+    // Since we are moving this to Admin detail view, we should probably redirect back to that view.
+    redirect(`/admin/students/${studentId}`);
 }
 
 // Shared: Update Service Log (Mentor & Admin)
@@ -112,6 +115,7 @@ export async function updateServiceLogDetails(formData: FormData) {
 
     const logId = formData.get('logId') as string;
     const notes = formData.get('notes') as string;
+    const duration = formData.get('duration') ? parseInt(formData.get('duration') as string) : undefined;
 
     const logs = await db.logs.getAll();
     const log = logs.find(l => l.id === logId);
@@ -157,7 +161,10 @@ export async function updateServiceLogDetails(formData: FormData) {
     await db.logs.update({
         ...log,
         notes,
+        durationMinutes: duration !== undefined ? duration : log.durationMinutes,
         attachments: updatedAttachments,
+        status: (log.status === 'assigned' || log.status === 'returned') ? 'submitted' : log.status, // Move to submitted for review
+        lastEditorRole: session.role === 'admin' ? 'admin' : 'mentor',
         updatedAt: new Date().toISOString()
     });
 
@@ -175,4 +182,49 @@ export async function updateServiceLogDetails(formData: FormData) {
     revalidatePath('/mentor/earnings');
     revalidatePath('/admin/payouts');
     revalidatePath(`/mentor/students/${log.studentId}`);
+    revalidatePath(`/admin/students/${log.studentId}`);
+}
+
+export async function updateServiceLogStatus(logId: string, status: 'approved' | 'rejected' | 'returned' | 'submitted') {
+    const session = await getSession();
+    if (!session) throw new Error("Unauthorized");
+
+    const logs = await db.logs.getAll();
+    const log = logs.find(l => l.id === logId);
+    if (!log) throw new Error("Log not found");
+
+    // Only Admin can Approve/Reject/Return
+    if (status === 'approved' || status === 'rejected' || status === 'returned') {
+        if (session.role !== 'admin' && session.role !== 'italy_staff') {
+            throw new Error("Sadece yöneticiler bu işlemi yapabilir.");
+        }
+    }
+
+    // Mentor can move things to 'submitted' (de-facto handled by updateDetails, but for completeness)
+    if (status === 'submitted' && log.mentorId !== session.id && session.role !== 'admin') {
+        throw new Error("Unauthorized");
+    }
+
+    await db.logs.update({
+        ...log,
+        status,
+        updatedAt: new Date().toISOString()
+    });
+
+    await db.audit.create({
+        id: `audit-${Date.now()}`,
+        entity: 'ServiceLog',
+        entityId: logId,
+        action: 'status_change',
+        actorId: session.id,
+        changes: { status },
+        timestamp: new Date().toISOString()
+    });
+
+    revalidatePath(`/admin/students/${log.studentId}`);
+    revalidatePath(`/mentor/students/${log.studentId}`);
+    revalidatePath('/admin/payouts');
+    revalidatePath('/mentor/earnings');
+    
+    return { success: true };
 }

@@ -95,6 +95,7 @@ export async function assignMentor(formData: FormData) {
     const mentorId = formData.get('mentorId') as string;
     const role = formData.get('role') as 'primary' | 'support';
     const notes = formData.get('notes') as string || '';
+    const allowedServiceIds = formData.getAll('serviceIds') as string[];
 
     const newAssignment: any = { // using any for quick fix if type strictness complains about optional fields not present in form
         id: `assign-${Date.now()}`,
@@ -102,10 +103,11 @@ export async function assignMentor(formData: FormData) {
         mentorId,
         role,
         startDate: new Date().toISOString(),
-        notes
+        notes,
+        allowedServiceIds
     };
     // In real db.ts we defined interface MentorAssignment, ensure it matches.
-    // Interface: { id, mentorId, studentId, role, startDate, endDate?, notes? }
+    // Interface: { id, mentorId, studentId, role, startDate, endDate?, notes?, allowedServiceIds? }
 
     await db.assignments.create(newAssignment);
     revalidatePath(`/admin/students/${studentId}`);

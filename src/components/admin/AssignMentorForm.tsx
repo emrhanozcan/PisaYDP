@@ -7,9 +7,10 @@ import { assignMentor } from "@/app/actions/admin";
 interface AssignMentorFormProps {
     studentId: string;
     mentors: any[];
+    serviceTypes: any[];
 }
 
-export default function AssignMentorForm({ studentId, mentors }: AssignMentorFormProps) {
+export default function AssignMentorForm({ studentId, mentors, serviceTypes }: AssignMentorFormProps) {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
 
@@ -41,7 +42,7 @@ export default function AssignMentorForm({ studentId, mentors }: AssignMentorFor
             <h3 style={{ fontSize: '0.9rem', fontWeight: 600, color: '#374151', marginBottom: '1rem' }}>Yeni Mentor Ata</h3>
             <input type="hidden" name="studentId" value={studentId} />
 
-            <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+            <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', marginBottom: '1rem' }}>
                 <select name="mentorId" className="input-field" style={{ flex: 1, minWidth: '150px', padding: '0.5rem', borderRadius: '8px', border: '1px solid #e5e7eb' }} required>
                     <option value="">Mentor Seç...</option>
                     {mentors.map(m => (
@@ -52,27 +53,52 @@ export default function AssignMentorForm({ studentId, mentors }: AssignMentorFor
                     <option value="primary">Ana Mentor</option>
                     <option value="support">Destek Mentor</option>
                 </select>
-                <button
-                    type="submit"
-                    className="btn btn-primary"
-                    disabled={isSubmitting}
-                    style={{
-                        whiteSpace: 'nowrap',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '0.5rem',
-                        padding: '0.5rem 1rem',
-                        backgroundColor: '#6366f1',
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: '8px',
-                        cursor: isSubmitting ? 'not-allowed' : 'pointer',
-                        opacity: isSubmitting ? 0.7 : 1
-                    }}
-                >
-                    {isSubmitting ? 'Atanıyor...' : <><UserPlus size={16} /> Ekle</>}
-                </button>
             </div>
+
+            <div style={{ marginBottom: '1rem' }}>
+                <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: '#4b5563', marginBottom: '0.5rem' }}>Verilebilecek Hizmetler</label>
+                <div style={{ 
+                    display: 'grid', 
+                    gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', 
+                    gap: '0.5rem',
+                    maxHeight: '150px',
+                    overflowY: 'auto',
+                    padding: '0.5rem',
+                    background: '#f8fafc',
+                    borderRadius: '8px',
+                    border: '1px solid #e5e7eb'
+                }}>
+                    {serviceTypes.map(service => (
+                        <label key={service.id} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.8rem', cursor: 'pointer' }}>
+                            <input type="checkbox" name="serviceIds" value={service.id} defaultChecked />
+                            <span>{service.name}</span>
+                        </label>
+                    ))}
+                </div>
+            </div>
+
+            <button
+                type="submit"
+                className="btn btn-primary"
+                disabled={isSubmitting}
+                style={{
+                    width: '100%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '0.5rem',
+                    padding: '0.6rem 1rem',
+                    backgroundColor: '#6366f1',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '8px',
+                    cursor: isSubmitting ? 'not-allowed' : 'pointer',
+                    opacity: isSubmitting ? 0.7 : 1,
+                    fontWeight: 600
+                }}
+            >
+                {isSubmitting ? 'Atanıyor...' : <><UserPlus size={16} /> Mentor Ata ve Hizmetleri Kaydet</>}
+            </button>
 
             {message && (
                 <div style={{

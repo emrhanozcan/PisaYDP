@@ -11,6 +11,7 @@ import {
 import { redirect } from "next/navigation";
 import StudentRemovalButton from "@/components/mentor/StudentRemovalButton";
 import FileUploader from "@/components/common/FileUploader";
+import MentorCompletionForm from "@/components/mentor/MentorCompletionForm";
 
 export default async function MentorStudentDetailPage({ params }: { params: Promise<{ id: string }> }) {
     const { id } = await params;
@@ -86,8 +87,16 @@ export default async function MentorStudentDetailPage({ params }: { params: Prom
         );
     }
 
-    const serviceTypes = (await db.serviceTypes.getAll()).filter(t => t.isActive);
+    let serviceTypes = (await db.serviceTypes.getAll()).filter(t => t.isActive);
     const logs = (await db.logs.getAll()).filter(l => l.studentId === id && l.mentorId === session.id);
+
+    // Filter service types based on assignment's allowed services
+    if (assignment.allowedServiceIds && assignment.allowedServiceIds.length > 0) {
+        serviceTypes = serviceTypes.filter(t => assignment.allowedServiceIds!.includes(t.id));
+    } else if (assignment.allowedServiceIds && assignment.allowedServiceIds.length === 0) {
+        // If an explicit empty list was provided, no services are allowed
+        serviceTypes = [];
+    }
 
     const approvedLogs = logs.filter(l => l.status === 'approved');
     const pendingLogs = logs.filter(l => l.status === 'submitted');
@@ -95,11 +104,13 @@ export default async function MentorStudentDetailPage({ params }: { params: Prom
 
     // Calculate earnings for this student
     const approvedEarnings = approvedLogs.reduce((acc, log) => {
+        if (log.unitPrice !== undefined) return acc + log.unitPrice;
         const service = serviceTypes.find(s => s.id === log.serviceTypeId);
         return acc + (service?.unitPrice || 0);
     }, 0);
 
     const pendingEarnings = pendingLogs.reduce((acc, log) => {
+        if (log.unitPrice !== undefined) return acc + log.unitPrice;
         const service = serviceTypes.find(s => s.id === log.serviceTypeId);
         return acc + (service?.unitPrice || 0);
     }, 0);
@@ -284,90 +295,9 @@ export default async function MentorStudentDetailPage({ params }: { params: Prom
 
             {/* Main Content Grid */}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 350px', gap: '1.5rem' }}>
-                {/* Service Log Form */}
-                <div className="glass-panel" style={{ padding: '1.5rem' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1.5rem' }}>
-                        <div style={{ width: 44, height: 44, borderRadius: 12, background: '#eafaf3', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                            <Plus size={22} color="#008C45" />
-                        </div>
-                        <div>
-                            <h2 style={{ fontSize: '1.1rem', color: '#11142D', fontWeight: 600 }}>Yeni Hizmet Kaydı</h2>
-                            <p style={{ fontSize: '0.8rem', color: '#808191' }}>Gerçekleştirdiğiniz hizmeti kaydedin</p>
-                        </div>
-                    </div>
-
-                    <form action={createServiceLog} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-                        <input type="hidden" name="studentId" value={student.id} />
-
-                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
-                            <div>
-                                <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 500, color: '#374151', marginBottom: '0.5rem' }}>
-                                    Hizmet Tipi *
-                                </label>
-                                <select name="serviceTypeId" required className="input-field">
-                                    <option value="">Seçiniz...</option>
-                                    {serviceTypes.map(t => (
-                                        <option key={t.id} value={t.id}>{t.name} (€{t.unitPrice})</option>
-                                    ))}
-                                </select>
-                            </div>
-                            <div>
-                                <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 500, color: '#374151', marginBottom: '0.5rem' }}>
-                                    Tarih ve Saat *
-                                </label>
-                                <input
-                                    type="datetime-local"
-                                    name="date"
-                                    required
-                                    className="input-field"
-                                    defaultValue={new Date().toISOString().slice(0, 16)}
-                                />
-                            </div>
-                        </div>
-
-                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
-                            <div>
-                                <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 500, color: '#374151', marginBottom: '0.5rem' }}>
-                                    Süre (Dakika)
-                                </label>
-                                <input type="number" name="duration" className="input-field" placeholder="Örn: 30" />
-                                <p style={{ fontSize: '0.7rem', color: '#9ca3af', marginTop: '0.35rem' }}>
-                                    Sabit ücretli hizmetlerde boş bırakılabilir.
-                                </p>
-                            </div>
-                        </div>
-
-                        <div>
-                            <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 500, color: '#374151', marginBottom: '0.5rem' }}>
-                                Notlar / Açıklama
-                            </label>
-                            <textarea
-                                name="notes"
-                                rows={4}
-                                className="input-field"
-                                placeholder="Hizmet detaylarını buraya yazın..."
-                                style={{ resize: 'vertical' }}
-                            />
-                        </div>
-
-                        <div>
-                            <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 500, color: '#374151', marginBottom: '0.5rem' }}>
-                                Dosyalar & Görseller
-                            </label>
-                            <FileUploader name="attachments" multiple={true} />
-                        </div>
-
-                        <div style={{ paddingTop: '0.5rem' }}>
-                            <button
-                                type="submit"
-                                className="btn btn-primary"
-                                style={{ padding: '0.875rem 2rem', fontSize: '0.9rem' }}
-                            >
-                                <CheckCircle size={18} />
-                                Kaydı Oluştur ve Gönder
-                            </button>
-                        </div>
-                    </form>
+                <div className="flex flex-col gap-6">
+                    {/* Assigned Tasks for Mentor */}
+                    <MentorCompletionForm logs={logs} serviceTypes={serviceTypes} />
                 </div>
 
                 {/* Service History Sidebar */}
@@ -388,49 +318,53 @@ export default async function MentorStudentDetailPage({ params }: { params: Prom
                             return (
                                 <div key={log.id} style={{
                                     padding: '1rem',
-                                    background: '#f8fafc',
-                                    borderRadius: '12px',
-                                    borderLeft: `4px solid ${log.status === 'approved' ? '#059669' :
-                                        log.status === 'submitted' ? '#f59e0b' : '#dc2626'
-                                        }`
-                                }}>
-                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.5rem' }}>
-                                        <p style={{ fontWeight: 600, color: '#374151', fontSize: '0.9rem' }}>{type?.name}</p>
-                                        <span style={{
-                                            padding: '0.2rem 0.5rem',
-                                            borderRadius: '8px',
-                                            fontSize: '0.65rem',
-                                            fontWeight: 600,
-                                            background: log.status === 'approved' ? '#ecfdf5' :
-                                                log.status === 'submitted' ? '#fef3c7' : '#fef2f2',
-                                            color: log.status === 'approved' ? '#059669' :
-                                                log.status === 'submitted' ? '#b45309' : '#dc2626'
-                                        }}>
-                                            {log.status === 'approved' ? 'Onaylandı' :
-                                                log.status === 'submitted' ? 'Bekliyor' : 'Reddedildi'}
-                                        </span>
-                                    </div>
-                                    <p style={{ fontSize: '0.75rem', color: '#9ca3af', marginBottom: '0.35rem' }}>
-                                        {new Date(log.date).toLocaleDateString('tr-TR')} - {new Date(log.date).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })}
-                                    </p>
-                                    {log.notes && (
-                                        <p style={{ fontSize: '0.75rem', color: '#6b7280', lineHeight: 1.4 }}>
-                                            {log.notes.length > 80 ? log.notes.substring(0, 80) + '...' : log.notes}
+                                        background: '#f8fafc',
+                                        borderRadius: '12px',
+                                        borderLeft: `4px solid ${log.status === 'approved' ? '#059669' :
+                                            log.status === 'assigned' ? '#6366f1' :
+                                                log.status === 'submitted' ? '#f59e0b' : '#dc2626'
+                                            }`
+                                    }}>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.5rem' }}>
+                                            <p style={{ fontWeight: 600, color: '#374151', fontSize: '0.9rem' }}>{type?.name}</p>
+                                            <span style={{
+                                                padding: '0.2rem 0.5rem',
+                                                borderRadius: '8px',
+                                                fontSize: '0.65rem',
+                                                fontWeight: 600,
+                                                background: log.status === 'approved' ? '#ecfdf5' :
+                                                    log.status === 'assigned' ? '#eef2ff' :
+                                                        log.status === 'submitted' ? '#fef3c7' : '#fef2f2',
+                                                color: log.status === 'approved' ? '#059669' :
+                                                    log.status === 'assigned' ? '#6366f1' :
+                                                        log.status === 'submitted' ? '#b45309' : '#dc2626'
+                                            }}>
+                                                {log.status === 'approved' ? 'Onaylandı' :
+                                                    log.status === 'assigned' ? 'Atandı' :
+                                                        log.status === 'submitted' ? 'İnceleniyor' : 'Reddedildi'}
+                                            </span>
+                                        </div>
+                                        <p style={{ fontSize: '0.75rem', color: '#9ca3af', marginBottom: '0.35rem' }}>
+                                            {new Date(log.date).toLocaleDateString('tr-TR')} - {new Date(log.date).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })}
                                         </p>
-                                    )}
-                                    <div style={{ display: 'flex', gap: '0.75rem', marginTop: '0.5rem', fontSize: '0.7rem' }}>
-                                        {log.durationMinutes > 0 && (
-                                            <span style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', color: '#9ca3af' }}>
-                                                <Clock size={10} /> {log.durationMinutes} dk
-                                            </span>
+                                        {log.notes && (
+                                            <p style={{ fontSize: '0.75rem', color: '#6b7280', lineHeight: 1.4 }}>
+                                                {log.notes.length > 80 ? log.notes.substring(0, 80) + '...' : log.notes}
+                                            </p>
                                         )}
-                                        {type?.unitPrice && log.status === 'approved' && (
-                                            <span style={{ color: '#059669', fontWeight: 600 }}>
-                                                €{type.unitPrice}
-                                            </span>
-                                        )}
+                                        <div style={{ display: 'flex', gap: '0.75rem', marginTop: '0.5rem', fontSize: '0.7rem' }}>
+                                            {log.durationMinutes > 0 && (
+                                                <span style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', color: '#9ca3af' }}>
+                                                    <Clock size={10} /> {log.durationMinutes} dk
+                                                </span>
+                                            )}
+                                            {(log.unitPrice !== undefined || type?.unitPrice) && (log.status === 'approved' || log.status === 'assigned' || log.status === 'submitted') && (
+                                                <span style={{ color: log.status === 'approved' ? '#059669' : '#6b7280', fontWeight: 600 }}>
+                                                    €{log.unitPrice !== undefined ? log.unitPrice : type?.unitPrice}
+                                                </span>
+                                            )}
+                                        </div>
                                     </div>
-                                </div>
                             );
                         })}
 
