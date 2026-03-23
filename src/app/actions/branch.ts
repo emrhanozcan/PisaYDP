@@ -107,9 +107,9 @@ export async function createBranchStudent(student: Omit<BranchStudent, 'createdA
         revalidatePath('/admin');
         revalidatePath('/admin/students');
         return { success: true, data: result };
-    } catch (error) {
+    } catch (error: any) {
         console.error('Error creating branch student:', error);
-        throw error;
+        return { success: false, error: error?.message || 'Bir hata oluştu' };
     }
 }
 
@@ -157,9 +157,9 @@ export async function updateBranchStudent(id: string, data: Partial<BranchStuden
             return { success: true, data: result };
         }
         return null;
-    } catch (error) {
+    } catch (error: any) {
         console.error('Error updating branch student:', error);
-        throw error;
+        return { success: false, error: error?.message || 'Bir hata oluştu' };
     }
 }
 

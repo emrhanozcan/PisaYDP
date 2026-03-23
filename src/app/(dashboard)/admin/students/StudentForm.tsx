@@ -101,6 +101,10 @@ export default function StudentForm({ universities, initialData, isEditing = fal
                 result = await createBranchStudent(studentToSave as Omit<BranchStudent, 'createdAt'>);
             }
 
+            if (result && !result.success && result.error) {
+                throw new Error(result.error);
+            }
+
             // Show success state
             setIsSuccess(true);
 
