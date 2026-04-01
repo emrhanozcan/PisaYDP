@@ -104,6 +104,26 @@ export default function ScholarshipClient({ initialStudents, universities }: Sch
         }
     };
 
+    const handleStatusUpdate = async (id: string, value: string) => {
+        const targetStudent = selectedStudent?.id === id ? selectedStudent : students.find(s => s.id === id);
+        if (!targetStudent) return;
+
+        const updatedStudent = { ...targetStudent, scholarshipStatus: value };
+        if (selectedStudent?.id === id) setSelectedStudent(updatedStudent);
+        setStudents(prev => prev.map(s => s.id === id ? updatedStudent : s));
+
+        try {
+            const result = await updateBranchStudent(id, { scholarshipStatus: value });
+            if (!result || !result.success) throw new Error('Güncelleme başarısız oldu.');
+            router.refresh();
+        } catch (error) {
+            console.error('Failed to update scholarship status', error);
+            alert('Güncelleme başarısız oldu.');
+            setStudents(initialStudents);
+            if (selectedStudent?.id === id) setSelectedStudent(initialStudents.find(s => s.id === id) || null);
+        }
+    };
+
     const handleCancelScholarship = () => {
         if (!selectedStudent) return;
         setIsCancelModalOpen(true);
@@ -214,23 +234,44 @@ export default function ScholarshipClient({ initialStudents, universities }: Sch
                     {filteredStudents.map(student => {
                         const types = student.scholarshipTypes || [];
                         const isCancelled = types.includes('İPTAL');
+                        const svcStatus = student.scholarshipStatus || 'Bekliyor';
+                        const statusBg = svcStatus === 'Tamamlandı' ? '#e6f9ef' : svcStatus === 'Tamamlanmadı' ? '#ffeaea' : 'transparent';
+                        const isSelected = selectedStudent?.id === student.id;
                         return (
                             <div key={student.id} onClick={() => setSelectedStudent(student)} style={{
                                 padding: '12px 16px',
                                 cursor: 'pointer',
-                                background: selectedStudent?.id === student.id ? '#f0f4ff' : (isCancelled ? '#fee2e2' : 'transparent'),
-                                borderLeft: selectedStudent?.id === student.id ? '3px solid #6C5CE7' : '3px solid transparent',
+                                background: isSelected ? '#f0f4ff' : (isCancelled ? '#fee2e2' : statusBg),
+                                borderLeft: isSelected ? '3px solid #6C5CE7' : '3px solid transparent',
                                 borderBottom: '1px solid #f8f8f8',
                                 transition: 'all 0.15s'
                             }}>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                                     <StudentAvatar studentId={student.id} firstName={student.firstName} lastName={student.lastName} photoUrl={student.photoUrl} size={40} canEdit={false} />
                                     <div style={{ flex: 1, minWidth: 0 }}>
-                                        <div style={{ fontWeight: '600', fontSize: '0.9rem', color: selectedStudent?.id === student.id ? '#6C5CE7' : (isCancelled ? '#991b1b' : '#1a1a2e') }}>
+                                        <div style={{ fontWeight: '600', fontSize: '0.9rem', color: isSelected ? '#6C5CE7' : (isCancelled ? '#991b1b' : '#1a1a2e'), marginBottom: '2px' }}>
                                             {student.firstName} {student.lastName}
                                             {isCancelled && <span style={{ fontSize: '0.7rem', color: '#ef4444', marginLeft: '6px', fontWeight: 'normal' }}>(İptal)</span>}
                                         </div>
-                                        <div style={{ fontSize: '0.75rem', color: '#808191', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{getUniversityName(student.universityId)}</div>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '4px', flexWrap: 'wrap' }}>
+                                            <span style={{ padding: '1px 6px', borderRadius: '6px', fontSize: '0.7rem', background: '#E8F5E9', color: '#2E7D32', fontWeight: '500' }}>{BRANCH_NAMES[student.branchCode] || student.branchCode}</span>
+                                            <select
+                                                value={svcStatus}
+                                                onClick={(e) => e.stopPropagation()}
+                                                onChange={(e) => { e.stopPropagation(); handleStatusUpdate(student.id, e.target.value); }}
+                                                style={{
+                                                    padding: '1px 4px', borderRadius: '6px', fontSize: '0.65rem', fontWeight: '600', cursor: 'pointer', outline: 'none',
+                                                    appearance: 'auto',
+                                                    background: svcStatus === 'Tamamlandı' ? '#dcfce7' : svcStatus === 'Tamamlanmadı' ? '#fee2e2' : '#f3f4f6',
+                                                    color: svcStatus === 'Tamamlandı' ? '#166534' : svcStatus === 'Tamamlanmadı' ? '#991b1b' : '#374151',
+                                                    border: `1px solid ${svcStatus === 'Tamamlandı' ? '#86efac' : svcStatus === 'Tamamlanmadı' ? '#fca5a5' : '#d1d5db'}`,
+                                                }}
+                                            >
+                                                <option value="Tamamlandı">Tamamlandı</option>
+                                                <option value="Bekliyor">Bekliyor</option>
+                                                <option value="Tamamlanmadı">Tamamlanmadı</option>
+                                            </select>
+                                        </div>
                                     </div>
                                 </div>
                             </div>

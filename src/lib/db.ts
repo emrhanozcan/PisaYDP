@@ -1,6 +1,6 @@
 
 import { supabase } from '@/lib/supabase';
-import { User, Student, MentorAssignment, ServiceLog, ServiceType, AuditLog, University, BranchStudent, StudentEducation, UserFavorite, BranchCode, SupportTicket, TicketResponse, Notification, ServiceNote, ServiceUpload, ScholarshipTracking, Lead } from '@/types';
+import { User, Student, MentorAssignment, ServiceLog, ServiceType, AuditLog, University, BranchStudent, StudentEducation, UserFavorite, BranchCode, SupportTicket, TicketResponse, Notification, ServiceNote, ServiceUpload, ScholarshipTracking, Lead, MentorTransaction } from '@/types';
 
 
 // Helpers for Case Conversion
@@ -43,7 +43,7 @@ const BRANCH_STUDENT_WRITABLE_FIELDS = new Set([
     'residence_permit_place', 'residence_permit_time', 'residence_permit_status', 'codice_fiscale_handler',
     'codice_fiscale_arrival_date', 'codice_fiscale_appointment_date', 'codice_fiscale_place', 'codice_fiscale_time',
     'codice_fiscale_status', 'consultant_name', 'consultant_contact', 'status', 'registration_date', 'photo_url',
-    'scholarship_types', 'guardian_service'
+    'scholarship_types', 'guardian_service', 'ydt_status', 'scholarship_status'
 ]);
 
 
@@ -538,6 +538,35 @@ export const db = {
         },
         deleteByStudentId: async (studentId: string) => {
             const { error } = await supabase.from('mentor_assignments').delete().eq('student_id', studentId);
+            if (error) throw error;
+        }
+    },
+    mentorTransactions: {
+        getAll: async () => {
+            const { data, error } = await supabase.from('mentor_transactions').select('*').order('created_at', { ascending: false });
+            if (error) throw error;
+            return mapToCamelCase(data) as MentorTransaction[];
+        },
+        getByMentorId: async (mentorId: string) => {
+            const { data, error } = await supabase.from('mentor_transactions').select('*').eq('mentor_id', mentorId).order('created_at', { ascending: false });
+            if (error) throw error;
+            return mapToCamelCase(data) as MentorTransaction[];
+        },
+        create: async (transaction: Partial<MentorTransaction>) => {
+            const payload = mapToSnakeCase(transaction);
+            const { data, error } = await supabase.from('mentor_transactions').insert(payload).select().single();
+            if (error) throw error;
+            return mapToCamelCase(data) as MentorTransaction;
+        },
+        update: async (transaction: Partial<MentorTransaction> & { id: string }) => {
+            const { id, createdAt, created_at, ...rest } = transaction as any;
+            const payload = mapToSnakeCase(rest);
+            const { data, error } = await supabase.from('mentor_transactions').update(payload).eq('id', id).select().single();
+            if (error) throw error;
+            return mapToCamelCase(data) as MentorTransaction;
+        },
+        delete: async (id: string) => {
+            const { error } = await supabase.from('mentor_transactions').delete().eq('id', id);
             if (error) throw error;
         }
     },

@@ -62,6 +62,21 @@ export interface MentorAssignment {
   allowedServiceIds?: string[];
 }
 
+export type TransactionType = 'expense' | 'advance' | 'payment';
+export type TransactionStatus = 'pending' | 'approved' | 'rejected';
+
+export interface MentorTransaction {
+  id: string;
+  mentorId: string;
+  type: TransactionType;
+  amount: number;
+  description?: string;
+  receiptUrl?: string;
+  status: TransactionStatus;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface ServiceType {
   id: string;
   name: string;
@@ -265,7 +280,9 @@ export interface BranchStudent {
   supportPackage?: 'Evet' | 'Hayır'; // Danışmanlık
   scholarshipPackage?: 'Evet' | 'Hayır'; // Burs Paketi
   scholarshipTypes?: string[]; // Burs Tipleri
+  scholarshipStatus?: string; // Burs Durumu (Tamamlandı, Bekliyor, Tamamlanmadı)
   ydtSupport?: 'Evet' | 'Hayır'; // YDT (Yaşam Destek Paketi)
+  ydtStatus?: string; // YDT Durumu (Tamamlandı, Bekliyor, Tamamlanmadı)
 
   // Accommodation Details
   accommodationCity?: string;

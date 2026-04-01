@@ -84,9 +84,10 @@ export default function ResidencePermitClient({ initialStudents, universities }:
     const getUniversityName = (id?: string) => universities.find(u => u.id === id)?.name || '-';
 
     const handleUpdateField = async (id: string, field: keyof BranchStudent, value: any) => {
-        if (!selectedStudent) return;
+        const targetStudent = selectedStudent?.id === id ? selectedStudent : students.find(s => s.id === id);
+        if (!targetStudent) return;
 
-        let updatedStudent = { ...selectedStudent, [field]: value };
+        let updatedStudent = { ...targetStudent, [field]: value };
         if (field === 'branchCode') {
             updatedStudent = {
                 ...updatedStudent,
@@ -94,7 +95,7 @@ export default function ResidencePermitClient({ initialStudents, universities }:
             };
         }
 
-        setSelectedStudent(updatedStudent);
+        if (selectedStudent?.id === id) setSelectedStudent(updatedStudent);
         setStudents(prev => prev.map(s => s.id === id ? updatedStudent : s));
 
         try {
@@ -110,7 +111,7 @@ export default function ResidencePermitClient({ initialStudents, universities }:
             alert(`Güncelleme başarısız oldu: ${error.message || 'Lütfen tekrar deneyin.'}`);
             // Revert state
             setStudents(initialStudents);
-            setSelectedStudent(initialStudents.find(s => s.id === id) || null);
+            if (selectedStudent?.id === id) setSelectedStudent(initialStudents.find(s => s.id === id) || null);
         }
 
         // Check for automatic SMS trigger
@@ -287,8 +288,12 @@ export default function ResidencePermitClient({ initialStudents, universities }:
                     </div>
                 </div>
                 <div style={{ flex: 1, overflowY: 'auto', opacity: isListCollapsed ? 0 : 1, transition: 'opacity 0.2s', pointerEvents: isListCollapsed ? 'none' : 'auto', visibility: isListCollapsed ? 'hidden' : 'visible' }}>
-                    {filteredStudents.map(student => (
-                        <div key={student.id} onClick={() => setSelectedStudent(student)} style={{ padding: '12px 16px', cursor: 'pointer', background: selectedStudent?.id === student.id ? '#f0f4ff' : 'transparent', borderLeft: selectedStudent?.id === student.id ? '3px solid #6C5CE7' : '3px solid transparent', borderBottom: '1px solid #f8f8f8', transition: 'all 0.15s' }}>
+                    {filteredStudents.map(student => {
+                        const svcStatus = student.residencePermitStatus || 'Bekliyor';
+                        const statusBg = svcStatus === 'Tamamlandı' ? '#e6f9ef' : svcStatus === 'Tamamlanmadı' ? '#ffeaea' : 'transparent';
+                        const isSelected = selectedStudent?.id === student.id;
+                        return (
+                        <div key={student.id} onClick={() => setSelectedStudent(student)} style={{ padding: '12px 16px', cursor: 'pointer', background: isSelected ? '#f0f4ff' : statusBg, borderLeft: isSelected ? '3px solid #6C5CE7' : '3px solid transparent', borderBottom: '1px solid #f8f8f8', transition: 'all 0.15s' }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                                 <StudentAvatar
                                     studentId={student.id}
@@ -302,12 +307,31 @@ export default function ResidencePermitClient({ initialStudents, universities }:
                                     showDelete={false}
                                 />
                                 <div style={{ flex: 1, minWidth: 0 }}>
-                                    <div style={{ fontWeight: '600', fontSize: '0.9rem', color: selectedStudent?.id === student.id ? '#6C5CE7' : '#1a1a2e', marginBottom: '1px' }}>{student.firstName} {student.lastName}</div>
-                                    <div style={{ fontSize: '0.75rem', color: '#808191', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{getUniversityName(student.universityId)}</div>
+                                    <div style={{ fontWeight: '600', fontSize: '0.9rem', color: isSelected ? '#6C5CE7' : '#1a1a2e', marginBottom: '2px' }}>{student.firstName} {student.lastName}</div>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '4px', flexWrap: 'wrap' }}>
+                                        <span style={{ padding: '1px 6px', borderRadius: '6px', fontSize: '0.7rem', background: '#E8F5E9', color: '#2E7D32', fontWeight: '500' }}>{student.branchName}</span>
+                                        <select
+                                            value={svcStatus}
+                                            onClick={(e) => e.stopPropagation()}
+                                            onChange={(e) => { e.stopPropagation(); handleUpdateField(student.id, 'residencePermitStatus', e.target.value); }}
+                                            style={{
+                                                padding: '1px 4px', borderRadius: '6px', fontSize: '0.65rem', fontWeight: '600', cursor: 'pointer', outline: 'none',
+                                                appearance: 'auto',
+                                                background: svcStatus === 'Tamamlandı' ? '#dcfce7' : svcStatus === 'Tamamlanmadı' ? '#fee2e2' : '#f3f4f6',
+                                                color: svcStatus === 'Tamamlandı' ? '#166534' : svcStatus === 'Tamamlanmadı' ? '#991b1b' : '#374151',
+                                                border: `1px solid ${svcStatus === 'Tamamlandı' ? '#86efac' : svcStatus === 'Tamamlanmadı' ? '#fca5a5' : '#d1d5db'}`,
+                                            }}
+                                        >
+                                            <option value="Tamamlandı">Tamamlandı</option>
+                                            <option value="Bekliyor">Bekliyor</option>
+                                            <option value="Tamamlanmadı">Tamamlanmadı</option>
+                                        </select>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    ))}
+                        );
+                    })}
                     {filteredStudents.length === 0 && <div style={{ padding: '2rem', textAlign: 'center', color: '#808191' }}>Öğrenci bulunamadı.</div>}
                 </div>
             </div>
