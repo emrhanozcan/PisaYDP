@@ -263,7 +263,17 @@ export default function ResidencePermitClient({ initialStudents, universities }:
                                     showDelete={false}
                                 />
                                 <div style={{ flex: 1, minWidth: 0 }}>
-                                    <div style={{ fontWeight: '600', fontSize: '0.9rem', color: selectedStudent?.id === student.id ? '#6C5CE7' : '#1a1a2e', marginBottom: '1px' }}>{student.firstName} {student.lastName}</div>
+                                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                        <div style={{ fontWeight: '600', fontSize: '0.9rem', color: selectedStudent?.id === student.id ? '#6C5CE7' : '#1a1a2e', marginBottom: '1px' }}>{student.firstName} {student.lastName}</div>
+                                        <div style={{ 
+                                            width: '10px', 
+                                            height: '10px', 
+                                            borderRadius: '50%', 
+                                            background: student.residencePermitStatus === 'Tamamlandı' ? '#166534' : 
+                                                       student.residencePermitStatus === 'Tamamlanmadı' ? '#991b1b' : '#92400e',
+                                            boxShadow: '0 0 4px rgba(0,0,0,0.1)'
+                                        }} title={student.residencePermitStatus || 'Bekliyor'} />
+                                    </div>
                                     <div style={{ fontSize: '0.75rem', color: '#808191', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{getUniversityName(student.universityId)}</div>
                                 </div>
                             </div>
@@ -341,7 +351,17 @@ export default function ResidencePermitClient({ initialStudents, universities }:
                                     <InlineEditableRow label="Randevu Tarihi" value={selectedStudent.residencePermitAppointmentDate} field="residencePermitAppointmentDate" type="date" onUpdate={(v) => handleUpdateField(selectedStudent.id, 'residencePermitAppointmentDate', v)} />
                                     <InlineEditableRow label="Yeri" value={selectedStudent.residencePermitPlace} field="residencePermitPlace" onUpdate={(v) => handleUpdateField(selectedStudent.id, 'residencePermitPlace', v)} />
                                     <InlineEditableRow label="Saati" value={selectedStudent.residencePermitTime} field="residencePermitTime" type="time" onUpdate={(v) => handleUpdateField(selectedStudent.id, 'residencePermitTime', v)} />
-                                    <InlineEditableRow label="Durumu" value={selectedStudent.residencePermitStatus} field="residencePermitStatus" type="select" options={['Bekleniyor', 'İşlemde', 'Tamamlandı', 'Sorun Var'].map(s => ({ value: s, label: s }))} onUpdate={(v) => handleUpdateField(selectedStudent.id, 'residencePermitStatus', v)} badge />
+                                    <InlineEditableRow 
+                                        label="Durumu" 
+                                        value={selectedStudent.residencePermitStatus} 
+                                        field="residencePermitStatus" 
+                                        type="select" 
+                                        options={['Bekliyor', 'Tamamlandı', 'Tamamlanmadı'].map(s => ({ value: s, label: s }))} 
+                                        onUpdate={(v) => handleUpdateField(selectedStudent.id, 'residencePermitStatus', v)} 
+                                        badge 
+                                        color={selectedStudent.residencePermitStatus === 'Tamamlandı' ? '#dcfce7' : selectedStudent.residencePermitStatus === 'Tamamlanmadı' ? '#fee2e2' : '#fef3c7'}
+                                        style={{ color: selectedStudent.residencePermitStatus === 'Tamamlandı' ? '#166534' : selectedStudent.residencePermitStatus === 'Tamamlanmadı' ? '#991b1b' : '#92400e' }}
+                                    />
                                 </div>
                             </InfoCard>
                         </div>

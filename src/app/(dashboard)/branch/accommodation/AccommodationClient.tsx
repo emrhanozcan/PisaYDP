@@ -257,7 +257,17 @@ export default function AccommodationClient({ initialStudents, universities, bra
                                     showDelete={false}
                                 />
                                 <div style={{ flex: 1, minWidth: 0 }}>
-                                    <div style={{ fontWeight: '600', fontSize: '0.9rem', color: selectedStudent?.id === student.id ? '#6C5CE7' : '#1a1a2e', marginBottom: '1px' }}>{student.firstName} {student.lastName}</div>
+                                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                        <div style={{ fontWeight: '600', fontSize: '0.9rem', color: selectedStudent?.id === student.id ? '#6C5CE7' : '#1a1a2e', marginBottom: '1px' }}>{student.firstName} {student.lastName}</div>
+                                        <div style={{ 
+                                            width: '10px', 
+                                            height: '10px', 
+                                            borderRadius: '50%', 
+                                            background: student.accommodationStatus === 'Tamamlandı' ? '#166534' : 
+                                                       student.accommodationStatus === 'Tamamlanmadı' ? '#991b1b' : '#92400e',
+                                            boxShadow: '0 0 4px rgba(0,0,0,0.1)'
+                                        }} title={student.accommodationStatus || 'Bekliyor'} />
+                                    </div>
                                     <div style={{ fontSize: '0.75rem', color: '#808191', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{getUniversityName(student.universityId)}</div>
                                 </div>
                             </div>
@@ -335,7 +345,18 @@ export default function AccommodationClient({ initialStudents, universities, bra
                                     <InlineEditableRow label="Ödeme Durumu" icon={<Check size={14} color="#808191" />} value={selectedStudent.accommodationPaymentStatus} field="accommodationPaymentStatus" type="select" options={['Ödendi', 'Bekleniyor', 'Kısmi'].map(o => ({ value: o, label: o }))} onUpdate={(v) => handleUpdateField(selectedStudent.id, 'accommodationPaymentStatus', v)} badge />
 
                                     <InlineEditableRow label="Tarih" icon={<Calendar size={14} color="#808191" />} value={selectedStudent.accommodationDate} field="accommodationDate" type="date" onUpdate={(v) => handleUpdateField(selectedStudent.id, 'accommodationDate', v)} />
-                                    <InlineEditableRow label="Durum" icon={<Clock size={14} color="#808191" />} value={selectedStudent.accommodationStatus} field="accommodationStatus" onUpdate={(v) => handleUpdateField(selectedStudent.id, 'accommodationStatus', v)} badge color="#FFEAA7" />
+                                    <InlineEditableRow 
+                                        label="Durum" 
+                                        icon={<Clock size={14} color="#808191" />} 
+                                        value={selectedStudent.accommodationStatus} 
+                                        field="accommodationStatus" 
+                                        type="select" 
+                                        options={['Bekliyor', 'Tamamlandı', 'Tamamlanmadı'].map(s => ({ value: s, label: s }))} 
+                                        onUpdate={(v) => handleUpdateField(selectedStudent.id, 'accommodationStatus', v)} 
+                                        badge 
+                                        color={selectedStudent.accommodationStatus === 'Tamamlandı' ? '#dcfce7' : selectedStudent.accommodationStatus === 'Tamamlanmadı' ? '#fee2e2' : '#fef3c7'}
+                                        style={{ color: selectedStudent.accommodationStatus === 'Tamamlandı' ? '#166534' : selectedStudent.accommodationStatus === 'Tamamlanmadı' ? '#991b1b' : '#92400e' }}
+                                    />
                                 </div>
                             </InfoCard>
 

@@ -23,7 +23,8 @@ import {
     X,
     Award,
     Activity,
-    UserPlus
+    UserPlus,
+    Receipt
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { logout } from "@/app/actions/auth";
@@ -359,6 +360,7 @@ export default function Sidebar({ userRole, firstName, lastName, photoUrl, userI
                                 <SidebarLink onClick={() => setMobileOpen(false)} collapsed={collapsed} href="/admin/mentors" icon={<Users size={20} />} label="Mentorlar" />
                                 <SidebarLink onClick={() => setMobileOpen(false)} collapsed={collapsed} href="/admin/services" icon={<FileText size={20} />} label="Hizmet Kayıtları" />
                                 <SidebarLink onClick={() => setMobileOpen(false)} collapsed={collapsed} href="/admin/payouts" icon={<Wallet size={20} />} label="Ödemeler & Rapor" />
+                                <SidebarLink onClick={() => setMobileOpen(false)} collapsed={collapsed} href="/admin/finances" icon={<Receipt size={20} />} label="Masraf & Avans" />
                                 <SidebarLink onClick={() => setMobileOpen(false)} collapsed={collapsed} href="/admin/settings" icon={<Settings size={20} />} label="Ayarlar" />
                             </>
                         )}
@@ -369,6 +371,7 @@ export default function Sidebar({ userRole, firstName, lastName, photoUrl, userI
                                 <SidebarLink onClick={() => setMobileOpen(false)} collapsed={collapsed} href="/mentor" exact icon={<Activity size={20} />} label="Genel Bakış" />
 
                                 <SidebarLink onClick={() => setMobileOpen(false)} collapsed={collapsed} href="/mentor/earnings" icon={<Wallet size={20} />} label="Hakediş & Özet" />
+                                <SidebarLink onClick={() => setMobileOpen(false)} collapsed={collapsed} href="/mentor/finances" icon={<Receipt size={20} />} label="Bakiye ve Masraflar" />
                                 <SidebarLink onClick={() => setMobileOpen(false)} collapsed={collapsed} href="/mentor/settings" icon={<Settings size={20} />} label="Ayarlar" />
                             </>
                         )}
@@ -410,6 +413,7 @@ export default function Sidebar({ userRole, firstName, lastName, photoUrl, userI
                                 <SidebarLink onClick={() => setMobileOpen(false)} collapsed={collapsed} href="/admin/mentors" icon={<Users size={20} />} label="Mentorlar" />
                                 <SidebarLink onClick={() => setMobileOpen(false)} collapsed={collapsed} href="/admin/services" icon={<FileText size={20} />} label="Hizmet Kayıtları" />
                                 <SidebarLink onClick={() => setMobileOpen(false)} collapsed={collapsed} href="/admin/payouts" icon={<Wallet size={20} />} label="Ödemeler & Rapor" />
+                                <SidebarLink onClick={() => setMobileOpen(false)} collapsed={collapsed} href="/admin/finances" icon={<Receipt size={20} />} label="Masraf & Avans" />
                                 <SidebarLink onClick={() => setMobileOpen(false)} collapsed={collapsed} href="/admin/settings" icon={<Settings size={20} />} label="Sistem Ayarlar" />
                             </>
                         )}

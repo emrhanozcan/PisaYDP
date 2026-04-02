@@ -265,6 +265,7 @@ export default function ServicesClient({ logs, serviceTypes, mentors }: Props) {
                         >
                             <option value="all">Tüm Durumlar</option>
                             <option value="draft">Taslak</option>
+                            <option value="assigned">Atandı</option>
                             <option value="submitted">Bekliyor</option>
                             <option value="approved">Onaylandı</option>
                             <option value="rejected">Reddedildi</option>
@@ -401,13 +402,16 @@ export default function ServicesClient({ logs, serviceTypes, mentors }: Props) {
                                                     cursor: 'pointer',
                                                     background: log.status === 'approved' ? '#ecfdf5' :
                                                         log.status === 'rejected' ? '#fef2f2' :
-                                                            log.status === 'submitted' ? '#fef3c7' : '#f3f4f6',
+                                                            log.status === 'submitted' ? '#fef3c7' : 
+                                                                log.status === 'assigned' ? '#eef2ff' : '#f3f4f6',
                                                     color: log.status === 'approved' ? '#059669' :
                                                         log.status === 'rejected' ? '#dc2626' :
-                                                            log.status === 'submitted' ? '#b45309' : '#6b7280'
+                                                            log.status === 'submitted' ? '#b45309' : 
+                                                                log.status === 'assigned' ? '#6366f1' : '#6b7280'
                                                 }}
                                             >
                                                 <option value="draft">📝 Taslak</option>
+                                                <option value="assigned">👤 Atandı</option>
                                                 <option value="submitted">⏳ Onay Bekliyor</option>
                                                 <option value="approved">✅ Onaylandı</option>
                                                 <option value="rejected">❌ Reddedildi</option>

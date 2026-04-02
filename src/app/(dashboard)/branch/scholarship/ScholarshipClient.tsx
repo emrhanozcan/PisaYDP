@@ -228,9 +228,19 @@ export default function ScholarshipClient({ initialStudents, universities }: Sch
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                                     <StudentAvatar studentId={student.id} firstName={student.firstName} lastName={student.lastName} photoUrl={student.photoUrl} size={40} canEdit={false} />
                                     <div style={{ flex: 1, minWidth: 0 }}>
-                                        <div style={{ fontWeight: '600', fontSize: '0.9rem', color: selectedStudent?.id === student.id ? '#6C5CE7' : (isCancelled ? '#991b1b' : '#1a1a2e') }}>
-                                            {student.firstName} {student.lastName}
-                                            {isCancelled && <span style={{ fontSize: '0.7rem', color: '#ef4444', marginLeft: '6px', fontWeight: 'normal' }}>(İptal)</span>}
+                                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                            <div style={{ fontWeight: '600', fontSize: '0.9rem', color: selectedStudent?.id === student.id ? '#6C5CE7' : (isCancelled ? '#991b1b' : '#1a1a2e') }}>
+                                                {student.firstName} {student.lastName}
+                                                {isCancelled && <span style={{ fontSize: '0.7rem', color: '#ef4444', marginLeft: '6px', fontWeight: 'normal' }}>(İptal)</span>}
+                                            </div>
+                                            <div style={{ 
+                                                width: '10px', 
+                                                height: '10px', 
+                                                borderRadius: '50%', 
+                                                background: student.scholarshipStatus === 'Tamamlandı' ? '#166534' : 
+                                                           student.scholarshipStatus === 'Tamamlanmadı' ? '#991b1b' : '#92400e',
+                                                boxShadow: '0 0 4px rgba(0,0,0,0.1)'
+                                            }} title={student.scholarshipStatus || 'Bekliyor'} />
                                         </div>
                                         <div style={{ fontSize: '0.75rem', color: '#808191', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{getUniversityName(student.universityId)}</div>
                                     </div>
@@ -259,7 +269,7 @@ export default function ScholarshipClient({ initialStudents, universities }: Sch
                                         {selectedStudent.firstName} {selectedStudent.lastName}
                                     </h2>
                                     {/* Badges Container */}
-                                    <div style={{ display: 'flex', flexDirection: 'row', gap: '8px', alignItems: 'center' }}>
+                                    <div style={{ display: 'flex', flexDirection: 'row', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
                                         {/* Branch Badge */}
                                         <span style={{
                                             background: '#dcfce7',
@@ -287,6 +297,19 @@ export default function ScholarshipClient({ initialStudents, universities }: Sch
                                                 </span>
                                             );
                                         })}
+                                        {/* General Status Selector Badge */}
+                                        <div style={{ width: '130px', marginLeft: 'auto' }}>
+                                            <StatusBadge 
+                                                value={selectedStudent.scholarshipStatus} 
+                                                options={['Bekliyor', 'Tamamlandı', 'Tamamlanmadı']} 
+                                                onChange={(v) => handleUpdateStudent('scholarshipStatus', v)} 
+                                                colors={{
+                                                    'Tamamlandı': '#dcfce7',
+                                                    'Tamamlanmadı': '#fee2e2',
+                                                    'Bekliyor': '#fef3c7'
+                                                }}
+                                            />
+                                        </div>
                                     </div>
                                 </div>
                             </div>

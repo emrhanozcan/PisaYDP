@@ -175,7 +175,20 @@ export default function LifeSupportClient({ initialStudents, universities, branc
                                     table="branch_students"
                                     showDelete={false}
                                 />
-                                <div><div style={{ fontWeight: '600', color: selectedStudent?.id === student.id ? '#6C5CE7' : '#1a1a2e' }}>{student.firstName} {student.lastName}</div><div style={{ fontSize: '0.75rem', color: '#808191' }}>{getUniversityName(student)}</div></div>
+                                <div style={{ flex: 1, minWidth: 0 }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                        <div style={{ fontWeight: '600', color: selectedStudent?.id === student.id ? '#6C5CE7' : '#1a1a2e' }}>{student.firstName} {student.lastName}</div>
+                                        <div style={{ 
+                                            width: '10px', 
+                                            height: '10px', 
+                                            borderRadius: '50%', 
+                                            background: student.ydtStatus === 'Tamamlandı' ? '#166534' : 
+                                                       student.ydtStatus === 'Tamamlanmadı' ? '#991b1b' : '#92400e',
+                                            boxShadow: '0 0 4px rgba(0,0,0,0.1)'
+                                        }} title={student.ydtStatus || 'Bekliyor'} />
+                                    </div>
+                                    <div style={{ fontSize: '0.75rem', color: '#808191' }}>{getUniversityName(student)}</div>
+                                </div>
                             </div>
                         </div>
                     ))}
@@ -280,6 +293,19 @@ export default function LifeSupportClient({ initialStudents, universities, branc
                                     <YDTPairRow label="Oturum İzni" dateField="ydtResPermitDate" statusField="ydtResPermitStatus" />
                                     <YDTPairRow label="Ulaşım Kartı / SİM" dateField="ydtSimDate" statusField="ydtSimStatus" />
                                     <YDTPairRow label="Banka Hesabı" dateField="ydtBankDate" statusField="ydtBankStatus" />
+                                    <div style={{ borderTop: '1px solid #eee', marginTop: '0.8rem', paddingTop: '0.8rem' }}>
+                                        <InlineEditableRow 
+                                            label="GENEL DURUM" 
+                                            value={selectedStudent.ydtStatus} 
+                                            field="ydtStatus" 
+                                            type="select" 
+                                            options={['Bekliyor', 'Tamamlandı', 'Tamamlanmadı'].map(s => ({ value: s, label: s }))} 
+                                            onUpdate={(v: string) => handleUpdateField(selectedStudent.id, 'ydtStatus', v)} 
+                                            badge 
+                                            color={selectedStudent.ydtStatus === 'Tamamlandı' ? '#dcfce7' : selectedStudent.ydtStatus === 'Tamamlanmadı' ? '#fee2e2' : '#fef3c7'}
+                                            style={{ color: selectedStudent.ydtStatus === 'Tamamlandı' ? '#166534' : selectedStudent.ydtStatus === 'Tamamlanmadı' ? '#991b1b' : '#92400e', fontWeight: 'bold' }}
+                                        />
+                                    </div>
                                 </div>
                             </InfoCard>
 

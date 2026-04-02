@@ -733,7 +733,8 @@ export default function MentorDetailClient({
                                             background: '#f8fafc',
                                             borderRadius: isExpanded ? '10px 10px 0 0' : '10px',
                                             borderLeft: `3px solid ${log.status === 'approved' ? '#059669' :
-                                                log.status === 'submitted' ? '#f59e0b' : '#dc2626'
+                                                log.status === 'assigned' ? '#6366f1' :
+                                                    log.status === 'submitted' ? '#f59e0b' : '#dc2626'
                                                 }`,
                                             cursor: 'pointer',
                                             transition: 'all 0.2s',
@@ -754,12 +755,15 @@ export default function MentorDetailClient({
                                                     fontSize: '0.7rem',
                                                     fontWeight: 600,
                                                     background: log.status === 'approved' ? '#ecfdf5' :
-                                                        log.status === 'submitted' ? '#fef3c7' : '#fef2f2',
+                                                        log.status === 'assigned' ? '#eef2ff' :
+                                                            log.status === 'submitted' ? '#fef3c7' : '#fef2f2',
                                                     color: log.status === 'approved' ? '#059669' :
-                                                        log.status === 'submitted' ? '#b45309' : '#dc2626'
+                                                        log.status === 'assigned' ? '#6366f1' :
+                                                            log.status === 'submitted' ? '#b45309' : '#dc2626'
                                                 }}>
                                                     {log.status === 'approved' ? 'Onaylandı' :
-                                                        log.status === 'submitted' ? 'Bekliyor' : 'Reddedildi'}
+                                                        log.status === 'assigned' ? 'Atandı' :
+                                                            log.status === 'submitted' ? 'Bekliyor' : 'Reddedildi'}
                                                 </span>
                                                 {serviceType?.unitPrice && log.status === 'approved' && (
                                                     <p style={{ fontSize: '0.7rem', color: '#059669', marginTop: '0.25rem', fontWeight: 600 }}>
@@ -777,7 +781,8 @@ export default function MentorDetailClient({
                                             background: '#ffffff',
                                             border: '1px solid #f1f5f9',
                                             borderLeft: `3px solid ${log.status === 'approved' ? '#059669' :
-                                                log.status === 'submitted' ? '#f59e0b' : '#dc2626'
+                                                log.status === 'assigned' ? '#6366f1' :
+                                                    log.status === 'submitted' ? '#f59e0b' : '#dc2626'
                                                 }`,
                                             borderRadius: '0 0 10px 10px',
                                             fontSize: '0.85rem'

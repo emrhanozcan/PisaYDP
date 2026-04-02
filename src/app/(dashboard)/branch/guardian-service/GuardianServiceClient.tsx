@@ -155,7 +155,20 @@ export default function GuardianServiceClient({ initialStudents, universities, b
                                     table="branch_students"
                                     showDelete={false}
                                 />
-                                <div><div style={{ fontWeight: '600', color: selectedStudent?.id === student.id ? '#6C5CE7' : '#1a1a2e' }}>{student.firstName} {student.lastName}</div><div style={{ fontSize: '0.75rem', color: '#808191' }}>{getUniversityName(student)}</div></div>
+                                <div style={{ flex: 1, minWidth: 0 }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                        <div style={{ fontWeight: '600', color: selectedStudent?.id === student.id ? '#6C5CE7' : '#1a1a2e' }}>{student.firstName} {student.lastName}</div>
+                                        <div style={{ 
+                                            width: '10px', 
+                                            height: '10px', 
+                                            borderRadius: '50%', 
+                                            background: student.guardianStatus === 'Tamamlandı' ? '#166534' : 
+                                                       student.guardianStatus === 'Tamamlanmadı' ? '#991b1b' : '#92400e',
+                                            boxShadow: '0 0 4px rgba(0,0,0,0.1)'
+                                        }} title={student.guardianStatus || 'Bekliyor'} />
+                                    </div>
+                                    <div style={{ fontSize: '0.75rem', color: '#808191' }}>{getUniversityName(student)}</div>
+                                </div>
                             </div>
                         </div>
                     ))}
@@ -250,7 +263,17 @@ export default function GuardianServiceClient({ initialStudents, universities, b
                                     <InlineEditableRow label="Şehir" icon={<MapPin size={14} color="#808191" />} value={selectedStudent.guardianCity} field="guardianCity" type="select" options={CITIES.map(c => ({ value: c.name, label: c.name }))} onUpdate={(v: string) => handleUpdateField(selectedStudent.id, 'guardianCity', v)} />
                                     <InlineEditableRow label="Yeri" icon={<MapPin size={14} color="#808191" />} value={selectedStudent.guardianLocation} field="guardianLocation" onUpdate={(v: string) => handleUpdateField(selectedStudent.id, 'guardianLocation', v)} />
                                     <InlineEditableRow label="Saati" icon={<Clock size={14} color="#808191" />} value={selectedStudent.guardianTime} field="guardianTime" type="time" onUpdate={(v: string) => handleUpdateField(selectedStudent.id, 'guardianTime', v)} />
-                                    <InlineEditableRow label="Durumu" value={selectedStudent.guardianStatus} field="guardianStatus" type="select" options={['Planlandı', 'Tamamlandı', 'İptal', 'Ertelendi'].map(s => ({ value: s, label: s }))} onUpdate={(v: string) => handleUpdateField(selectedStudent.id, 'guardianStatus', v)} badge color="#FFEAA7" />
+                                    <InlineEditableRow 
+                                        label="Durumu" 
+                                        value={selectedStudent.guardianStatus} 
+                                        field="guardianStatus" 
+                                        type="select" 
+                                        options={['Bekliyor', 'Tamamlandı', 'Tamamlanmadı'].map(s => ({ value: s, label: s }))} 
+                                        onUpdate={(v: string) => handleUpdateField(selectedStudent.id, 'guardianStatus', v)} 
+                                        badge 
+                                        color={selectedStudent.guardianStatus === 'Tamamlandı' ? '#dcfce7' : selectedStudent.guardianStatus === 'Tamamlanmadı' ? '#fee2e2' : '#fef3c7'}
+                                        style={{ color: selectedStudent.guardianStatus === 'Tamamlandı' ? '#166534' : selectedStudent.guardianStatus === 'Tamamlanmadı' ? '#991b1b' : '#92400e' }}
+                                    />
                                 </div>
                             </InfoCard>
                         </div>
