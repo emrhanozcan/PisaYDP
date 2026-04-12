@@ -321,28 +321,6 @@ export default async function MentorDashboard() {
                                             <FileText size={14} />
                                             Detay
                                         </Link>
-                                        <Link
-                                            href={`/mentor/students/${student.id}`}
-                                            style={{
-                                                flex: 1.5,
-                                                display: 'flex',
-                                                alignItems: 'center',
-                                                justifyContent: 'center',
-                                                gap: '0.35rem',
-                                                padding: '0.65rem',
-                                                background: '#059669',
-                                                border: 'none',
-                                                borderRadius: '0.5rem',
-                                                color: 'white',
-                                                fontSize: '0.8rem',
-                                                fontWeight: 500,
-                                                textDecoration: 'none',
-                                                transition: 'opacity 0.2s'
-                                            }}
-                                        >
-                                            <Activity size={14} />
-                                            Hizmet Gir
-                                        </Link>
                                     </div>
                                 </div>
                             );

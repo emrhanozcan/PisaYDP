@@ -712,6 +712,34 @@ export default function MentorEarningsClient({
                                 />
                             </div>
 
+                            <div style={{ marginBottom: '1.5rem', display: 'flex', gap: '1rem' }}>
+                                <div style={{ flex: 1 }}>
+                                    <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 500, color: '#374151', marginBottom: '0.5rem' }}>
+                                        Harcanan Süre (Dakika)
+                                    </label>
+                                    <input
+                                        type="number"
+                                        name="duration"
+                                        defaultValue={editingLog.durationMinutes}
+                                        className="input-field"
+                                        style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', border: '1px solid #e5e7eb' }}
+                                    />
+                                </div>
+                                <div style={{ flex: 1 }}>
+                                    <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 500, color: '#374151', marginBottom: '0.5rem' }}>
+                                        Hizmet Ücreti (€)
+                                    </label>
+                                    <input
+                                        type="number"
+                                        step="0.01"
+                                        name="unitPrice"
+                                        defaultValue={editingLog.servicePrice}
+                                        className="input-field"
+                                        style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', border: '1px solid #e5e7eb' }}
+                                    />
+                                </div>
+                            </div>
+
                             <div style={{ marginBottom: '2rem' }}>
                                 <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 500, color: '#374151', marginBottom: '0.5rem' }}>
                                     Yeni Dosya Ekle

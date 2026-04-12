@@ -87,16 +87,18 @@ export default async function MentorStudentDetailPage({ params }: { params: Prom
         );
     }
 
-    let serviceTypes = (await db.serviceTypes.getAll()).filter(t => t.isActive);
-    const logs = (await db.logs.getAll()).filter(l => l.studentId === id && l.mentorId === session.id);
-
-    // Filter service types based on assignment's allowed services
+    let allServiceTypes = (await db.serviceTypes.getAll()).filter(t => t.isActive);
+    let allowedServiceTypes = allServiceTypes;
+    
+    // Filter service types based on assignment's allowed services (only if we needed it for creation)
     if (assignment.allowedServiceIds && assignment.allowedServiceIds.length > 0) {
-        serviceTypes = serviceTypes.filter(t => assignment.allowedServiceIds!.includes(t.id));
+        allowedServiceTypes = allServiceTypes.filter(t => assignment.allowedServiceIds!.includes(t.id));
     } else if (assignment.allowedServiceIds && assignment.allowedServiceIds.length === 0) {
-        // If an explicit empty list was provided, no services are allowed
-        serviceTypes = [];
+        allowedServiceTypes = [];
     }
+
+    let serviceTypes = allServiceTypes; // Restore original to ensure all logs find their names
+    const logs = (await db.logs.getAll()).filter(l => l.studentId === id && l.mentorId === session.id);
 
     const approvedLogs = logs.filter(l => l.status === 'approved');
     const pendingLogs = logs.filter(l => l.status === 'submitted');

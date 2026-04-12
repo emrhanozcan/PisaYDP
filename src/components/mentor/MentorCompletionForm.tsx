@@ -11,11 +11,13 @@ interface ServiceLog {
     date: string;
     notes?: string;
     status: string;
+    unitPrice?: number;
 }
 
 interface ServiceType {
     id: string;
     name: string;
+    unitPrice?: number;
 }
 
 interface Props {
@@ -137,6 +139,19 @@ export default function MentorCompletionForm({ logs, serviceTypes }: Props) {
                                                     required 
                                                     className="input-field" 
                                                     placeholder="Örn: 45"
+                                                />
+                                            </div>
+                                            <div>
+                                                <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: '#374151', marginBottom: '0.5rem' }}>
+                                                    Hizmet Ücreti (€)
+                                                </label>
+                                                <input 
+                                                    type="number" 
+                                                    step="0.01"
+                                                    name="unitPrice" 
+                                                    className="input-field" 
+                                                    defaultValue={log.unitPrice !== undefined ? log.unitPrice : type?.unitPrice}
+                                                    placeholder="Örn: 100"
                                                 />
                                             </div>
                                         </div>

@@ -116,6 +116,8 @@ export async function updateServiceLogDetails(formData: FormData) {
     const logId = formData.get('logId') as string;
     const notes = formData.get('notes') as string;
     const duration = formData.get('duration') ? parseInt(formData.get('duration') as string) : undefined;
+    const unitPriceRaw = formData.get('unitPrice') as string;
+    const unitPrice = unitPriceRaw ? parseFloat(unitPriceRaw) : undefined;
 
     const logs = await db.logs.getAll();
     const log = logs.find(l => l.id === logId);
@@ -163,6 +165,7 @@ export async function updateServiceLogDetails(formData: FormData) {
         notes,
         durationMinutes: duration !== undefined ? duration : log.durationMinutes,
         attachments: updatedAttachments,
+        unitPrice: unitPrice !== undefined ? unitPrice : log.unitPrice,
         status: (log.status === 'assigned' || log.status === 'returned') ? 'submitted' : log.status, // Move to submitted for review
         lastEditorRole: session.role === 'admin' ? 'admin' : 'mentor',
         updatedAt: new Date().toISOString()
