@@ -174,7 +174,7 @@ export async function updatePaymentStatus(logId: string, paymentStatus: 'pending
 }
 
 // Admin: Update service log status (approve/reject)
-export async function updateServiceLogStatus(logId: string, status: 'approved' | 'rejected' | 'submitted', feedback?: string) {
+export async function updateServiceLogStatus(logId: string, status: import("@/types").ServiceStatus, feedback?: string) {
     const session = await getSession();
     if (!session || (session.role !== 'admin' && session.role !== 'italy_staff')) {
         throw new Error("Unauthorized");

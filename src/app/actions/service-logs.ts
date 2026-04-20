@@ -167,7 +167,7 @@ export async function updateServiceLogDetails(formData: FormData) {
 
     const updatedAttachments = [...(log.attachments || []), ...newAttachments];
 
-    const destinationStatus = formData.get('status') as string || log.status;
+    const destinationStatus = (formData.get('status') as import("@/types").ServiceStatus) || log.status;
 
     await db.logs.update({
         ...log,
