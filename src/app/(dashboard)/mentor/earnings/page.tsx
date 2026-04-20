@@ -31,11 +31,13 @@ export default async function MentorEarningsPage() {
 
     // Earnings calculations
     const approvedEarnings = approvedLogs.reduce((acc, log) => {
+        if (log.unitPrice !== undefined) return acc + log.unitPrice;
         const service = serviceTypes.find(s => s.id === log.serviceTypeId);
         return acc + (service?.unitPrice || 0);
     }, 0);
 
     const pendingEarnings = pendingLogs.reduce((acc, log) => {
+        if (log.unitPrice !== undefined) return acc + log.unitPrice;
         const service = serviceTypes.find(s => s.id === log.serviceTypeId);
         return acc + (service?.unitPrice || 0);
     }, 0);
@@ -43,7 +45,14 @@ export default async function MentorEarningsPage() {
     const totalHours = myLogs.reduce((acc, log) => acc + log.durationMinutes, 0) / 60;
 
     // Transform logs for client
-    const logsData = myLogs.slice().reverse().map(log => {
+    const sortedLogs = [...myLogs].sort((a, b) => {
+        const dateA = new Date(a.date).getTime();
+        const dateB = new Date(b.date).getTime();
+        if (dateA !== dateB) return dateB - dateA;
+        return new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime();
+    });
+
+    const logsData = sortedLogs.map(log => {
         const student = findStudent(log.studentId);
         const service = serviceTypes.find(s => s.id === log.serviceTypeId);
         return {
@@ -52,7 +61,7 @@ export default async function MentorEarningsPage() {
             studentName: `${student.firstName} ${student.lastName}`,
             serviceTypeId: log.serviceTypeId,
             serviceName: service?.name || 'Bilinmiyor',
-            servicePrice: service?.unitPrice || 0,
+            servicePrice: log.unitPrice !== undefined ? log.unitPrice : (service?.unitPrice || 0),
             date: log.date,
             durationMinutes: log.durationMinutes,
             status: log.status,
@@ -78,6 +87,7 @@ export default async function MentorEarningsPage() {
     const studentBreakdown = myStudents.map(student => {
         const studentLogs = approvedLogs.filter(l => l.studentId === student.id);
         const studentEarnings = studentLogs.reduce((acc, log) => {
+            if (log.unitPrice !== undefined) return acc + log.unitPrice;
             const service = serviceTypes.find(s => s.id === log.serviceTypeId);
             return acc + (service?.unitPrice || 0);
         }, 0);

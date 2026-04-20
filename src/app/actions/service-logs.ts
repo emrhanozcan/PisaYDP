@@ -9,8 +9,8 @@ import { getSession } from "@/app/actions/auth";
 // Shared: Create Service Log (Optimized with Supabase Storage)
 export async function createServiceLog(formData: FormData) {
     const session = await getSession();
-    if (!session || (session.role !== 'admin' && session.role !== 'italy_staff')) {
-        throw new Error("Yetkisiz işlem: Hizmet kaydı sadece yöneticiler ve İtalya personeli tarafından oluşturulabilir.");
+    if (!session || (session.role !== 'admin' && session.role !== 'italy_staff' && session.role !== 'mentor')) {
+        throw new Error("Yetkisiz işlem: Hizmet kaydı oluşturma yetkiniz bulunmamaktadır.");
     }
 
     const studentId = formData.get('studentId') as string;
@@ -62,7 +62,10 @@ export async function createServiceLog(formData: FormData) {
         });
     }
 
-    const mentorId = formData.get('mentorId') as string;
+    // Mentor kendi adına işlem ekliyorsa mentorId session'dan gelir
+    const mentorId = session.role === 'mentor'
+        ? session.id
+        : (formData.get('mentorId') as string);
     const unitPriceRaw = formData.get('unitPrice') as string;
     const customUnitPrice = unitPriceRaw ? parseFloat(unitPriceRaw) : undefined;
 
@@ -79,7 +82,7 @@ export async function createServiceLog(formData: FormData) {
         durationMinutes: isNaN(duration) ? 0 : duration,
         notes,
         attachments,
-        status: 'assigned',
+        status: session.role === 'mentor' ? 'submitted' : 'assigned',
         paymentStatus: 'pending',
         unitPrice: (customUnitPrice !== undefined && !isNaN(customUnitPrice)) ? customUnitPrice : undefined,
         createdAt: new Date().toISOString(),
@@ -98,12 +101,16 @@ export async function createServiceLog(formData: FormData) {
     });
 
     revalidatePath(`/admin/students/${studentId}`);
+    revalidatePath(`/mentor/students/${studentId}`);
     revalidatePath(`/admin/services`);
     revalidatePath(`/admin/payouts`);
     
-    // Redirect depends on how it's used. If from admin panel, stay there.
-    // Since we are moving this to Admin detail view, we should probably redirect back to that view.
-    redirect(`/admin/students/${studentId}`);
+    // Redirect depends on role
+    if (session.role === 'mentor') {
+        redirect(`/mentor/students/${studentId}`);
+    } else {
+        redirect(`/admin/students/${studentId}`);
+    }
 }
 
 // Shared: Update Service Log (Mentor & Admin)
@@ -160,13 +167,15 @@ export async function updateServiceLogDetails(formData: FormData) {
 
     const updatedAttachments = [...(log.attachments || []), ...newAttachments];
 
+    const destinationStatus = formData.get('status') as string || log.status;
+
     await db.logs.update({
         ...log,
         notes,
         durationMinutes: duration !== undefined ? duration : log.durationMinutes,
         attachments: updatedAttachments,
         unitPrice: unitPrice !== undefined ? unitPrice : log.unitPrice,
-        status: (log.status === 'assigned' || log.status === 'returned') ? 'submitted' : log.status, // Move to submitted for review
+        status: destinationStatus,
         lastEditorRole: session.role === 'admin' ? 'admin' : 'mentor',
         updatedAt: new Date().toISOString()
     });
@@ -229,5 +238,48 @@ export async function updateServiceLogStatus(logId: string, status: 'approved' |
     revalidatePath('/admin/payouts');
     revalidatePath('/mentor/earnings');
     
+    return { success: true };
+}
+
+// Shared: Delete Service Log (Mentor kendi bekleyen/atanmış logunu silebilir; Admin hepsini silebilir)
+export async function deleteServiceLog(logId: string) {
+    const session = await getSession();
+    if (!session) throw new Error("Unauthorized");
+
+    const logs = await db.logs.getAll();
+    const log = logs.find(l => l.id === logId);
+    if (!log) throw new Error("Kayıt bulunamadı.");
+
+    // Yetki kontrolü
+    if (session.role === 'admin' || session.role === 'italy_staff') {
+        // Admin her logu silebilir
+    } else if (session.role === 'mentor') {
+        // Mentor sadece kendi loglarını ve henüz onaylanmamış olanları silebilir
+        if (log.mentorId !== session.id) {
+            throw new Error("Yetkisiz: Sadece kendi işlemlerinizi silebilirsiniz.");
+        }
+        if (log.status === 'approved') {
+            throw new Error("Onaylanmış işlemler silinemez.");
+        }
+    } else {
+        throw new Error("Bu işlem için yetkiniz bulunmamaktadır.");
+    }
+
+    await db.logs.delete(logId);
+
+    await db.audit.create({
+        id: `audit-${Date.now()}`,
+        entity: 'ServiceLog',
+        entityId: logId,
+        action: 'delete',
+        actorId: session.id,
+        timestamp: new Date().toISOString()
+    });
+
+    revalidatePath(`/admin/students/${log.studentId}`);
+    revalidatePath(`/mentor/students/${log.studentId}`);
+    revalidatePath('/admin/payouts');
+    revalidatePath('/mentor/earnings');
+
     return { success: true };
 }

@@ -21,7 +21,8 @@ export default async function MentorFinancesPage() {
     const approvedExpenses = transactions.filter(t => t.type === 'expense' && t.status === 'approved').reduce((sum, t) => sum + Number(t.amount), 0);
     const receivedAdvances = transactions.filter(t => t.type === 'advance' && t.status === 'approved').reduce((sum, t) => sum + Number(t.amount), 0);
     const receivedPayments = transactions.filter(t => t.type === 'payment' && t.status === 'approved').reduce((sum, t) => sum + Number(t.amount), 0);
-    const balance = (approvedEarnings + approvedExpenses) - (receivedAdvances + receivedPayments);
+    const parentPayments = transactions.filter(t => t.type === 'parent_payment' && t.status === 'approved').reduce((sum, t) => sum + Number(t.amount), 0);
+    const balance = (approvedEarnings + approvedExpenses) - (receivedAdvances + receivedPayments + parentPayments);
 
     return (
         <div style={{ padding: '0 1rem' }}>
@@ -32,7 +33,7 @@ export default async function MentorFinancesPage() {
                     approvedEarnings={approvedEarnings}
                     approvedExpenses={approvedExpenses}
                     receivedAdvances={receivedAdvances}
-                    receivedPayments={receivedPayments}
+                    receivedPayments={receivedPayments + parentPayments}
                 />
             </Suspense>
         </div>

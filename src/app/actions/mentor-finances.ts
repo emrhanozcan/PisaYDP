@@ -5,6 +5,22 @@ import { revalidatePath } from "next/cache";
 import { getSession } from "./auth";
 import { MentorTransaction } from "@/types";
 
+import { deleteMentorTransaction as adminDeleteTransaction, updateServiceLogPrice as adminUpdatePrice } from "@/app/actions/admin-finances";
+import { deleteServiceLog as sharedDeleteLog } from "@/app/actions/service-logs";
+
+// Wrap re-exports as required by Next.js Server Actions
+export async function deleteMentorTransaction(id: string) {
+    return adminDeleteTransaction(id);
+}
+
+export async function updateServiceLogPrice(logId: string, price: number) {
+    return adminUpdatePrice(logId, price);
+}
+
+export async function deleteServiceLog(id: string) {
+    return sharedDeleteLog(id);
+}
+
 export async function getMentorFinances() {
     const session = await getSession();
     if (!session || session.role !== 'mentor') {
@@ -12,8 +28,6 @@ export async function getMentorFinances() {
     }
 
     // 1. Get Service Logs (Earnings)
-    const logs = await db.logs.getByStudentId(""); // This gets all logs? No, we need getByMentorId or filter all logs.
-    // Wait, the existing db method for logs: db.logs.getAll() then filter.
     const allLogs = await db.logs.getAll();
     const myLogs = allLogs.filter(l => l.mentorId === session.id);
     
@@ -31,11 +45,13 @@ export async function getMentorFinances() {
                                          .reduce((sum, t) => sum + Number(t.amount), 0);
     const receivedPayments = transactions.filter(t => t.type === 'payment' && t.status === 'approved')
                                          .reduce((sum, t) => sum + Number(t.amount), 0);
+    const parentPayments = transactions.filter(t => t.type === 'parent_payment' && t.status === 'approved')
+                                         .reduce((sum, t) => sum + Number(t.amount), 0);
 
     // Calculate balance
     // Balance = (What company owes mentor) - (What company already paid mentor)
-    // Balance = (Earnings + Approved Expenses) - (Advances + Payments)
-    const balance = (approvedEarnings + approvedExpenses) - (receivedAdvances + receivedPayments);
+    // Balance = (Earnings + Approved Expenses) - (Advances + CompanyPayments + ParentPayments)
+    const balance = (approvedEarnings + approvedExpenses) - (receivedAdvances + receivedPayments + parentPayments);
 
     return {
         balance,
@@ -53,7 +69,7 @@ export async function createMentorTransaction(formData: FormData) {
         throw new Error("Unauthorized");
     }
 
-    const type = formData.get('type') as 'expense' | 'advance';
+    const type = formData.get('type') as 'expense' | 'advance' | 'parent_payment';
     const amount = parseFloat(formData.get('amount') as string);
     const description = formData.get('description') as string;
 

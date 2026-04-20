@@ -11,7 +11,7 @@ interface Transaction {
     id: string;
     mentorId: string;
     mentorName: string;
-    type: 'expense' | 'advance' | 'payment';
+    type: 'expense' | 'advance' | 'payment' | 'parent_payment';
     amount: number;
     description: string;
     receiptUrl: string;
@@ -122,6 +122,8 @@ export default function FinancesClient({ transactions }: FinancesClientProps) {
                                             <span style={{ color: '#d97706', display: 'flex', alignItems: 'center', gap: '0.25rem' }}><ArrowUpRight size={14} /> Masraf</span>
                                         ) : t.type === 'advance' ? (
                                             <span style={{ color: '#2563eb', display: 'flex', alignItems: 'center', gap: '0.25rem' }}><ArrowDownRight size={14} /> Avans</span>
+                                        ) : t.type === 'parent_payment' ? (
+                                            <span style={{ color: '#059669', display: 'flex', alignItems: 'center', gap: '0.25rem' }}><ArrowDownRight size={14} /> Veli Ödemesi</span>
                                         ) : (
                                             <span style={{ color: '#059669', display: 'flex', alignItems: 'center', gap: '0.25rem' }}><CheckCircle size={14} /> Ödeme</span>
                                         )}

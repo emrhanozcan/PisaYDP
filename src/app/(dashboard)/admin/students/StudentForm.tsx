@@ -452,9 +452,10 @@ export default function StudentForm({ universities, initialData, isEditing = fal
                             <FormSelect label="Danışmanlık" value={student.supportPackage || 'Hayır'} onChange={(v) => setStudent(p => ({ ...p, supportPackage: v as any }))} options={[{ value: 'Evet', label: 'Evet' }, { value: 'Hayır', label: 'Hayır' }]} />
                             <FormSelect label="Konaklama" value={student.accommodationService || 'Hayır'} onChange={(v) => setStudent(p => ({ ...p, accommodationService: v as any }))} options={[{ value: 'Evet', label: 'Evet' }, { value: 'Hayır', label: 'Hayır' }]} />
                         </div>
-                        <div style={{ ...gridStyle(3), marginTop: '1rem' }}>
+                        <div style={{ ...gridStyle(4), marginTop: '1rem' }}>
                             <FormSelect label="Burs Paketi" value={student.scholarshipPackage || 'Hayır'} onChange={(v) => setStudent(p => ({ ...p, scholarshipPackage: v as any }))} options={[{ value: 'Evet', label: 'Evet' }, { value: 'Hayır', label: 'Hayır' }]} />
                             <FormSelect label="YDP" value={student.ydtSupport || 'Hayır'} onChange={(v) => setStudent(p => ({ ...p, ydtSupport: v as any }))} options={[{ value: 'Evet', label: 'Evet' }, { value: 'Hayır', label: 'Hayır' }]} />
+                            <FormSelect label="Vasi Hizmeti" value={student.guardianService || 'Hayır'} onChange={(v) => setStudent(p => ({ ...p, guardianService: v as any }))} options={[{ value: 'Evet', label: 'Evet' }, { value: 'Hayır', label: 'Hayır' }]} />
                             <FormSelect label="Paket Türü" value={student.packageType || 'Standard'} onChange={(v) => setStudent(p => ({ ...p, packageType: v }))} options={[{ value: 'Standard', label: 'Standard' }, { value: 'Premium', label: 'Premium' }, { value: 'VIP', label: 'VIP' }]} />
                         </div>
 

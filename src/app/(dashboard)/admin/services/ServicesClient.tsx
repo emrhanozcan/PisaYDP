@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useTransition } from 'react';
+import { useState, useTransition, Fragment } from 'react';
 import { useRouter } from 'next/navigation';
 import { FileText, Search, Calendar, User, Filter, ArrowUpDown, DollarSign, Clock, CheckCircle, XCircle, ChevronDown, ChevronUp, Image as ImageIcon, X, File, Edit3, Save, RotateCcw } from "lucide-react";
 import { updatePaymentStatus, updateServiceLogStatus, updateServiceLogDetails } from "@/app/actions/admin";
@@ -343,7 +343,7 @@ export default function ServicesClient({ logs, serviceTypes, mentors }: Props) {
                         </thead>
                         <tbody>
                             {filteredLogs.map(log => (
-                                <>
+                                <Fragment key={log.id}>
                                     <tr key={log.id} style={{ cursor: 'pointer', background: expandedLogId === log.id ? '#f8fafc' : 'transparent' }} onClick={() => toggleExpand(log.id)}>
                                         <td style={{ textAlign: 'center' }}>
                                             {expandedLogId === log.id ? <ChevronUp size={16} color="#6b7280" /> : <ChevronDown size={16} color="#9ca3af" />}
@@ -725,7 +725,7 @@ export default function ServicesClient({ logs, serviceTypes, mentors }: Props) {
                                             </td>
                                         </tr>
                                     )}
-                                </>
+                                </Fragment>
                             ))}
                             {filteredLogs.length === 0 && (
                                 <tr><td colSpan={7} style={{ textAlign: 'center', padding: '3rem', color: '#B2B3BD' }}>Kayıt bulunamadı.</td></tr>

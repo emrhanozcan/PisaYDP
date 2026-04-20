@@ -4,7 +4,7 @@ import { useState, useTransition, Fragment } from 'react';
 import { useRouter } from 'next/navigation';
 import {
     Wallet, TrendingUp, CheckCircle, Clock,
-    FileText, Award, ChevronDown, ChevronUp, Image as ImageIcon, File, X, Edit, Plus
+    FileText, Award, ChevronDown, ChevronUp, Image as ImageIcon, File, X, Edit, Plus, ChevronLeft, ChevronRight
 } from "lucide-react";
 import { updateMentorServiceStatus } from '@/app/actions/mentor';
 import { updateServiceLogDetails } from '@/app/actions/service-logs';
@@ -70,6 +70,8 @@ export default function MentorEarningsClient({
     const [newAttachments, setNewAttachments] = useState<File[]>([]);
     const [newPreviews, setNewPreviews] = useState<string[]>([]);
     const [toast, setToast] = useState<{ message: string; type: ToastType } | null>(null);
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 15;
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files) {
@@ -133,6 +135,13 @@ export default function MentorEarningsClient({
         { label: "Onaylı Hizmet", value: approvedCount.toString(), icon: CheckCircle, color: "#6366f1", bg: "#eef2ff" },
         { label: "Toplam Süre", value: `${totalHours.toFixed(1)} saat`, icon: TrendingUp, color: "#8b5cf6", bg: "#f5f3ff" },
     ];
+
+    // Pagination logic
+    const totalPages = Math.ceil(logs.length / itemsPerPage);
+    const paginatedLogs = logs.slice(
+        (currentPage - 1) * itemsPerPage,
+        currentPage * itemsPerPage
+    );
 
     return (
         <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
@@ -214,7 +223,7 @@ export default function MentorEarningsClient({
                                 </tr>
                             </thead>
                             <tbody>
-                                {logs.map(log => (
+                                {paginatedLogs.map(log => (
                                     <Fragment key={log.id}>
                                         <tr key={log.id} style={{ borderBottom: '1px solid #f8fafc', cursor: 'pointer', background: expandedLogId === log.id ? '#f8fafc' : 'transparent' }} onClick={() => toggleExpand(log.id)}>
                                             <td style={{ textAlign: 'center' }}>
@@ -260,16 +269,19 @@ export default function MentorEarningsClient({
                                                         background: log.status === 'approved' ? '#ecfdf5' :
                                                             log.status === 'rejected' ? '#fef2f2' :
                                                                 log.status === 'submitted' ? '#fef3c7' :
-                                                                    log.status === 'assigned' ? '#eef2ff' : '#f3f4f6',
+                                                                    log.status === 'assigned' ? '#eef2ff' : 
+                                                                        log.status === 'returned' ? '#fff7ed' : '#f3f4f6',
                                                         color: log.status === 'approved' ? '#059669' :
                                                             log.status === 'rejected' ? '#dc2626' :
                                                                 log.status === 'submitted' ? '#b45309' : 
-                                                                    log.status === 'assigned' ? '#6366f1' : '#6b7280'
+                                                                    log.status === 'assigned' ? '#6366f1' : 
+                                                                        log.status === 'returned' ? '#ea580c' : '#6b7280'
                                                     }}
                                                 >
                                                     <option value="draft">📝 Taslak</option>
                                                     <option value="assigned">👤 Atandı</option>
                                                     <option value="submitted">⏳ Onay Bekliyor</option>
+                                                    <option value="returned">↩️ Geri Gönderildi</option>
                                                     <option value="approved">✅ Onaylandı</option>
                                                     <option value="rejected">❌ Reddedildi</option>
                                                 </select>
@@ -457,10 +469,100 @@ export default function MentorEarningsClient({
                         </div>
                     )}
 
-                    {logs.length > 15 && (
-                        <p style={{ textAlign: 'center', marginTop: '1rem', fontSize: '0.85rem', color: '#9ca3af' }}>
-                            Son 15 kayıt gösteriliyor ({logs.length - 15} daha var)
-                        </p>
+                    {totalPages > 1 && (
+                        <div style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'space-between',
+                            padding: '1.25rem 1.5rem',
+                            borderTop: '1px solid #f1f5f9',
+                            background: '#f8fafc',
+                            borderBottomLeftRadius: '16px',
+                            borderBottomRightRadius: '16px',
+                            marginTop: '1rem'
+                        }}>
+                            <div style={{ fontSize: '0.85rem', color: '#64748b' }}>
+                                Toplam <b>{logs.length}</b> kayıttan <b>{(currentPage - 1) * itemsPerPage + 1} - {Math.min(currentPage * itemsPerPage, logs.length)}</b> arası gösteriliyor
+                            </div>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                <button
+                                    onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                                    disabled={currentPage === 1}
+                                    style={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: '0.25rem',
+                                        padding: '0.5rem 0.75rem',
+                                        borderRadius: '8px',
+                                        border: '1px solid #e5e7eb',
+                                        background: 'white',
+                                        color: currentPage === 1 ? '#9ca3af' : '#374151',
+                                        fontSize: '0.85rem',
+                                        fontWeight: 600,
+                                        cursor: currentPage === 1 ? 'not-allowed' : 'pointer'
+                                    }}
+                                >
+                                    <ChevronLeft size={16} /> Önceki
+                                </button>
+                                <div style={{ display: 'flex', gap: '0.25rem' }}>
+                                    {[...Array(totalPages)].map((_, i) => {
+                                        const pageNum = i + 1;
+                                        if (
+                                            pageNum === 1 ||
+                                            pageNum === totalPages ||
+                                            (pageNum >= currentPage - 1 && pageNum <= currentPage + 1)
+                                        ) {
+                                            return (
+                                                <button
+                                                    key={pageNum}
+                                                    onClick={() => setCurrentPage(pageNum)}
+                                                    style={{
+                                                        width: '32px',
+                                                        height: '32px',
+                                                        borderRadius: '8px',
+                                                        border: '1px solid',
+                                                        borderColor: currentPage === pageNum ? '#4f46e5' : '#e5e7eb',
+                                                        background: currentPage === pageNum ? '#4f46e5' : 'white',
+                                                        color: currentPage === pageNum ? 'white' : '#374151',
+                                                        fontSize: '0.85rem',
+                                                        fontWeight: 600,
+                                                        cursor: 'pointer'
+                                                    }}
+                                                >
+                                                    {pageNum}
+                                                </button>
+                                            );
+                                        }
+                                        if (
+                                            (pageNum === 2 && currentPage > 3) ||
+                                            (pageNum === totalPages - 1 && currentPage < totalPages - 2)
+                                        ) {
+                                            return <span key={pageNum} style={{ padding: '0 0.25rem', color: '#9ca3af' }}>...</span>;
+                                        }
+                                        return null;
+                                    })}
+                                </div>
+                                <button
+                                    onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                                    disabled={currentPage === totalPages}
+                                    style={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: '0.25rem',
+                                        padding: '0.5rem 0.75rem',
+                                        borderRadius: '8px',
+                                        border: '1px solid #e5e7eb',
+                                        background: 'white',
+                                        color: currentPage === totalPages ? '#9ca3af' : '#374151',
+                                        fontSize: '0.85rem',
+                                        fontWeight: 600,
+                                        cursor: currentPage === totalPages ? 'not-allowed' : 'pointer'
+                                    }}
+                                >
+                                    Sonraki <ChevronRight size={16} />
+                                </button>
+                            </div>
+                        </div>
                     )}
                 </div>
 
@@ -689,6 +791,7 @@ export default function MentorEarningsClient({
                                         await updateServiceLogDetails(formData);
                                         setToast({ message: '✅ Başarıyla kaydedildi!', type: 'success' });
                                         closeEditModalWithCleanup();
+                                        router.refresh();
                                     } catch (error: any) {
                                         console.error("Update failed:", error);
                                         setToast({ message: "Hata oluştu: " + error.message, type: 'error' });

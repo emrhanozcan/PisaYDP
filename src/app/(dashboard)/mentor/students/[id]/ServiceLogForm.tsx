@@ -18,6 +18,7 @@ interface Props {
 export default function ServiceLogForm({ studentId, serviceTypes }: Props) {
     const [attachments, setAttachments] = useState<File[]>([]);
     const [previews, setPreviews] = useState<string[]>([]);
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files) {
@@ -51,7 +52,7 @@ export default function ServiceLogForm({ studentId, serviceTypes }: Props) {
                     <select name="serviceTypeId" required className="input-field">
                         <option value="">Seçiniz...</option>
                         {serviceTypes.map(t => (
-                            <option key={t.id} value={t.id}>{t.name} (€{t.unitPrice})</option>
+                            <option key={t.id} value={t.id}>{t.name}</option>
                         ))}
                     </select>
                 </div>
@@ -77,6 +78,21 @@ export default function ServiceLogForm({ studentId, serviceTypes }: Props) {
                     <input type="number" name="duration" className="input-field" placeholder="Örn: 30" />
                     <p style={{ fontSize: '0.7rem', color: '#9ca3af', marginTop: '0.35rem' }}>
                         Sabit ücretli hizmetlerde boş bırakılabilir.
+                    </p>
+                </div>
+                <div>
+                    <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 500, color: '#374151', marginBottom: '0.5rem' }}>
+                        Hizmet Ücreti (€)
+                    </label>
+                    <input 
+                        type="number" 
+                        step="0.01" 
+                        name="unitPrice" 
+                        className="input-field" 
+                        placeholder="Örn: 50" 
+                    />
+                    <p style={{ fontSize: '0.7rem', color: '#9ca3af', marginTop: '0.35rem' }}>
+                        Boş bırakılırsa hizmet tipinin varsayılan ücreti kullanılır.
                     </p>
                 </div>
             </div>
@@ -235,24 +251,27 @@ export default function ServiceLogForm({ studentId, serviceTypes }: Props) {
             <div style={{ paddingTop: '0.5rem' }}>
                 <button
                     type="submit"
+                    disabled={isSubmitting}
                     className="btn btn-primary"
-                    style={{ padding: '0.875rem 2rem', fontSize: '0.9rem' }}
+                    style={{ padding: '0.875rem 2rem', fontSize: '0.9rem', opacity: isSubmitting ? 0.7 : 1, cursor: isSubmitting ? 'not-allowed' : 'pointer' }}
                     formAction={async (formData) => {
-                        // Intercept to use our clean 'attachments' list
-                        // We need to delete the original 'attachments' from the input because it might contain deleted files if we only hid them visually.
-                        // But actually, we can just append our 'attachments' state to the FormData.
-                        // And remove the original 'attachments' entry that came from the input.
+                        setIsSubmitting(true);
+                        try {
+                            // Intercept to use our clean 'attachments' list
+                            formData.delete('attachments');
+                            attachments.forEach(file => {
+                                formData.append('attachments', file);
+                            });
 
-                        formData.delete('attachments');
-                        attachments.forEach(file => {
-                            formData.append('attachments', file);
-                        });
-
-                        await createServiceLog(formData);
+                            await createServiceLog(formData);
+                        } catch (err) {
+                            alert((err as Error).message);
+                            setIsSubmitting(false);
+                        }
                     }}
                 >
                     <CheckCircle size={18} />
-                    Kaydı Oluştur ve Gönder
+                    {isSubmitting ? 'Gönderiliyor...' : 'Kaydı Oluştur ve Gönder'}
                 </button>
             </div>
         </form>

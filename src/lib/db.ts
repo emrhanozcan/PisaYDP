@@ -517,6 +517,10 @@ export const db = {
         deleteByStudentId: async (studentId: string) => {
             const { error } = await supabase.from('service_logs').delete().eq('student_id', studentId);
             if (error) throw error;
+        },
+        delete: async (id: string) => {
+            const { error } = await supabase.from('service_logs').delete().eq('id', id);
+            if (error) throw error;
         }
     },
     assignments: {

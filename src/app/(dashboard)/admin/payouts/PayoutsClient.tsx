@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import {
     FileText, Search, Calendar, Download, Filter, ArrowUpRight, ArrowDownLeft, Wallet, MoreHorizontal,
     ArrowUpDown, BarChart3, PieChart, TrendingUp, DollarSign, Users, ChevronDown, ChevronUp, X, File,
-    Edit, Plus, CheckCircle, Award, Image as ImageIcon
+    Edit, Plus, CheckCircle, Award, Image as ImageIcon, ChevronLeft, ChevronRight
 } from "lucide-react";
 import * as XLSX from 'xlsx';
 import { updatePaymentStatus, updateServiceLogStatus } from "@/app/actions/admin";
@@ -54,11 +54,15 @@ export default function PayoutsClient({ logs, serviceTypes, mentors }: Props) {
     const router = useRouter();
     const [expandedLogId, setExpandedLogId] = useState<string | null>(null);
     const [lightboxImage, setLightboxImage] = useState<string | null>(null);
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 15;
 
     // Edit Modal State
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [editingLog, setEditingLog] = useState<LogData | null>(null);
     const [editNotes, setEditNotes] = useState('');
+    const [editPrice, setEditPrice] = useState<number>(0);
+    const [editDuration, setEditDuration] = useState<number>(0);
     const [editAttachments, setEditAttachments] = useState<File[]>([]);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [toast, setToast] = useState<{ message: string, type: ToastType } | null>(null);
@@ -79,6 +83,8 @@ export default function PayoutsClient({ logs, serviceTypes, mentors }: Props) {
         e.stopPropagation();
         setEditingLog(log);
         setEditNotes(log.notes || '');
+        setEditPrice(log.servicePrice || 0);
+        setEditDuration(log.durationMinutes || 0);
         setEditAttachments([]);
         setIsEditModalOpen(true);
     };
@@ -87,6 +93,8 @@ export default function PayoutsClient({ logs, serviceTypes, mentors }: Props) {
         setIsEditModalOpen(false);
         setEditingLog(null);
         setEditNotes('');
+        setEditPrice(0);
+        setEditDuration(0);
         setEditAttachments([]);
         setIsSubmitting(false);
     };
@@ -106,6 +114,8 @@ export default function PayoutsClient({ logs, serviceTypes, mentors }: Props) {
             const formData = new FormData();
             formData.append('logId', editingLog.id);
             formData.append('notes', editNotes);
+            formData.append('unitPrice', editPrice.toString());
+            formData.append('duration', editDuration.toString());
 
             editAttachments.forEach(file => {
                 formData.append('attachments', file);
@@ -198,8 +208,29 @@ export default function PayoutsClient({ logs, serviceTypes, mentors }: Props) {
                 comparison = (a.paymentStatus || 'pending').localeCompare(b.paymentStatus || 'pending');
                 break;
         }
-        return sortOrder === 'desc' ? -comparison : comparison;
+        
+        if (comparison !== 0) {
+            return sortOrder === 'desc' ? -comparison : comparison;
+        }
+
+        // Secondary stable sort by createdAt (Newest first)
+        const timeA = new Date((a as any).createdAt || 0).getTime();
+        const timeB = new Date((b as any).createdAt || 0).getTime();
+        return timeB - timeA;
     });
+
+    // Paginate logs
+    const totalPages = Math.ceil(filteredLogs.length / itemsPerPage);
+    const paginatedLogs = filteredLogs.slice(
+        (currentPage - 1) * itemsPerPage,
+        currentPage * itemsPerPage
+    );
+
+    // Reset pagination on filter change
+    const onFilterChange = (setter: (val: any) => void) => (e: any) => {
+        setter(e.target.value);
+        setCurrentPage(1);
+    };
 
     // Calculate statistics
     const stats = useMemo(() => {
@@ -252,7 +283,7 @@ export default function PayoutsClient({ logs, serviceTypes, mentors }: Props) {
         }
     };
 
-    const handleStatusChange = (logId: string, newStatus: 'approved' | 'rejected' | 'submitted') => {
+    const handleStatusChange = (logId: string, newStatus: 'approved' | 'rejected' | 'submitted' | 'returned' | 'assigned') => {
         startTransition(async () => {
             await updateServiceLogStatus(logId, newStatus);
             router.refresh();
@@ -478,7 +509,10 @@ export default function PayoutsClient({ logs, serviceTypes, mentors }: Props) {
                             type="text"
                             placeholder="Hizmet, öğrenci veya mentor ara..."
                             value={search}
-                            onChange={(e) => setSearch(e.target.value)}
+                            onChange={(e) => {
+                                setSearch(e.target.value);
+                                setCurrentPage(1);
+                            }}
                             style={{
                                 width: '100%',
                                 padding: '1rem 1rem 1rem 3rem',
@@ -510,7 +544,7 @@ export default function PayoutsClient({ logs, serviceTypes, mentors }: Props) {
                         {/* Month Filter */}
                         <select
                             value={filterMonth}
-                            onChange={(e) => setFilterMonth(e.target.value)}
+                            onChange={onFilterChange(setFilterMonth)}
                             style={{
                                 padding: '0.5rem 1rem',
                                 borderRadius: '8px',
@@ -531,7 +565,7 @@ export default function PayoutsClient({ logs, serviceTypes, mentors }: Props) {
                         {/* Mentor Filter */}
                         <select
                             value={filterMentor}
-                            onChange={(e) => setFilterMentor(e.target.value)}
+                            onChange={onFilterChange(setFilterMentor)}
                             style={{
                                 padding: '0.5rem 1rem',
                                 borderRadius: '8px',
@@ -550,7 +584,7 @@ export default function PayoutsClient({ logs, serviceTypes, mentors }: Props) {
                         {/* Service Filter */}
                         <select
                             value={filterService}
-                            onChange={(e) => setFilterService(e.target.value)}
+                            onChange={onFilterChange(setFilterService)}
                             style={{
                                 padding: '0.5rem 1rem',
                                 borderRadius: '8px',
@@ -569,7 +603,7 @@ export default function PayoutsClient({ logs, serviceTypes, mentors }: Props) {
                         {/* Status Filter */}
                         <select
                             value={filterStatus}
-                            onChange={(e) => setFilterStatus(e.target.value)}
+                            onChange={onFilterChange(setFilterStatus)}
                             style={{
                                 padding: '0.5rem 1rem',
                                 borderRadius: '8px',
@@ -590,7 +624,7 @@ export default function PayoutsClient({ logs, serviceTypes, mentors }: Props) {
                         {/* Payment Status Filter */}
                         <select
                             value={filterPayment}
-                            onChange={(e) => setFilterPayment(e.target.value)}
+                            onChange={onFilterChange(setFilterPayment)}
                             style={{
                                 padding: '0.5rem 1rem',
                                 borderRadius: '8px',
@@ -659,7 +693,7 @@ export default function PayoutsClient({ logs, serviceTypes, mentors }: Props) {
                             </tr>
                         </thead>
                         <tbody>
-                            {filteredLogs.map(log => (
+                            {paginatedLogs.map(log => (
                                 <Fragment key={log.id}>
                                     <tr
                                         key={log.id}
@@ -872,6 +906,103 @@ export default function PayoutsClient({ logs, serviceTypes, mentors }: Props) {
                             )}
                         </tbody>
                     </table>
+
+                    {/* Pagination Controls */}
+                    {totalPages > 1 && (
+                        <div style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'space-between',
+                            padding: '1.25rem 1.5rem',
+                            borderTop: '1px solid #f1f5f9',
+                            background: '#f8fafc',
+                            borderBottomLeftRadius: '16px',
+                            borderBottomRightRadius: '16px'
+                        }}>
+                            <div style={{ fontSize: '0.85rem', color: '#64748b' }}>
+                                Toplam <b>{filteredLogs.length}</b> kayıttan <b>{(currentPage - 1) * itemsPerPage + 1} - {Math.min(currentPage * itemsPerPage, filteredLogs.length)}</b> arası gösteriliyor
+                            </div>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                <button
+                                    onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                                    disabled={currentPage === 1}
+                                    style={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: '0.25rem',
+                                        padding: '0.5rem 0.75rem',
+                                        borderRadius: '8px',
+                                        border: '1px solid #e5e7eb',
+                                        background: 'white',
+                                        color: currentPage === 1 ? '#9ca3af' : '#374151',
+                                        fontSize: '0.85rem',
+                                        fontWeight: 600,
+                                        cursor: currentPage === 1 ? 'not-allowed' : 'pointer'
+                                    }}
+                                >
+                                    <ChevronLeft size={16} /> Önceki
+                                </button>
+                                <div style={{ display: 'flex', gap: '0.25rem' }}>
+                                    {[...Array(totalPages)].map((_, i) => {
+                                        const pageNum = i + 1;
+                                        // Show first, last, and pages around current
+                                        if (
+                                            pageNum === 1 ||
+                                            pageNum === totalPages ||
+                                            (pageNum >= currentPage - 1 && pageNum <= currentPage + 1)
+                                        ) {
+                                            return (
+                                                <button
+                                                    key={pageNum}
+                                                    onClick={() => setCurrentPage(pageNum)}
+                                                    style={{
+                                                        width: '32px',
+                                                        height: '32px',
+                                                        borderRadius: '8px',
+                                                        border: '1px solid',
+                                                        borderColor: currentPage === pageNum ? '#4f46e5' : '#e5e7eb',
+                                                        background: currentPage === pageNum ? '#4f46e5' : 'white',
+                                                        color: currentPage === pageNum ? 'white' : '#374151',
+                                                        fontSize: '0.85rem',
+                                                        fontWeight: 600,
+                                                        cursor: 'pointer'
+                                                    }}
+                                                >
+                                                    {pageNum}
+                                                </button>
+                                            );
+                                        }
+                                        if (
+                                            (pageNum === 2 && currentPage > 3) ||
+                                            (pageNum === totalPages - 1 && currentPage < totalPages - 2)
+                                        ) {
+                                            return <span key={pageNum} style={{ padding: '0 0.25rem', color: '#9ca3af' }}>...</span>;
+                                        }
+                                        return null;
+                                    })}
+                                </div>
+                                <button
+                                    onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                                    disabled={currentPage === totalPages}
+                                    style={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: '0.25rem',
+                                        padding: '0.5rem 0.75rem',
+                                        borderRadius: '8px',
+                                        border: '1px solid #e5e7eb',
+                                        background: 'white',
+                                        color: currentPage === totalPages ? '#9ca3af' : '#374151',
+                                        fontSize: '0.85rem',
+                                        fontWeight: 600,
+                                        cursor: currentPage === totalPages ? 'not-allowed' : 'pointer'
+                                    }}
+                                >
+                                    Sonraki <ChevronRight size={16} />
+                                </button>
+                            </div>
+                        </div>
+                    )}
                 </div>
             </div>
 
@@ -971,6 +1102,46 @@ export default function PayoutsClient({ logs, serviceTypes, mentors }: Props) {
                                         outline: 'none'
                                     }}
                                 />
+                            </div>
+
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1.5rem' }}>
+                                <div>
+                                    <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem', fontWeight: 600, color: '#374151' }}>
+                                        Birim Ücret (€)
+                                    </label>
+                                    <input
+                                        type="number"
+                                        step="0.01"
+                                        value={editPrice}
+                                        onChange={(e) => setEditPrice(parseFloat(e.target.value))}
+                                        style={{
+                                            width: '100%',
+                                            padding: '0.75rem',
+                                            borderRadius: '12px',
+                                            border: '1px solid #e5e7eb',
+                                            fontSize: '0.9rem',
+                                            outline: 'none'
+                                        }}
+                                    />
+                                </div>
+                                <div>
+                                    <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem', fontWeight: 600, color: '#374151' }}>
+                                        Süre (Dakika)
+                                    </label>
+                                    <input
+                                        type="number"
+                                        value={editDuration}
+                                        onChange={(e) => setEditDuration(parseInt(e.target.value))}
+                                        style={{
+                                            width: '100%',
+                                            padding: '0.75rem',
+                                            borderRadius: '12px',
+                                            border: '1px solid #e5e7eb',
+                                            fontSize: '0.9rem',
+                                            outline: 'none'
+                                        }}
+                                    />
+                                </div>
                             </div>
 
                             <div style={{ marginBottom: '1.5rem' }}>

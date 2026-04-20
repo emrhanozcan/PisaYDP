@@ -3,7 +3,16 @@ import { db } from "@/lib/db";
 import PayoutsClient from "./PayoutsClient";
 
 export default async function PayoutsPage() {
-    const logs = (await db.logs.getAll()).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    const logs = (await db.logs.getAll()).sort((a, b) => {
+        const dateA = new Date(a.date).getTime();
+        const dateB = new Date(b.date).getTime();
+        if (dateA !== dateB) return dateB - dateA; // Newest date first
+        
+        // Stable secondary sort (createdAt)
+        const timeA = new Date(a.createdAt || 0).getTime();
+        const timeB = new Date(b.createdAt || 0).getTime();
+        return timeB - timeA; // Newest createdAt first
+    });
     const serviceTypes = await db.serviceTypes.getAll();
     const students = await db.students.getAll();
     const branchStudents = await db.branchStudents.getAll();
@@ -53,7 +62,7 @@ export default async function PayoutsPage() {
             mentorName: mentor ? `${mentor.firstName} ${mentor.lastName}` : 'Bilinmiyor',
             serviceTypeId: log.serviceTypeId,
             serviceName: service?.name || 'Bilinmiyor',
-            servicePrice: service?.unitPrice || 0,
+            servicePrice: log.unitPrice !== undefined ? log.unitPrice : (service?.unitPrice || 0),
             date: log.date,
             durationMinutes: log.durationMinutes,
             status: log.status,

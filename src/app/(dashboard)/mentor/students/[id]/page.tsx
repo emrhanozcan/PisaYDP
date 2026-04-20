@@ -12,6 +12,7 @@ import { redirect } from "next/navigation";
 import StudentRemovalButton from "@/components/mentor/StudentRemovalButton";
 import FileUploader from "@/components/common/FileUploader";
 import MentorCompletionForm from "@/components/mentor/MentorCompletionForm";
+import ServiceLogForm from "./ServiceLogForm";
 
 export default async function MentorStudentDetailPage({ params }: { params: Promise<{ id: string }> }) {
     const { id } = await params;
@@ -93,8 +94,6 @@ export default async function MentorStudentDetailPage({ params }: { params: Prom
     // Filter service types based on assignment's allowed services (only if we needed it for creation)
     if (assignment.allowedServiceIds && assignment.allowedServiceIds.length > 0) {
         allowedServiceTypes = allServiceTypes.filter(t => assignment.allowedServiceIds!.includes(t.id));
-    } else if (assignment.allowedServiceIds && assignment.allowedServiceIds.length === 0) {
-        allowedServiceTypes = [];
     }
 
     let serviceTypes = allServiceTypes; // Restore original to ensure all logs find their names
@@ -300,6 +299,20 @@ export default async function MentorStudentDetailPage({ params }: { params: Prom
                 <div className="flex flex-col gap-6">
                     {/* Assigned Tasks for Mentor */}
                     <MentorCompletionForm logs={logs} serviceTypes={serviceTypes} />
+
+                    {/* Add New Service Log */}
+                    <div className="glass-panel" style={{ padding: '1.5rem' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1.5rem' }}>
+                            <div style={{ width: 44, height: 44, borderRadius: 12, background: '#ecfdf5', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                <Plus size={22} color="#059669" />
+                            </div>
+                            <div>
+                                <h2 style={{ fontSize: '1.1rem', color: '#11142D', fontWeight: 600 }}>Yeni Hizmet Ekle</h2>
+                                <p style={{ fontSize: '0.8rem', color: '#808191' }}>Gerçekleştirdiğiniz yeni bir hizmetin kaydını oluşturun</p>
+                            </div>
+                        </div>
+                        <ServiceLogForm studentId={id} serviceTypes={allowedServiceTypes} />
+                    </div>
                 </div>
 
                 {/* Service History Sidebar */}

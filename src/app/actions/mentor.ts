@@ -104,7 +104,7 @@ export async function createServiceLog(formData: FormData) {
 }
 
 // Mentor: Update service log status
-export async function updateMentorServiceStatus(logId: string, status: 'draft' | 'submitted' | 'approved' | 'rejected') {
+export async function updateMentorServiceStatus(logId: string, status: 'draft' | 'submitted' | 'approved' | 'rejected' | 'assigned' | 'returned') {
     const session = await getSession();
     if (!session || session.role !== 'mentor') {
         throw new Error("Unauthorized");
@@ -116,8 +116,8 @@ export async function updateMentorServiceStatus(logId: string, status: 'draft' |
         throw new Error("Log not found or unauthorized");
     }
 
-    // Mentor can update to any status
-    const validStatuses = ['draft', 'submitted', 'approved', 'rejected'];
+    // Mentor can update to any logical status
+    const validStatuses = ['draft', 'submitted', 'approved', 'rejected', 'assigned', 'returned'];
     if (!validStatuses.includes(status)) {
         throw new Error("Invalid status");
     }

@@ -62,7 +62,7 @@ export interface MentorAssignment {
   allowedServiceIds?: string[];
 }
 
-export type TransactionType = 'expense' | 'advance' | 'payment';
+export type TransactionType = 'expense' | 'advance' | 'payment' | 'parent_payment';
 export type TransactionStatus = 'pending' | 'approved' | 'rejected';
 
 export interface MentorTransaction {

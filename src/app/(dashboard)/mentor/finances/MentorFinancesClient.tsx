@@ -23,7 +23,7 @@ export default function MentorFinancesClient({
     const [isPending, startTransition] = useTransition();
     const router = useRouter();
     const [toast, setToast] = useState<{ message: string; type: ToastType } | null>(null);
-    const [modalOpen, setModalOpen] = useState<'expense' | 'advance' | null>(null);
+    const [modalOpen, setModalOpen] = useState<'expense' | 'advance' | 'parent_payment' | null>(null);
 
     const stats = [
         { label: "Güncel Bakiye", value: `€${balance.toFixed(2)}`, icon: Wallet, color: "#059669", bg: "#ecfdf5", highlight: true },
@@ -79,6 +79,17 @@ export default function MentorFinancesClient({
                         }}
                     >
                         <CreditCard size={18} /> Avans Talep Et
+                    </button>
+                    <button
+                        onClick={() => setModalOpen('parent_payment')}
+                        style={{
+                            display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.75rem 1.5rem',
+                            borderRadius: '12px', border: 'none', background: 'linear-gradient(135deg, #059669 0%, #047857 100%)',
+                            color: 'white', fontWeight: 600, cursor: 'pointer', transition: 'transform 0.2s',
+                            boxShadow: '0 4px 6px -1px rgba(5, 150, 105, 0.4)'
+                        }}
+                    >
+                        <PlusCircle size={18} /> Veli Ödemesi Bildir
                     </button>
                 </div>
             </div>
@@ -153,6 +164,7 @@ export default function MentorFinancesClient({
                                     <td style={{ padding: '1rem', fontSize: '0.9rem', fontWeight: 600 }}>
                                         {t.type === 'expense' ? <span style={{ color: '#d97706' }}>Masraf</span> : 
                                          t.type === 'advance' ? <span style={{ color: '#2563eb' }}>Avans</span> : 
+                                         t.type === 'parent_payment' ? <span style={{ color: '#059669' }}>Veli Ödemesi</span> :
                                          <span style={{ color: '#059669' }}>Ödeme</span>}
                                     </td>
                                     <td style={{ padding: '1rem', fontSize: '0.9rem', color: '#64748b' }}>
@@ -192,7 +204,7 @@ export default function MentorFinancesClient({
                 }}>
                     <div style={{ background: 'white', padding: '2rem', borderRadius: '16px', width: '90%', maxWidth: '500px', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1)' }}>
                         <h3 style={{ fontSize: '1.5rem', fontWeight: 700, color: '#11142D', marginBottom: '1.5rem' }}>
-                            {modalOpen === 'expense' ? 'Masraf Ekle' : 'Avans Talep Et'}
+                            {modalOpen === 'expense' ? 'Masraf Ekle' : modalOpen === 'advance' ? 'Avans Talep Et' : 'Veli Ödemesi Bildir'}
                         </h3>
                         <form action={(formData) => startTransition(() => handleSubmit(formData))}>
                             <input type="hidden" name="type" value={modalOpen} />
@@ -209,7 +221,7 @@ export default function MentorFinancesClient({
                                 <label style={{ display: 'block', fontSize: '0.9rem', fontWeight: 600, color: '#374151', marginBottom: '0.5rem' }}>
                                     Açıklama <span style={{ color: 'red' }}>*</span>
                                 </label>
-                                <textarea name="description" rows={3} required placeholder="Hangi masraf / Neyin avansı?"
+                                <textarea name="description" rows={3} required placeholder={modalOpen === 'parent_payment' ? "Hangi veliden ne için alındı?" : "Hangi masraf / Neyin avansı?"}
                                     style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', border: '1px solid #d1d5db', resize: 'vertical' }} />
                             </div>
 
@@ -223,7 +235,7 @@ export default function MentorFinancesClient({
                                 </div>
                             )}
 
-                            <div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end', marginTop: modalOpen === 'advance' ? '2rem' : 0 }}>
+                            <div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end', marginTop: modalOpen === 'expense' ? 0 : '2rem' }}>
                                 <button type="button" onClick={() => setModalOpen(null)} disabled={isPending}
                                     style={{ padding: '0.75rem 1.5rem', borderRadius: '8px', border: '1px solid #d1d5db', background: 'white', color: '#4b5563', fontWeight: 600, cursor: 'pointer' }}>
                                     İptal
