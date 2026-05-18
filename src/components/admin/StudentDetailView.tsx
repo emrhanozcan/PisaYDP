@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useTransition, useEffect } from 'react';
+import { useState, useTransition, useEffect, type MouseEvent } from 'react';
 import Link from "next/link";
 import { useRouter } from 'next/navigation';
 import {
@@ -14,7 +14,7 @@ import {
     removeMentorFromStudent,
 } from "@/app/actions/admin";
 import { deleteBranchStudent } from "@/app/actions/branch";
-import { createServiceLog, updateServiceLogStatus } from "@/app/actions/service-logs";
+import { createServiceLog, deleteServiceLog, updateServiceLogStatus } from "@/app/actions/service-logs";
 import StudentAvatar from "@/components/common/StudentAvatar";
 import UserAvatar from "@/components/common/UserAvatar";
 import { getSession } from "@/app/actions/auth";
@@ -81,6 +81,25 @@ export default function StudentDetailView({
                 } catch (error) {
                     console.error('Remove mentor failed:', error);
                     alert('İşlem sırasında bir hata oluştu.');
+                }
+            });
+        }
+    };
+
+    const handleDeleteServiceLog = (event: MouseEvent<HTMLButtonElement>, logId: string) => {
+        event.stopPropagation();
+
+        if (window.confirm("Bu hizmet kaydini silmek istediginize emin misiniz?")) {
+            startDeleteTransition(async () => {
+                try {
+                    await deleteServiceLog(logId);
+                    if (expandedLogId === logId) {
+                        setExpandedLogId(null);
+                    }
+                    router.refresh();
+                } catch (error) {
+                    console.error('Delete service log failed:', error);
+                    alert('Hizmet kaydi silinirken bir hata olustu.');
                 }
             });
         }
@@ -542,6 +561,28 @@ export default function StudentDetailView({
                                                     log.status === 'assigned' ? 'Mentor Atandı' :
                                                         log.status === 'submitted' ? 'İnceleme Bekliyor' : 'Reddedildi'}
                                             </span>
+                                            <button
+                                                type="button"
+                                                onClick={(event) => handleDeleteServiceLog(event, log.id)}
+                                                disabled={isDeleting}
+                                                title="Hizmet kaydini sil"
+                                                aria-label="Hizmet kaydini sil"
+                                                style={{
+                                                    width: 30,
+                                                    height: 30,
+                                                    borderRadius: '8px',
+                                                    border: '1px solid #fecaca',
+                                                    background: '#fef2f2',
+                                                    color: '#dc2626',
+                                                    display: 'inline-flex',
+                                                    alignItems: 'center',
+                                                    justifyContent: 'center',
+                                                    cursor: isDeleting ? 'not-allowed' : 'pointer',
+                                                    opacity: isDeleting ? 0.6 : 1
+                                                }}
+                                            >
+                                                <Trash2 size={14} />
+                                            </button>
                                             {isExpanded ? <Clock size={16} color="#6b7280" /> : <Activity size={16} color="#9ca3af" />}
                                         </div>
                                     </div>
