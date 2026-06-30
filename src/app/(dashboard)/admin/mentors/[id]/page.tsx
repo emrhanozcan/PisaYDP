@@ -100,6 +100,7 @@ export default async function MentorDetailPage({ params }: { params: Promise<{ i
         phone: mentor.phone,
         password: mentor.password,
         photoUrl: mentor.photoUrl,
+        iban: mentor.iban,
         createdAt: mentor.createdAt
     };
 

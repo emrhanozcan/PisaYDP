@@ -27,6 +27,7 @@ export interface User {
   phone?: string;
   branchCode?: BranchCode;
   photoUrl?: string;
+  iban?: string;
   createdAt: string;
 }
 

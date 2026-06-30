@@ -3,9 +3,10 @@ import { getSession } from "@/app/actions/auth";
 import { db } from "@/lib/db";
 import {
     Settings, User, Mail, Phone, Lock, Key,
-    Shield, Bell, Eye, Save, Camera
+    Shield, Bell, Eye, Save, Camera, Wallet
 } from "lucide-react";
 import UserAvatar from "@/components/common/UserAvatar";
+import IbanForm from "./IbanForm";
 
 export default async function MentorSettingsPage() {
     const session = await getSession();
@@ -139,6 +140,21 @@ export default async function MentorSettingsPage() {
                 <p style={{ fontSize: '0.8rem', color: '#9ca3af', marginTop: '1rem', fontStyle: 'italic' }}>
                     * Profil bilgilerinizi değiştirmek için admin ile iletişime geçin.
                 </p>
+            </div>
+
+            {/* Bank and Payment Section */}
+            <div className="glass-panel" style={{ padding: '2rem', marginBottom: '1.5rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1.5rem' }}>
+                    <div style={{ width: 44, height: 44, borderRadius: 12, background: '#f0fdf4', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <Wallet size={22} color="#16a34a" />
+                    </div>
+                    <div>
+                        <h2 style={{ fontSize: '1.1rem', color: '#11142D', fontWeight: 600 }}>Banka ve Ödeme Bilgileri</h2>
+                        <p style={{ fontSize: '0.8rem', color: '#808191' }}>Hakedişlerinizin yatırılacağı IBAN bilgisi</p>
+                    </div>
+                </div>
+
+                <IbanForm initialIban={mentor.iban || ''} />
             </div>
 
             {/* Account Security */}

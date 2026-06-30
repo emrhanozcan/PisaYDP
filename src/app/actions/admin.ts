@@ -205,6 +205,7 @@ export async function updateMentor(mentorId: string, data: {
     phone?: string;
     username?: string;
     password?: string;
+    iban?: string;
 }) {
     const session = await getSession();
     if (!session || (session.role !== 'admin' && session.role !== 'italy_staff')) {
@@ -224,6 +225,7 @@ export async function updateMentor(mentorId: string, data: {
         phone: data.phone || mentor.phone,
         username: data.username || mentor.username,
         password: data.password || mentor.password,
+        iban: data.iban !== undefined ? data.iban : mentor.iban,
         updatedAt: new Date().toISOString()
     };
 

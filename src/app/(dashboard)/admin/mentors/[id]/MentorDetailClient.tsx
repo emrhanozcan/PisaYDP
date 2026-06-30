@@ -4,7 +4,7 @@ import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import {
-    ArrowLeft, Users, Calendar, Mail, Phone,
+    ArrowLeft, Users, Calendar, Mail, Phone, Wallet,
     FileText, CheckCircle2, Clock, AlertCircle,
     User, TrendingUp, Star, Activity, Award,
     GraduationCap, MapPin, Key, Lock, Shield, Edit2, Save, X,
@@ -23,6 +23,7 @@ interface MentorData {
     password?: string;
     photoUrl?: string;
     createdAt: string;
+    iban?: string;
 }
 
 interface AssignedStudent {
@@ -90,7 +91,8 @@ export default function MentorDetailClient({
         email: mentor.email || '',
         phone: mentor.phone || '',
         username: mentor.username,
-        password: mentor.password || ''
+        password: mentor.password || '',
+        iban: mentor.iban || ''
     });
     const [isPending, startTransition] = useTransition();
     const router = useRouter();
@@ -110,7 +112,8 @@ export default function MentorDetailClient({
             email: mentor.email || '',
             phone: mentor.phone || '',
             username: mentor.username,
-            password: mentor.password || ''
+            password: mentor.password || '',
+            iban: mentor.iban || ''
         });
         setIsEditing(false);
     };
@@ -360,6 +363,29 @@ export default function MentorDetailClient({
                                 ) : (
                                     <p style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', color: '#374151', fontWeight: 500 }}>
                                         <Phone size={14} /> {formData.phone || 'Belirtilmemiş'}
+                                    </p>
+                                )}
+                            </div>
+                            <div>
+                                <p style={{ fontSize: '0.75rem', color: '#9ca3af', marginBottom: '0.25rem', textTransform: 'uppercase' }}>IBAN</p>
+                                {isEditing ? (
+                                    <input
+                                        type="text"
+                                        value={formData.iban}
+                                        onChange={(e) => setFormData({ ...formData, iban: e.target.value })}
+                                        placeholder="IBAN"
+                                        style={{
+                                            padding: '0.5rem 0.75rem',
+                                            borderRadius: '6px',
+                                            border: '1px solid #e5e7eb',
+                                            fontSize: '0.9rem',
+                                            width: '100%',
+                                            fontFamily: 'monospace'
+                                        }}
+                                    />
+                                ) : (
+                                    <p style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', color: '#374151', fontWeight: 500, fontFamily: 'monospace', fontSize: '0.9rem' }}>
+                                        <Wallet size={14} style={{ flexShrink: 0 }} /> {formData.iban || 'Belirtilmemiş'}
                                     </p>
                                 )}
                             </div>

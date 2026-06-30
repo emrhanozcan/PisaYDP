@@ -288,3 +288,23 @@ export async function requestStudentRemoval(studentId: string, reason: string) {
     revalidatePath('/mentor');
     return { success: true, message: "Talep oluşturuldu." };
 }
+
+export async function updateMentorIban(iban: string) {
+    const session = await getSession();
+    if (!session || session.role !== 'mentor') {
+        throw new Error("Unauthorized");
+    }
+
+    const mentor = await db.users.getById(session.id);
+    if (!mentor) {
+        throw new Error("Mentor not found");
+    }
+
+    await db.users.update({
+        ...mentor,
+        iban: iban.trim()
+    });
+
+    revalidatePath('/mentor/settings');
+    return { success: true, message: "IBAN başarıyla güncellendi." };
+}
