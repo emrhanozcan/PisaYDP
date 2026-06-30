@@ -6,7 +6,6 @@ import {
     Wallet, TrendingUp, CheckCircle, Clock,
     FileText, Award, ChevronDown, ChevronUp, Image as ImageIcon, File, X, Edit, Plus, ChevronLeft, ChevronRight
 } from "lucide-react";
-import { updateMentorServiceStatus } from '@/app/actions/mentor';
 import { updateServiceLogDetails } from '@/app/actions/service-logs';
 import { deleteServiceLogAttachment } from '@/app/actions/shared';
 import Toast, { ToastType } from '@/components/common/Toast';
@@ -99,13 +98,6 @@ export default function MentorEarningsClient({
         closeEditModal();
     };
 
-    const handleStatusChange = (logId: string, newStatus: 'draft' | 'submitted' | 'approved' | 'rejected') => {
-        startTransition(async () => {
-            await updateMentorServiceStatus(logId, newStatus);
-            setToast({ message: 'Durum güncellendi', type: 'success' });
-            router.refresh();
-        });
-    };
 
     const toggleExpand = (id: string) => {
         setExpandedLogId(expandedLogId === id ? null : id);
@@ -255,36 +247,29 @@ export default function MentorEarningsClient({
                                                 {log.serviceName}
                                             </td>
                                             <td style={{ padding: '0.875rem 0.5rem', textAlign: 'center' }} onClick={(e) => e.stopPropagation()}>
-                                                <select
-                                                    value={log.status}
-                                                    onChange={(e) => handleStatusChange(log.id, e.target.value as any)}
-                                                    disabled={isPending}
-                                                    style={{
-                                                        padding: '0.35rem 0.6rem',
-                                                        borderRadius: '8px',
-                                                        fontSize: '0.75rem',
-                                                        fontWeight: 600,
-                                                        border: 'none',
-                                                        cursor: 'pointer',
-                                                        background: log.status === 'approved' ? '#ecfdf5' :
-                                                            log.status === 'rejected' ? '#fef2f2' :
-                                                                log.status === 'submitted' ? '#fef3c7' :
-                                                                    log.status === 'assigned' ? '#eef2ff' : 
-                                                                        log.status === 'returned' ? '#fff7ed' : '#f3f4f6',
-                                                        color: log.status === 'approved' ? '#059669' :
-                                                            log.status === 'rejected' ? '#dc2626' :
-                                                                log.status === 'submitted' ? '#b45309' : 
-                                                                    log.status === 'assigned' ? '#6366f1' : 
-                                                                        log.status === 'returned' ? '#ea580c' : '#6b7280'
-                                                    }}
-                                                >
-                                                    <option value="draft">📝 Taslak</option>
-                                                    <option value="assigned">👤 Atandı</option>
-                                                    <option value="submitted">⏳ Onay Bekliyor</option>
-                                                    <option value="returned">↩️ Geri Gönderildi</option>
-                                                    <option value="approved">✅ Onaylandı</option>
-                                                    <option value="rejected">❌ Reddedildi</option>
-                                                </select>
+                                                <span style={{
+                                                    display: 'inline-block',
+                                                    padding: '0.35rem 0.6rem',
+                                                    borderRadius: '8px',
+                                                    fontSize: '0.75rem',
+                                                    fontWeight: 600,
+                                                    background: log.status === 'approved' ? '#ecfdf5' :
+                                                        log.status === 'rejected' ? '#fef2f2' :
+                                                            log.status === 'submitted' ? '#fef3c7' :
+                                                                log.status === 'assigned' ? '#eef2ff' : 
+                                                                    log.status === 'returned' ? '#fff7ed' : '#f3f4f6',
+                                                    color: log.status === 'approved' ? '#059669' :
+                                                        log.status === 'rejected' ? '#dc2626' :
+                                                            log.status === 'submitted' ? '#b45309' : 
+                                                                log.status === 'assigned' ? '#6366f1' : 
+                                                                    log.status === 'returned' ? '#ea580c' : '#6b7280'
+                                                }}>
+                                                    {log.status === 'approved' ? '✅ Onaylandı' :
+                                                        log.status === 'rejected' ? '❌ Reddedildi' :
+                                                            log.status === 'submitted' ? '⏳ Onay Bekliyor' :
+                                                                log.status === 'assigned' ? '👤 Atandı' : 
+                                                                    log.status === 'returned' ? '↩️ Geri Gönderildi' : '📝 Taslak'}
+                                                </span>
                                             </td>
                                             <td style={{ padding: '0.875rem 0.5rem', textAlign: 'center' }}>
                                                 {log.status === 'approved' ? (

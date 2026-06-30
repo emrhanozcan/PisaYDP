@@ -600,7 +600,6 @@ export default function PayoutsClient({ logs, serviceTypes, mentors }: Props) {
                             ))}
                         </select>
 
-                        {/* Status Filter */}
                         <select
                             value={filterStatus}
                             onChange={onFilterChange(setFilterStatus)}
@@ -617,6 +616,7 @@ export default function PayoutsClient({ logs, serviceTypes, mentors }: Props) {
                             <option value="draft">Taslak</option>
                             <option value="assigned">Atandı</option>
                             <option value="submitted">Bekliyor</option>
+                            <option value="returned">Geri Gönderildi</option>
                             <option value="approved">Onaylandı</option>
                             <option value="rejected">Reddedildi</option>
                         </select>
@@ -770,7 +770,7 @@ export default function PayoutsClient({ logs, serviceTypes, mentors }: Props) {
                                         <td style={{ textAlign: 'center' }}>
                                             <select
                                                 value={log.status}
-                                                onChange={(e) => handleStatusChange(log.id, e.target.value as 'approved' | 'rejected' | 'submitted')}
+                                                onChange={(e) => handleStatusChange(log.id, e.target.value as any)}
                                                 disabled={isPending}
                                                 style={{
                                                     padding: '0.35rem 0.6rem',
@@ -782,16 +782,19 @@ export default function PayoutsClient({ logs, serviceTypes, mentors }: Props) {
                                                     background: log.status === 'approved' ? '#ecfdf5' :
                                                         log.status === 'rejected' ? '#fef2f2' :
                                                             log.status === 'submitted' ? '#fef3c7' : 
-                                                                log.status === 'assigned' ? '#eef2ff' : '#f3f4f6',
+                                                                log.status === 'assigned' ? '#eef2ff' :
+                                                                    log.status === 'returned' ? '#fff7ed' : '#f3f4f6',
                                                     color: log.status === 'approved' ? '#059669' :
                                                         log.status === 'rejected' ? '#dc2626' :
                                                             log.status === 'submitted' ? '#b45309' : 
-                                                                log.status === 'assigned' ? '#6366f1' : '#6b7280'
+                                                                log.status === 'assigned' ? '#6366f1' :
+                                                                    log.status === 'returned' ? '#ea580c' : '#6b7280'
                                                 }}
                                             >
                                                 <option value="draft">📝 Taslak</option>
                                                 <option value="assigned">👤 Atandı</option>
                                                 <option value="submitted">⏳ Onay Bekliyor</option>
+                                                <option value="returned">↩️ Geri Gönderildi</option>
                                                 <option value="approved">✅ Onaylandı</option>
                                                 <option value="rejected">❌ Reddedildi</option>
                                             </select>

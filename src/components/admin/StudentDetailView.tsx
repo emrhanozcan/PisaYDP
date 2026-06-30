@@ -552,14 +552,17 @@ export default function StudentDetailView({
                                                 fontWeight: 600,
                                                 background: log.status === 'approved' ? '#ecfdf5' :
                                                     log.status === 'assigned' ? '#eef2ff' :
-                                                        log.status === 'submitted' ? '#fef3c7' : '#fef2f2',
+                                                        log.status === 'submitted' ? '#fef3c7' :
+                                                            log.status === 'returned' ? '#fff7ed' : '#fef2f2',
                                                 color: log.status === 'approved' ? '#059669' :
                                                     log.status === 'assigned' ? '#6366f1' :
-                                                        log.status === 'submitted' ? '#b45309' : '#dc2626'
+                                                        log.status === 'submitted' ? '#b45309' :
+                                                            log.status === 'returned' ? '#ea580c' : '#dc2626'
                                             }}>
                                                 {log.status === 'approved' ? 'Onaylandı' :
                                                     log.status === 'assigned' ? 'Mentor Atandı' :
-                                                        log.status === 'submitted' ? 'İnceleme Bekliyor' : 'Reddedildi'}
+                                                        log.status === 'submitted' ? 'İnceleme Bekliyor' :
+                                                            log.status === 'returned' ? 'Geri Gönderildi' : 'Reddedildi'}
                                             </span>
                                             <button
                                                 type="button"

@@ -100,9 +100,11 @@ export default async function MentorEarningsPage() {
         };
     }).sort((a, b) => b.earnings - a.earnings);
 
+    const approvedLogsData = logsData.filter(log => log.status === 'approved');
+
     return (
         <MentorEarningsClient
-            logs={logsData}
+            logs={approvedLogsData}
             approvedEarnings={approvedEarnings}
             pendingEarnings={pendingEarnings}
             totalHours={totalHours}
