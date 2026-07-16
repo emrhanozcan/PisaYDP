@@ -30,6 +30,9 @@ export async function createServiceLog(formData: FormData) {
         const uploadPromises = files.map(async (file) => {
             if (file.size === 0) return null;
 
+            const arrayBuffer = await file.arrayBuffer();
+            const buffer = Buffer.from(arrayBuffer);
+
             const safeName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
             const fileName = `logs/${studentId}/${Date.now()}-${safeName}`; // Group by studentId instead of logId since logId doesn't exist yet? Or gen ID first.
 
@@ -39,7 +42,7 @@ export async function createServiceLog(formData: FormData) {
 
             const { data, error } = await supabase.storage
                 .from('service-uploads')
-                .upload(fileName, file, {
+                .upload(fileName, buffer, {
                     contentType: file.type,
                     upsert: false
                 });
@@ -146,12 +149,16 @@ export async function updateServiceLogDetails(formData: FormData) {
         const { supabase } = await import('@/lib/supabase');
         const uploadPromises = files.map(async (file) => {
             if (file.size === 0) return null;
+
+            const arrayBuffer = await file.arrayBuffer();
+            const buffer = Buffer.from(arrayBuffer);
+
             const safeName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
             const fileName = `logs/${logId}/${Date.now()}-${safeName}`;
 
             const { error } = await supabase.storage
                 .from('service-uploads')
-                .upload(fileName, file, { contentType: file.type, upsert: true });
+                .upload(fileName, buffer, { contentType: file.type, upsert: true });
 
             if (error) throw new Error(`Upload failed: ${error.message}`);
 
