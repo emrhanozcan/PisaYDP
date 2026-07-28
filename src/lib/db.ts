@@ -86,7 +86,7 @@ export const db = {
         getAll: async () => {
             const { data, error } = await supabase.from('users').select('*');
             if (error) throw error;
-            return mapToCamelCase(data) as User[];
+            return mapToCamelCase(data || []) as User[];
         },
         getById: async (id: string) => {
             const { data, error } = await supabase.from('users').select('*').eq('id', id).single();
@@ -495,12 +495,12 @@ export const db = {
         getAll: async () => {
             const { data, error } = await supabase.from('service_logs').select('*');
             if (error) throw error;
-            return mapToCamelCase(data) as ServiceLog[];
+            return mapToCamelCase(data || []) as ServiceLog[];
         },
         getByStudentId: async (studentId: string) => {
             const { data, error } = await supabase.from('service_logs').select('*').eq('student_id', studentId);
             if (error) throw error;
-            return mapToCamelCase(data) as ServiceLog[];
+            return mapToCamelCase(data || []) as ServiceLog[];
         },
         create: async (log: ServiceLog) => {
             const payload = mapToSnakeCase(log);
@@ -527,12 +527,12 @@ export const db = {
         getAll: async () => {
             const { data, error } = await supabase.from('mentor_assignments').select('*');
             if (error) throw error;
-            return mapToCamelCase(data) as MentorAssignment[];
+            return mapToCamelCase(data || []) as MentorAssignment[];
         },
         getByStudentId: async (studentId: string) => {
             const { data, error } = await supabase.from('mentor_assignments').select('*').eq('student_id', studentId);
             if (error) throw error;
-            return mapToCamelCase(data) as MentorAssignment[];
+            return mapToCamelCase(data || []) as MentorAssignment[];
         },
         create: async (assignment: MentorAssignment) => {
             const payload = mapToSnakeCase(assignment);
@@ -549,12 +549,12 @@ export const db = {
         getAll: async () => {
             const { data, error } = await supabase.from('mentor_transactions').select('*').order('created_at', { ascending: false });
             if (error) throw error;
-            return mapToCamelCase(data) as MentorTransaction[];
+            return mapToCamelCase(data || []) as MentorTransaction[];
         },
         getByMentorId: async (mentorId: string) => {
             const { data, error } = await supabase.from('mentor_transactions').select('*').eq('mentor_id', mentorId).order('created_at', { ascending: false });
             if (error) throw error;
-            return mapToCamelCase(data) as MentorTransaction[];
+            return mapToCamelCase(data || []) as MentorTransaction[];
         },
         create: async (transaction: Partial<MentorTransaction>) => {
             const payload = mapToSnakeCase(transaction);
@@ -578,7 +578,7 @@ export const db = {
         getAll: async () => {
             const { data, error } = await supabase.from('service_types').select('*');
             if (error) throw error;
-            return mapToCamelCase(data) as ServiceType[];
+            return mapToCamelCase(data || []) as ServiceType[];
         },
         create: async (type: ServiceType) => {
             const payload = mapToSnakeCase(type);

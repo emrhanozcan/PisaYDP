@@ -111,7 +111,7 @@ export default function MentorCompletionForm({ logs, serviceTypes }: Props) {
                                             </h3>
                                             <p style={{ fontSize: '0.8rem', color: '#64748b' }}>
                                                 {log.status === 'submitted' ? 'Güncelleme Tarihi: ' : 'Atanma: '}
-                                                {new Date(log.date).toLocaleDateString('tr-TR')}
+                                                {log.date && !isNaN(new Date(log.date).getTime()) ? new Date(log.date).toLocaleDateString('tr-TR') : '-'}
                                             </p>
                                         </div>
                                     </div>

@@ -14,6 +14,20 @@ import FileUploader from "@/components/common/FileUploader";
 import MentorCompletionForm from "@/components/mentor/MentorCompletionForm";
 import ServiceLogForm from "./ServiceLogForm";
 
+function safeFormatDate(dateVal: any): string {
+    if (!dateVal) return '-';
+    const d = new Date(dateVal);
+    if (isNaN(d.getTime())) return '-';
+    return d.toLocaleDateString('tr-TR');
+}
+
+function safeFormatDateTime(dateVal: any): string {
+    if (!dateVal) return '-';
+    const d = new Date(dateVal);
+    if (isNaN(d.getTime())) return '-';
+    return `${d.toLocaleDateString('tr-TR')} - ${d.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })}`;
+}
+
 export default async function MentorStudentDetailPage({ params }: { params: Promise<{ id: string }> }) {
     const { id } = await params;
     const session = await getSession();
@@ -22,15 +36,16 @@ export default async function MentorStudentDetailPage({ params }: { params: Prom
     // Try both tables - students and branchStudents
     let student = await db.students.getById(id);
     if (!student) {
-        const branchStudent = (await db.branchStudents.getAll()).find(s => s.id === id);
+        const branchStudents = await db.branchStudents.getAll();
+        const branchStudent = (branchStudents || []).find(s => s.id === id);
         if (branchStudent) {
             // Map branchStudent to student-like structure
             const uniId = (branchStudent.educations && branchStudent.educations.length > 0) ? branchStudent.educations[0].universityId : branchStudent.universityId;
             const uni = await db.universities.getById(uniId || '');
             student = {
                 id: branchStudent.id,
-                firstName: branchStudent.firstName,
-                lastName: branchStudent.lastName,
+                firstName: branchStudent.firstName || '',
+                lastName: branchStudent.lastName || '',
                 photoUrl: branchStudent.photoUrl,
                 email: branchStudent.email || '',
                 phone: branchStudent.phone || '',
@@ -66,7 +81,8 @@ export default async function MentorStudentDetailPage({ params }: { params: Prom
     }
 
     // Verify assignment
-    const assignment = (await db.assignments.getAll()).find(a => a.studentId === id && a.mentorId === session.id);
+    const allAssignments = await db.assignments.getAll();
+    const assignment = (allAssignments || []).find(a => a.studentId === id && a.mentorId === session.id);
 
     if (!assignment) {
         return (
@@ -88,16 +104,17 @@ export default async function MentorStudentDetailPage({ params }: { params: Prom
         );
     }
 
-    let allServiceTypes = (await db.serviceTypes.getAll()).filter(t => t.isActive);
+    let allServiceTypes = (await db.serviceTypes.getAll() || []).filter(t => t && t.isActive);
     let allowedServiceTypes = allServiceTypes;
     
     // Filter service types based on assignment's allowed services (only if we needed it for creation)
-    if (assignment.allowedServiceIds && assignment.allowedServiceIds.length > 0) {
+    if (Array.isArray(assignment.allowedServiceIds) && assignment.allowedServiceIds.length > 0) {
         allowedServiceTypes = allServiceTypes.filter(t => assignment.allowedServiceIds!.includes(t.id));
     }
 
     let serviceTypes = allServiceTypes; // Restore original to ensure all logs find their names
-    const logs = (await db.logs.getAll()).filter(l => l.studentId === id && l.mentorId === session.id);
+    const allLogs = await db.logs.getAll();
+    const logs = (allLogs || []).filter(l => l && l.studentId === id && l.mentorId === session.id);
 
     const approvedLogs = logs.filter(l => l.status === 'approved');
     const pendingLogs = logs.filter(l => l.status === 'submitted');
@@ -116,7 +133,7 @@ export default async function MentorStudentDetailPage({ params }: { params: Prom
         return acc + (service?.unitPrice || 0);
     }, 0);
 
-    const totalHours = logs.reduce((acc, log) => acc + log.durationMinutes, 0) / 60;
+    const totalHours = logs.reduce((acc, log) => acc + (log.durationMinutes || 0), 0) / 60;
 
     const stats = [
         { label: "Toplam Hizmet", value: logs.length.toString(), icon: FileText, color: "#6366f1", bg: "#eef2ff" },
@@ -124,6 +141,9 @@ export default async function MentorStudentDetailPage({ params }: { params: Prom
         { label: "Bekleyen", value: pendingLogs.length.toString(), icon: Clock, color: "#f59e0b", bg: "#fef3c7" },
         { label: "Kazanç", value: `€${approvedEarnings}`, icon: Award, color: "#8b5cf6", bg: "#f5f3ff" },
     ];
+
+    const firstInitial = (student.firstName && student.firstName.length > 0) ? student.firstName[0] : '';
+    const lastInitial = (student.lastName && student.lastName.length > 0) ? student.lastName[0] : '';
 
     return (
         <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
@@ -161,7 +181,7 @@ export default async function MentorStudentDetailPage({ params }: { params: Prom
                         fontWeight: 700,
                         flexShrink: 0
                     }}>
-                        {student.firstName[0]}{student.lastName[0]}
+                        {firstInitial}{lastInitial}
                     </div>
 
                     {/* Info */}
@@ -254,7 +274,7 @@ export default async function MentorStudentDetailPage({ params }: { params: Prom
                             <div>
                                 <p style={{ fontSize: '0.7rem', color: '#9ca3af', marginBottom: '0.2rem', textTransform: 'uppercase' }}>Kayıt Tarihi</p>
                                 <p style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', color: '#374151', fontWeight: 500, fontSize: '0.85rem' }}>
-                                    <Calendar size={13} /> {new Date(student.createdAt).toLocaleDateString('tr-TR')}
+                                    <Calendar size={13} /> {safeFormatDate(student.createdAt)}
                                 </p>
                             </div>
                             <div>
@@ -360,7 +380,7 @@ export default async function MentorStudentDetailPage({ params }: { params: Prom
                                             </span>
                                         </div>
                                         <p style={{ fontSize: '0.75rem', color: '#9ca3af', marginBottom: '0.35rem' }}>
-                                            {new Date(log.date).toLocaleDateString('tr-TR')} - {new Date(log.date).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })}
+                                            {safeFormatDateTime(log.date)}
                                         </p>
                                         {log.notes && (
                                             <p style={{ fontSize: '0.75rem', color: '#6b7280', lineHeight: 1.4 }}>

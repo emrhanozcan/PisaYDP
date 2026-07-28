@@ -76,21 +76,26 @@ export async function getStudentFullDetails(studentId: string) {
     if (!student.country) student.country = 'İtalya';
 
     console.log('[getStudentFullDetails] Fetching assignments and logs...');
-    const [assignments, allUsers, serviceLogs, serviceTypes] = await Promise.all([
+    const [rawAssignments, rawUsers, rawLogs, rawTypes] = await Promise.all([
         db.assignments.getByStudentId(studentId),
         db.users.getAll(),
         db.logs.getByStudentId(studentId),
         db.serviceTypes.getAll()
     ]);
 
-    const mentors = allUsers.filter(u => u.role === 'mentor');
-    const approvedLogs = serviceLogs.filter(l => l.status === 'approved');
-    const pendingLogs = serviceLogs.filter(l => l.status === 'submitted');
+    const assignments = rawAssignments || [];
+    const allUsers = rawUsers || [];
+    const serviceLogs = rawLogs || [];
+    const serviceTypes = rawTypes || [];
+
+    const mentors = allUsers.filter(u => u && u.role === 'mentor');
+    const approvedLogs = serviceLogs.filter(l => l && l.status === 'approved');
+    const pendingLogs = serviceLogs.filter(l => l && l.status === 'submitted');
 
     // Toplam harcanan tutar hesabı
     const totalSpent = approvedLogs.reduce((sum, log) => {
         const serviceType = serviceTypes.find(t => t.id === log.serviceTypeId);
-        return sum + (serviceType?.unitPrice || 0);
+        return sum + (log.unitPrice !== undefined ? log.unitPrice : (serviceType?.unitPrice || 0));
     }, 0);
 
     const stats = [
@@ -107,8 +112,8 @@ export async function getStudentFullDetails(studentId: string) {
         serviceLogs: JSON.parse(JSON.stringify(serviceLogs)),
         mentors: JSON.parse(JSON.stringify(mentors.map(m => ({
             id: m.id,
-            firstName: m.firstName,
-            lastName: m.lastName,
+            firstName: m.firstName || '',
+            lastName: m.lastName || '',
             photoUrl: m.photoUrl
         })))),
         serviceTypes: JSON.parse(JSON.stringify(serviceTypes)),

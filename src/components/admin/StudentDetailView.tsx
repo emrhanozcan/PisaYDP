@@ -21,6 +21,13 @@ import { getSession } from "@/app/actions/auth";
 import AssignMentorForm from "./AssignMentorForm";
 import AdminServiceLogForm from "./AdminServiceLogForm";
 
+function safeFormatDate(dateVal: any, options?: Intl.DateTimeFormatOptions): string {
+    if (!dateVal) return '-';
+    const d = new Date(dateVal);
+    if (isNaN(d.getTime())) return '-';
+    return d.toLocaleDateString('tr-TR', options);
+}
+
 interface StudentDetailViewProps {
     student: any;
     assignments: any[];
@@ -251,7 +258,7 @@ export default function StudentDetailView({
                             <div>
                                 <p style={{ fontSize: '0.75rem', color: '#9ca3af', marginBottom: '0.25rem', textTransform: 'uppercase' }}>Kayıt Tarihi</p>
                                 <p style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', color: '#374151', fontWeight: 500 }}>
-                                    <Calendar size={14} /> {new Date(student.createdAt).toLocaleDateString('tr-TR', { year: 'numeric', month: 'long', day: 'numeric' })}
+                                    <Calendar size={14} /> {safeFormatDate(student.createdAt, { year: 'numeric', month: 'long', day: 'numeric' })}
                                 </p>
                             </div>
                         </div>
@@ -418,7 +425,7 @@ export default function StudentDetailView({
                                         <div style={{ textAlign: 'right', display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.25rem' }}>
                                             <p style={{ fontSize: '0.75rem', color: '#9ca3af' }}>
                                                 <Calendar size={12} style={{ display: 'inline', verticalAlign: 'middle', marginRight: '0.25rem' }} />
-                                                {new Date(assign.startDate).toLocaleDateString('tr-TR')}
+                                                {safeFormatDate(assign.startDate)}
                                             </p>
                                             <button
                                                 onClick={() => handleRemoveMentor(assign.mentorId)}
@@ -535,7 +542,7 @@ export default function StudentDetailView({
                                                     canEdit={false}
                                                 />
                                                 <p style={{ fontSize: '0.75rem', color: '#9ca3af' }}>
-                                                    {mentor?.firstName} {mentor?.lastName} • {new Date(log.date).toLocaleDateString('tr-TR')}
+                                                    {mentor?.firstName} {mentor?.lastName} • {safeFormatDate(log.date)}
                                                 </p>
                                             </div>
                                         </div>
