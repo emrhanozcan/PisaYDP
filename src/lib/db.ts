@@ -617,8 +617,9 @@ export const db = {
             return mapToCamelCase(data) as University[];
         },
         getById: async (id: string) => {
+            if (!id) return null;
             const { data, error } = await supabase.from('universities').select('*').eq('id', id).single();
-            if (error) throw error;
+            if (error) return null;
             return mapToCamelCase(data) as University;
         },
         create: async (uni: University) => {

@@ -34,14 +34,14 @@ export default async function MentorStudentDetailPage({ params }: { params: Prom
     if (!session) redirect('/login');
 
     // Try both tables - students and branchStudents
-    let student = await db.students.getById(id);
+    let student: any = await db.students.getById(id).catch(() => null);
     if (!student) {
-        const branchStudents = await db.branchStudents.getAll();
+        const branchStudents = await db.branchStudents.getAll().catch(() => []);
         const branchStudent = (branchStudents || []).find(s => s.id === id);
         if (branchStudent) {
             // Map branchStudent to student-like structure
             const uniId = (branchStudent.educations && branchStudent.educations.length > 0) ? branchStudent.educations[0].universityId : branchStudent.universityId;
-            const uni = await db.universities.getById(uniId || '');
+            const uni = uniId ? await db.universities.getById(uniId).catch(() => null) : null;
             student = {
                 id: branchStudent.id,
                 firstName: branchStudent.firstName || '',
@@ -52,12 +52,27 @@ export default async function MentorStudentDetailPage({ params }: { params: Prom
                 country: 'İtalya',
                 city: branchStudent.city || 'Milano',
                 school: uni?.name || 'Belirtilmemiş',
-                status: branchStudent.status,
+                status: branchStudent.status || 'active',
                 packageType: branchStudent.packageType || 'Standard',
-                createdAt: branchStudent.createdAt,
-                startDate: branchStudent.registrationDate || branchStudent.createdAt
+                createdAt: branchStudent.createdAt || new Date().toISOString(),
+                startDate: branchStudent.registrationDate || branchStudent.createdAt || new Date().toISOString()
             };
         }
+    } else {
+        student = {
+            ...student,
+            firstName: student.firstName || '',
+            lastName: student.lastName || '',
+            email: student.email || '',
+            phone: student.phone || '',
+            country: student.country || 'İtalya',
+            city: student.city || 'Milano',
+            school: student.school || 'Belirtilmemiş',
+            status: student.status || 'active',
+            packageType: student.packageType || 'Standard',
+            createdAt: student.createdAt || new Date().toISOString(),
+            startDate: student.startDate || student.createdAt || new Date().toISOString()
+        };
     }
 
     if (!student) {
@@ -81,7 +96,7 @@ export default async function MentorStudentDetailPage({ params }: { params: Prom
     }
 
     // Verify assignment
-    const allAssignments = await db.assignments.getAll();
+    const allAssignments = await db.assignments.getAll().catch(() => []);
     const assignment = (allAssignments || []).find(a => a.studentId === id && a.mentorId === session.id);
 
     if (!assignment) {
@@ -104,7 +119,7 @@ export default async function MentorStudentDetailPage({ params }: { params: Prom
         );
     }
 
-    let allServiceTypes = (await db.serviceTypes.getAll() || []).filter(t => t && t.isActive);
+    let allServiceTypes = (await db.serviceTypes.getAll().catch(() => []) || []).filter(t => t && t.isActive);
     let allowedServiceTypes = allServiceTypes;
     
     // Filter service types based on assignment's allowed services (only if we needed it for creation)
@@ -113,7 +128,7 @@ export default async function MentorStudentDetailPage({ params }: { params: Prom
     }
 
     let serviceTypes = allServiceTypes; // Restore original to ensure all logs find their names
-    const allLogs = await db.logs.getAll();
+    const allLogs = await db.logs.getAll().catch(() => []);
     const logs = (allLogs || []).filter(l => l && l.studentId === id && l.mentorId === session.id);
 
     const approvedLogs = logs.filter(l => l.status === 'approved');
