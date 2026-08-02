@@ -1,8 +1,15 @@
 
 import { db } from "@/lib/db";
 import MentorDetailClient from "./MentorDetailClient";
+import { getSession } from "@/app/actions/auth";
+import { redirect } from "next/navigation";
 
 export default async function MentorDetailPage({ params }: { params: Promise<{ id: string }> }) {
+    const session = await getSession();
+    if (!session || (session.role !== 'admin' && session.role !== 'italy_staff')) {
+        redirect('/login');
+    }
+
     const { id } = await params;
     const mentor = await db.users.getById(id);
 
@@ -77,7 +84,7 @@ export default async function MentorDetailPage({ params }: { params: Promise<{ i
     // Total earnings
     const totalEarnings = approvedLogs.reduce((sum, log) => {
         const serviceType = serviceTypes.find(t => t.id === log.serviceTypeId);
-        return sum + (serviceType?.unitPrice || 0);
+        return sum + (log.unitPrice ?? serviceType?.unitPrice ?? 0);
     }, 0);
 
     // Success rate
@@ -110,6 +117,8 @@ export default async function MentorDetailPage({ params }: { params: Promise<{ i
         serviceTypeId: log.serviceTypeId,
         studentId: log.studentId,
         status: log.status,
+        paymentStatus: log.paymentStatus || 'pending',
+        unitPrice: log.unitPrice,
         date: log.date,
         notes: log.notes,
         attachments: log.attachments
@@ -146,6 +155,7 @@ export default async function MentorDetailPage({ params }: { params: Promise<{ i
             students={studentsData}
             totalEarnings={totalEarnings}
             successRate={successRate}
+            currentRole={session.role}
         />
     );
 }

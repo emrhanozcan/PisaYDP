@@ -170,6 +170,7 @@ export async function updatePaymentStatus(logId: string, paymentStatus: 'pending
     });
 
     revalidatePath('/admin/payments');
+    revalidatePath(`/admin/mentors/${log.mentorId}`);
     revalidatePath('/mentor/summary');
 }
 
@@ -193,6 +194,7 @@ export async function updateServiceLogStatus(logId: string, status: import("@/ty
 
     revalidatePath('/admin/logs');
     revalidatePath('/admin/payments');
+    revalidatePath(`/admin/mentors/${log.mentorId}`);
     revalidatePath('/mentor');
     revalidatePath('/mentor/summary');
 }
@@ -236,7 +238,7 @@ export async function updateMentor(mentorId: string, data: {
         entity: 'User',
         entityId: mentorId,
         action: 'update',
-        actorId: 'admin-1',
+        actorId: session.id,
         changes: data,
         timestamp: new Date().toISOString()
     });

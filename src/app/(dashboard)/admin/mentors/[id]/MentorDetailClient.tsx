@@ -10,7 +10,7 @@ import {
     GraduationCap, MapPin, Key, Lock, Shield, Edit2, Save, X,
     LucideIcon
 } from "lucide-react";
-import { updateMentor } from "@/app/actions/admin";
+import { updateMentor, updatePaymentStatus, updateServiceLogStatus } from "@/app/actions/admin";
 import UserAvatar from "@/components/common/UserAvatar";
 
 interface MentorData {
@@ -45,6 +45,8 @@ interface ServiceLog {
     serviceTypeId: string;
     studentId: string;
     status: string;
+    paymentStatus?: 'pending' | 'paid';
+    unitPrice?: number;
     date: string;
     notes?: string;
     attachments?: string[];
@@ -71,6 +73,7 @@ interface Props {
     students: Student[];
     totalEarnings: number;
     successRate: number;
+    currentRole: 'admin' | 'italy_staff';
 }
 
 export default function MentorDetailClient({
@@ -81,7 +84,8 @@ export default function MentorDetailClient({
     serviceTypes,
     students,
     totalEarnings,
-    successRate
+    successRate,
+    currentRole
 }: Props) {
     const [isEditing, setIsEditing] = useState(false);
     const [expandedLogId, setExpandedLogId] = useState<string | null>(null);
@@ -95,6 +99,7 @@ export default function MentorDetailClient({
         iban: mentor.iban || ''
     });
     const [isPending, startTransition] = useTransition();
+    const [actionLogId, setActionLogId] = useState<string | null>(null);
     const router = useRouter();
 
     const handleSave = () => {
@@ -123,12 +128,37 @@ export default function MentorDetailClient({
     };
 
     const approvedLogs = serviceLogs.filter(l => l.status === 'approved');
+    const backHref = currentRole === 'italy_staff' ? '/admin/mentors' : '/admin/mentors';
+
+    const handleServiceStatusChange = (logId: string, status: 'approved' | 'rejected' | 'submitted') => {
+        setActionLogId(logId);
+        startTransition(async () => {
+            try {
+                await updateServiceLogStatus(logId, status);
+                router.refresh();
+            } finally {
+                setActionLogId(null);
+            }
+        });
+    };
+
+    const handlePaymentStatusChange = (logId: string, paymentStatus: 'pending' | 'paid') => {
+        setActionLogId(logId);
+        startTransition(async () => {
+            try {
+                await updatePaymentStatus(logId, paymentStatus);
+                router.refresh();
+            } finally {
+                setActionLogId(null);
+            }
+        });
+    };
 
     return (
         <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
             {/* Back Button */}
             <Link
-                href="/admin/mentors"
+                href={backHref}
                 style={{
                     display: 'inline-flex',
                     alignItems: 'center',
@@ -791,9 +821,9 @@ export default function MentorDetailClient({
                                                         log.status === 'assigned' ? 'Atandı' :
                                                             log.status === 'submitted' ? 'Bekliyor' : 'Reddedildi'}
                                                 </span>
-                                                {serviceType?.unitPrice && log.status === 'approved' && (
+                                                {log.status === 'approved' && (
                                                     <p style={{ fontSize: '0.7rem', color: '#059669', marginTop: '0.25rem', fontWeight: 600 }}>
-                                                        €{serviceType.unitPrice}
+                                                        €{(log.unitPrice ?? serviceType?.unitPrice ?? 0).toLocaleString()}
                                                     </p>
                                                 )}
                                             </div>
@@ -851,6 +881,60 @@ export default function MentorDetailClient({
                                                 </div>
                                             )}
 
+                                            <div style={{
+                                                marginTop: '1rem',
+                                                paddingTop: '1rem',
+                                                borderTop: '1px solid #f1f5f9',
+                                                display: 'grid',
+                                                gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+                                                gap: '1rem'
+                                            }}>
+                                                <div>
+                                                    <p style={{ fontSize: '0.7rem', fontWeight: 600, color: '#9ca3af', textTransform: 'uppercase', marginBottom: '0.5rem' }}>Gorev Onayi</p>
+                                                    <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                                                        <button
+                                                            onClick={() => handleServiceStatusChange(log.id, 'approved')}
+                                                            disabled={isPending && actionLogId === log.id}
+                                                            style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', padding: '0.45rem 0.75rem', borderRadius: '8px', border: 'none', background: log.status === 'approved' ? '#059669' : '#ecfdf5', color: log.status === 'approved' ? 'white' : '#047857', fontWeight: 600, fontSize: '0.78rem', cursor: isPending && actionLogId === log.id ? 'wait' : 'pointer', opacity: isPending && actionLogId === log.id ? 0.65 : 1 }}
+                                                        >
+                                                            <CheckCircle2 size={14} /> Onayla
+                                                        </button>
+                                                        <button
+                                                            onClick={() => handleServiceStatusChange(log.id, 'rejected')}
+                                                            disabled={isPending && actionLogId === log.id}
+                                                            style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', padding: '0.45rem 0.75rem', borderRadius: '8px', border: '1px solid #fecaca', background: log.status === 'rejected' ? '#dc2626' : '#fef2f2', color: log.status === 'rejected' ? 'white' : '#b91c1c', fontWeight: 600, fontSize: '0.78rem', cursor: isPending && actionLogId === log.id ? 'wait' : 'pointer', opacity: isPending && actionLogId === log.id ? 0.65 : 1 }}
+                                                        >
+                                                            <X size={14} /> Reddet
+                                                        </button>
+                                                    </div>
+                                                </div>
+
+                                                <div>
+                                                    <p style={{ fontSize: '0.7rem', fontWeight: 600, color: '#9ca3af', textTransform: 'uppercase', marginBottom: '0.5rem' }}>Odeme Onayi</p>
+                                                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+                                                        <span style={{ padding: '0.35rem 0.65rem', borderRadius: '999px', background: log.paymentStatus === 'paid' ? '#ecfdf5' : '#fef3c7', color: log.paymentStatus === 'paid' ? '#047857' : '#b45309', fontSize: '0.75rem', fontWeight: 700 }}>
+                                                            {log.paymentStatus === 'paid' ? 'Odendi' : 'Bekliyor'}
+                                                        </span>
+                                                        <button
+                                                            onClick={() => handlePaymentStatusChange(log.id, 'paid')}
+                                                            disabled={log.status !== 'approved' || (isPending && actionLogId === log.id)}
+                                                            style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', padding: '0.45rem 0.75rem', borderRadius: '8px', border: 'none', background: log.status === 'approved' ? '#2563eb' : '#e5e7eb', color: log.status === 'approved' ? 'white' : '#9ca3af', fontWeight: 600, fontSize: '0.78rem', cursor: log.status === 'approved' ? 'pointer' : 'not-allowed', opacity: isPending && actionLogId === log.id ? 0.65 : 1 }}
+                                                        >
+                                                            <Wallet size={14} /> Odemeyi Onayla
+                                                        </button>
+                                                        <button
+                                                            onClick={() => handlePaymentStatusChange(log.id, 'pending')}
+                                                            disabled={isPending && actionLogId === log.id}
+                                                            style={{ padding: '0.45rem 0.75rem', borderRadius: '8px', border: '1px solid #e5e7eb', background: 'white', color: '#6b7280', fontWeight: 600, fontSize: '0.78rem', cursor: isPending && actionLogId === log.id ? 'wait' : 'pointer', opacity: isPending && actionLogId === log.id ? 0.65 : 1 }}
+                                                        >
+                                                            Bekliyor Yap
+                                                        </button>
+                                                    </div>
+                                                    {log.status !== 'approved' && (
+                                                        <p style={{ marginTop: '0.4rem', color: '#9ca3af', fontSize: '0.75rem' }}>Odeme onayi icin gorev once onaylanmali.</p>
+                                                    )}
+                                                </div>
+                                            </div>
                                             {!log.notes && (!log.attachments || log.attachments.length === 0) && (
                                                 <p style={{ color: '#9ca3af', fontStyle: 'italic' }}>Detay bulunmuyor.</p>
                                             )}
