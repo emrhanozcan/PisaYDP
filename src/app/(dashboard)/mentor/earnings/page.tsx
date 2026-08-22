@@ -2,6 +2,7 @@
 import { getSession } from "@/app/actions/auth";
 import { db } from "@/lib/db";
 import MentorEarningsClient from "./MentorEarningsClient";
+import { resolveServiceLogPrice } from "@/lib/servicePricing";
 
 export default async function MentorEarningsPage() {
     const session = await getSession();
@@ -31,15 +32,13 @@ export default async function MentorEarningsPage() {
 
     // Earnings calculations
     const approvedEarnings = approvedLogs.reduce((acc, log) => {
-        if (log.unitPrice !== undefined) return acc + log.unitPrice;
         const service = serviceTypes.find(s => s.id === log.serviceTypeId);
-        return acc + (service?.unitPrice || 0);
+        return acc + resolveServiceLogPrice(log, service);
     }, 0);
 
     const pendingEarnings = pendingLogs.reduce((acc, log) => {
-        if (log.unitPrice !== undefined) return acc + log.unitPrice;
         const service = serviceTypes.find(s => s.id === log.serviceTypeId);
-        return acc + (service?.unitPrice || 0);
+        return acc + resolveServiceLogPrice(log, service);
     }, 0);
 
     const totalHours = myLogs.reduce((acc, log) => acc + log.durationMinutes, 0) / 60;
@@ -61,7 +60,7 @@ export default async function MentorEarningsPage() {
             studentName: `${student.firstName} ${student.lastName}`,
             serviceTypeId: log.serviceTypeId,
             serviceName: service?.name || 'Bilinmiyor',
-            servicePrice: log.unitPrice !== undefined ? log.unitPrice : (service?.unitPrice || 0),
+            servicePrice: resolveServiceLogPrice(log, service),
             date: log.date,
             durationMinutes: log.durationMinutes,
             status: log.status,
@@ -77,9 +76,8 @@ export default async function MentorEarningsPage() {
         return {
             id: type.id,
             name: type.name,
-            unitPrice: type.unitPrice,
             count: typeLogs.length,
-            total: typeLogs.length * type.unitPrice
+            total: typeLogs.reduce((sum, log) => sum + resolveServiceLogPrice(log, type), 0)
         };
     }).filter(t => t.count > 0).sort((a, b) => b.total - a.total);
 
@@ -87,9 +85,8 @@ export default async function MentorEarningsPage() {
     const studentBreakdown = myStudents.map(student => {
         const studentLogs = approvedLogs.filter(l => l.studentId === student.id);
         const studentEarnings = studentLogs.reduce((acc, log) => {
-            if (log.unitPrice !== undefined) return acc + log.unitPrice;
             const service = serviceTypes.find(s => s.id === log.serviceTypeId);
-            return acc + (service?.unitPrice || 0);
+            return acc + resolveServiceLogPrice(log, service);
         }, 0);
         return {
             id: student.id,

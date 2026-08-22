@@ -27,6 +27,13 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="tr">
+      <head>
+        <script
+          defer
+          src="https://cloud.umami.is/script.js"
+          data-website-id="15d1047b-45e7-4d94-ae9e-a9d2dddfc86f"
+        />
+      </head>
       <body>
         <StyledJsxRegistry>
           <main className="min-h-screen">
@@ -37,4 +44,3 @@ export default function RootLayout({
     </html>
   );
 }
-

@@ -36,7 +36,6 @@ interface StudentBreakdown {
 interface ServiceBreakdown {
     id: string;
     name: string;
-    unitPrice: number;
     count: number;
     total: number;
 }
@@ -577,7 +576,7 @@ export default function MentorEarningsClient({
                                 }}>
                                     <div>
                                         <p style={{ fontWeight: 500, color: '#374151', fontSize: '0.85rem' }}>{service.name}</p>
-                                        <p style={{ fontSize: '0.7rem', color: '#9ca3af' }}>{service.count} adet × €{service.unitPrice}</p>
+                                        <p style={{ fontSize: '0.7rem', color: '#9ca3af' }}>{service.count} adet onaylı hizmet</p>
                                     </div>
                                     <span style={{ fontWeight: 700, color: '#059669', fontSize: '0.95rem' }}>€{service.total}</span>
                                 </div>

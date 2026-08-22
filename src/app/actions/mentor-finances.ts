@@ -4,6 +4,7 @@ import { db } from "@/lib/db";
 import { revalidatePath } from "next/cache";
 import { getSession } from "./auth";
 import { MentorTransaction } from "@/types";
+import { resolveServiceLogPrice } from "@/lib/servicePricing";
 
 import { deleteMentorTransaction as adminDeleteTransaction, updateServiceLogPrice as adminUpdatePrice } from "@/app/actions/admin-finances";
 import { deleteServiceLog as sharedDeleteLog } from "@/app/actions/service-logs";
@@ -33,7 +34,11 @@ export async function getMentorFinances() {
     
     // Only approved logs count towards earnings
     const approvedLogs = myLogs.filter(l => l.status === 'approved');
-    const approvedEarnings = approvedLogs.reduce((sum, log) => sum + (log.unitPrice || 0), 0);
+    const serviceTypes = await db.serviceTypes.getAll();
+    const approvedEarnings = approvedLogs.reduce((sum, log) => {
+        const serviceType = serviceTypes.find(type => type.id === log.serviceTypeId);
+        return sum + resolveServiceLogPrice(log, serviceType);
+    }, 0);
 
     // 2. Get Mentor Transactions (Expenses, Advances, Payments)
     const transactions = await db.mentorTransactions.getByMentorId(session.id);

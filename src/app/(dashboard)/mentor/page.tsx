@@ -7,6 +7,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import StudentAvatar from "@/components/common/StudentAvatar";
+import { resolveServiceLogPrice } from "@/lib/servicePricing";
 
 export default async function MentorDashboard() {
     const session = await getSession();
@@ -39,12 +40,12 @@ export default async function MentorDashboard() {
     // Earnings calc
     const approvedEarnings = approvedLogs.reduce((acc, log) => {
         const service = serviceTypes.find(s => s.id === log.serviceTypeId);
-        return acc + (service?.unitPrice || 0);
+        return acc + resolveServiceLogPrice(log, service);
     }, 0);
 
     const pendingEarnings = pendingLogs.reduce((acc, log) => {
         const service = serviceTypes.find(s => s.id === log.serviceTypeId);
-        return acc + (service?.unitPrice || 0);
+        return acc + resolveServiceLogPrice(log, service);
     }, 0);
 
     // Get recent logs

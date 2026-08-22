@@ -200,6 +200,10 @@ export async function updateServiceLogDetails(formData: FormData) {
     // Revalidate relevant paths
     revalidatePath('/mentor/earnings');
     revalidatePath('/admin/payouts');
+    revalidatePath('/admin/services');
+    revalidatePath(`/admin/mentors/${log.mentorId}`);
+    revalidatePath('/mentor');
+    revalidatePath('/mentor/finances');
     revalidatePath(`/mentor/students/${log.studentId}`);
     revalidatePath(`/admin/students/${log.studentId}`);
 }

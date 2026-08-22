@@ -135,7 +135,11 @@ export async function updateServiceLogPrice(logId: string, unitPrice: number) {
     revalidatePath(`/admin/students/${log.studentId}`);
     revalidatePath(`/mentor/students/${log.studentId}`);
     revalidatePath('/admin/payouts');
+    revalidatePath('/admin/services');
+    revalidatePath(`/admin/mentors/${log.mentorId}`);
+    revalidatePath('/mentor');
     revalidatePath('/mentor/earnings');
+    revalidatePath('/mentor/finances');
 
     return { success: true };
 }

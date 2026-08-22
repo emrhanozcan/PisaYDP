@@ -1,5 +1,6 @@
 
 import { db } from "@/lib/db";
+import { resolveServiceLogPrice } from "@/lib/servicePricing";
 import ServicesClient from "./ServicesClient";
 
 export default async function ServicesPage() {
@@ -32,7 +33,7 @@ export default async function ServicesPage() {
             mentorName: mentor ? `${mentor.firstName} ${mentor.lastName}` : 'Bilinmiyor',
             serviceTypeId: log.serviceTypeId,
             serviceName: service?.name || 'Bilinmiyor',
-            servicePrice: service?.unitPrice || 0,
+            servicePrice: resolveServiceLogPrice(log, service),
             date: log.date,
             durationMinutes: log.durationMinutes,
             status: log.status,

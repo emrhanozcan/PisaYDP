@@ -3,6 +3,7 @@ import MentorFinancesClient from './MentorFinancesClient';
 import { getSession } from '@/app/actions/auth';
 import { redirect } from 'next/navigation';
 import { db } from '@/lib/db';
+import { resolveServiceLogPrice } from '@/lib/servicePricing';
 
 export const metadata = {
     title: 'Bakiye ve Masraflar | Mentor',
@@ -15,7 +16,11 @@ export default async function MentorFinancesPage() {
 
     const allLogs = await db.logs.getAll();
     const myLogs = allLogs.filter(l => l.mentorId === session.id && l.status === 'approved');
-    const approvedEarnings = myLogs.reduce((sum, log) => sum + (log.unitPrice || 0), 0);
+    const serviceTypes = await db.serviceTypes.getAll();
+    const approvedEarnings = myLogs.reduce((sum, log) => {
+        const serviceType = serviceTypes.find(type => type.id === log.serviceTypeId);
+        return sum + resolveServiceLogPrice(log, serviceType);
+    }, 0);
 
     const transactions = await db.mentorTransactions.getByMentorId(session.id);
     const approvedExpenses = transactions.filter(t => t.type === 'expense' && t.status === 'approved').reduce((sum, t) => sum + Number(t.amount), 0);
