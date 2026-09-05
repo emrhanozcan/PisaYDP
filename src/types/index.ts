@@ -61,6 +61,7 @@ export interface MentorAssignment {
   endDate?: string;
   notes?: string;
   allowedServiceIds?: string[];
+  servicePrices?: Record<string, number>;
 }
 
 export type TransactionType = 'expense' | 'advance' | 'payment' | 'parent_payment';

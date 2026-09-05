@@ -540,6 +540,13 @@ export const db = {
             if (error) throw error;
             return mapToCamelCase(data) as MentorAssignment;
         },
+        update: async (assignment: MentorAssignment) => {
+            const { id, ...rest } = assignment;
+            const payload = mapToSnakeCase(rest);
+            const { data, error } = await supabase.from('mentor_assignments').update(payload).eq('id', id).select().single();
+            if (error) throw error;
+            return mapToCamelCase(data) as MentorAssignment;
+        },
         deleteByStudentId: async (studentId: string) => {
             const { error } = await supabase.from('mentor_assignments').delete().eq('student_id', studentId);
             if (error) throw error;

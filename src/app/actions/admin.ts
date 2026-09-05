@@ -96,6 +96,7 @@ export async function assignMentor(formData: FormData) {
     const role = formData.get('role') as 'primary' | 'support';
     const notes = formData.get('notes') as string || '';
     const allowedServiceIds = formData.getAll('serviceIds') as string[];
+    const servicePrices = parseServicePrices(formData, allowedServiceIds);
 
     const newAssignment: any = { // using any for quick fix if type strictness complains about optional fields not present in form
         id: `assign-${Date.now()}`,
@@ -104,13 +105,55 @@ export async function assignMentor(formData: FormData) {
         role,
         startDate: new Date().toISOString(),
         notes,
-        allowedServiceIds
+        allowedServiceIds,
+        servicePrices
     };
     // In real db.ts we defined interface MentorAssignment, ensure it matches.
     // Interface: { id, mentorId, studentId, role, startDate, endDate?, notes?, allowedServiceIds? }
 
     await db.assignments.create(newAssignment);
     revalidatePath(`/admin/students/${studentId}`);
+}
+
+function parseServicePrices(formData: FormData, serviceIds: string[]): Record<string, number> {
+    return serviceIds.reduce<Record<string, number>>((prices, serviceId) => {
+        const rawPrice = formData.get(`servicePrice:${serviceId}`);
+        const price = typeof rawPrice === 'string' ? Number(rawPrice) : NaN;
+
+        if (!Number.isFinite(price) || price < 0) {
+            throw new Error('Seçilen her hizmet için sıfır veya daha büyük geçerli bir fiyat giriniz.');
+        }
+
+        prices[serviceId] = price;
+        return prices;
+    }, {});
+}
+
+export async function updateMentorAssignmentServices(formData: FormData) {
+    const session = await getSession();
+    if (!session || (session.role !== 'admin' && session.role !== 'italy_staff')) {
+        throw new Error('Unauthorized');
+    }
+
+    const assignmentId = formData.get('assignmentId') as string;
+    const studentId = formData.get('studentId') as string;
+    const allowedServiceIds = formData.getAll('serviceIds') as string[];
+    const servicePrices = parseServicePrices(formData, allowedServiceIds);
+    const assignments = await db.assignments.getByStudentId(studentId);
+    const assignment = assignments.find(item => item.id === assignmentId);
+
+    if (!assignment) {
+        throw new Error('Mentor ataması bulunamadı.');
+    }
+
+    await db.assignments.update({
+        ...assignment,
+        allowedServiceIds,
+        servicePrices
+    });
+
+    revalidatePath(`/admin/students/${studentId}`);
+    revalidatePath(`/mentor/students/${studentId}`);
 }
 
 export async function toggleUserStatus(userId: string) {
@@ -342,7 +385,15 @@ export async function updateServiceLogDetails(formData: FormData) {
 
     const logId = formData.get('logId') as string;
     const notes = formData.get('notes') as string || '';
+    const unitPriceRaw = formData.get('unitPrice');
+    const unitPrice = typeof unitPriceRaw === 'string' && unitPriceRaw.trim() !== ''
+        ? Number(unitPriceRaw)
+        : undefined;
     const files = formData.getAll('attachments') as File[];
+
+    if (unitPrice !== undefined && (!Number.isFinite(unitPrice) || unitPrice < 0)) {
+        throw new Error('Hizmet ücreti sıfır veya daha büyük geçerli bir sayı olmalıdır.');
+    }
 
     const logs = await db.logs.getAll();
     const log = logs.find(l => l.id === logId);
@@ -389,11 +440,17 @@ export async function updateServiceLogDetails(formData: FormData) {
     await db.logs.update({
         ...log,
         notes,
+        unitPrice: unitPrice ?? log.unitPrice,
         attachments,
         lastEditorRole: 'admin',
         updatedAt: new Date().toISOString()
     });
 
     revalidatePath('/admin/services');
+    revalidatePath(`/admin/students/${log.studentId}`);
+    revalidatePath(`/admin/mentors/${log.mentorId}`);
+    revalidatePath('/admin/payouts');
+    revalidatePath('/mentor');
+    revalidatePath('/mentor/earnings');
     revalidatePath('/mentor/summary');
 }

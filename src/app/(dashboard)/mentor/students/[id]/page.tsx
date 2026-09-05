@@ -123,9 +123,13 @@ export default async function MentorStudentDetailPage({ params }: { params: Prom
     let allowedServiceTypes = allServiceTypes;
     
     // Filter service types based on assignment's allowed services (only if we needed it for creation)
-    if (Array.isArray(assignment.allowedServiceIds) && assignment.allowedServiceIds.length > 0) {
+    if (Array.isArray(assignment.allowedServiceIds)) {
         allowedServiceTypes = allServiceTypes.filter(t => assignment.allowedServiceIds!.includes(t.id));
     }
+    allowedServiceTypes = allowedServiceTypes.map(service => ({
+        ...service,
+        unitPrice: assignment.servicePrices?.[service.id] ?? service.unitPrice
+    }));
 
     let serviceTypes = allServiceTypes; // Restore original to ensure all logs find their names
     const allLogs = await db.logs.getAll().catch(() => []);

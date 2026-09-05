@@ -9,6 +9,8 @@ interface Mentor {
     id: string;
     firstName: string;
     lastName: string;
+    allowedServiceIds?: string[];
+    servicePrices?: Record<string, number>;
 }
 
 interface ServiceType {
@@ -26,17 +28,42 @@ interface Props {
 export default function AdminServiceLogForm({ studentId, assignedMentors, serviceTypes }: Props) {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [selectedServiceId, setSelectedServiceId] = useState('');
+    const [selectedMentorId, setSelectedMentorId] = useState('');
     const [customPrice, setCustomPrice] = useState<string>('');
+
+    const getPrice = (mentorId: string, serviceId: string) => {
+        const service = serviceTypes.find(type => type.id === serviceId);
+        const mentor = assignedMentors.find(item => item.id === mentorId);
+        return mentor?.servicePrices?.[serviceId] ?? service?.unitPrice;
+    };
+
+    const selectedMentor = assignedMentors.find(item => item.id === selectedMentorId);
+    const availableServiceTypes = selectedMentor?.allowedServiceIds
+        ? serviceTypes.filter(service => selectedMentor.allowedServiceIds!.includes(service.id))
+        : serviceTypes;
 
     const handleServiceChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
         const id = e.target.value;
         setSelectedServiceId(id);
-        const service = serviceTypes.find(t => t.id === id);
-        if (service) {
-            setCustomPrice(service.unitPrice.toString());
+        const price = getPrice(selectedMentorId, id);
+        if (price !== undefined) {
+            setCustomPrice(price.toString());
         } else {
             setCustomPrice('');
         }
+    };
+
+    const handleMentorChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+        const mentorId = e.target.value;
+        setSelectedMentorId(mentorId);
+        const mentor = assignedMentors.find(item => item.id === mentorId);
+        if (mentor?.allowedServiceIds && !mentor.allowedServiceIds.includes(selectedServiceId)) {
+            setSelectedServiceId('');
+            setCustomPrice('');
+            return;
+        }
+        const price = getPrice(mentorId, selectedServiceId);
+        setCustomPrice(price !== undefined ? price.toString() : '');
     };
 
     if (assignedMentors.length === 0) {
@@ -66,7 +93,7 @@ export default function AdminServiceLogForm({ studentId, assignedMentors, servic
                     <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: '#374151', marginBottom: '0.5rem' }}>
                         Hizmeti Verecek Mentor *
                     </label>
-                    <select name="mentorId" required className="input-field">
+                    <select name="mentorId" required className="input-field" value={selectedMentorId} onChange={handleMentorChange}>
                         <option value="">Mentor Seçiniz...</option>
                         {assignedMentors.map(m => (
                             <option key={m.id} value={m.id}>{m.firstName} {m.lastName}</option>
@@ -85,7 +112,7 @@ export default function AdminServiceLogForm({ studentId, assignedMentors, servic
                         onChange={handleServiceChange}
                     >
                         <option value="">Seçiniz...</option>
-                        {serviceTypes.map(t => (
+                        {availableServiceTypes.map(t => (
                             <option key={t.id} value={t.id}>{t.name}</option>
                         ))}
                     </select>

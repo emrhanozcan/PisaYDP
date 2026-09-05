@@ -18,6 +18,15 @@ interface Props {
 
 export default function ServiceLogForm({ studentId, serviceTypes }: Props) {
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [selectedServiceId, setSelectedServiceId] = useState('');
+    const [unitPrice, setUnitPrice] = useState('');
+
+    const handleServiceChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+        const serviceId = event.target.value;
+        setSelectedServiceId(serviceId);
+        const service = serviceTypes.find(item => item.id === serviceId);
+        setUnitPrice(service ? service.unitPrice.toString() : '');
+    };
 
     return (
         <form 
@@ -32,7 +41,7 @@ export default function ServiceLogForm({ studentId, serviceTypes }: Props) {
                     <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 500, color: '#374151', marginBottom: '0.5rem' }}>
                         Hizmet Tipi *
                     </label>
-                    <select name="serviceTypeId" required className="input-field">
+                    <select name="serviceTypeId" required className="input-field" value={selectedServiceId} onChange={handleServiceChange}>
                         <option value="">Seçiniz...</option>
                         {serviceTypes.map(t => (
                             <option key={t.id} value={t.id}>{t.name}</option>
@@ -72,6 +81,8 @@ export default function ServiceLogForm({ studentId, serviceTypes }: Props) {
                         step="0.01" 
                         name="unitPrice" 
                         className="input-field" 
+                        value={unitPrice}
+                        onChange={event => setUnitPrice(event.target.value)}
                         placeholder="Örn: 50" 
                     />
                     <p style={{ fontSize: '0.7rem', color: '#9ca3af', marginTop: '0.35rem' }}>

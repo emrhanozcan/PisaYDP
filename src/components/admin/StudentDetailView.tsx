@@ -20,6 +20,8 @@ import UserAvatar from "@/components/common/UserAvatar";
 import { getSession } from "@/app/actions/auth";
 import AssignMentorForm from "./AssignMentorForm";
 import AdminServiceLogForm from "./AdminServiceLogForm";
+import MentorAssignmentServicesForm from "./MentorAssignmentServicesForm";
+import ServiceLogPriceEditor from "./ServiceLogPriceEditor";
 
 function safeFormatDate(dateVal: any, options?: Intl.DateTimeFormatOptions): string {
     if (!dateVal) return '-';
@@ -396,7 +398,8 @@ export default function StudentDetailView({
                                 const mentor = mentors.find(u => u.id === assign.mentorId);
                                 return (
                                     <div key={assign.id} style={{
-                                        display: 'flex',
+                                        display: 'grid',
+                                        gridTemplateColumns: '1fr auto',
                                         alignItems: 'center',
                                         justifyContent: 'space-between',
                                         padding: '1rem',
@@ -446,6 +449,15 @@ export default function StudentDetailView({
                                                 <UserMinus size={12} /> Bağlantıyı Kes
                                             </button>
                                         </div>
+                                        <div style={{ gridColumn: '1 / -1' }}>
+                                            <MentorAssignmentServicesForm
+                                                assignmentId={assign.id}
+                                                studentId={student.id}
+                                                allowedServiceIds={assign.allowedServiceIds}
+                                                servicePrices={assign.servicePrices}
+                                                serviceTypes={serviceTypes.filter(service => service.isActive)}
+                                            />
+                                        </div>
                                     </div>
                                 );
                             })}
@@ -483,7 +495,13 @@ export default function StudentDetailView({
                             studentId={student.id}
                             assignedMentors={assignments.map(a => {
                                 const m = mentors.find(u => u.id === a.mentorId);
-                                return m ? { id: m.id, firstName: m.firstName, lastName: m.lastName } : null;
+                                return m ? {
+                                    id: m.id,
+                                    firstName: m.firstName,
+                                    lastName: m.lastName,
+                                    allowedServiceIds: a.allowedServiceIds,
+                                    servicePrices: a.servicePrices
+                                } : null;
                             }).filter(m => m !== null) as any[]}
                             serviceTypes={serviceTypes.filter(t => t.isActive)}
                         />
@@ -547,10 +565,11 @@ export default function StudentDetailView({
                                             </div>
                                         </div>
                                         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                                            {(log.unitPrice !== undefined || serviceType?.unitPrice) && (
-                                                <span style={{ fontSize: '0.85rem', fontWeight: 600, color: '#475569' }}>
-                                                    €{log.unitPrice !== undefined ? log.unitPrice : serviceType?.unitPrice}
-                                                </span>
+                                            {(log.unitPrice !== undefined || serviceType?.unitPrice !== undefined) && (
+                                                <ServiceLogPriceEditor
+                                                    logId={log.id}
+                                                    price={log.unitPrice ?? serviceType?.unitPrice ?? 0}
+                                                />
                                             )}
                                             <span style={{
                                                 padding: '0.25rem 0.6rem',

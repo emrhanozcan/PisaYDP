@@ -48,6 +48,7 @@ export default function ServicesClient({ logs, serviceTypes, mentors }: Props) {
     // Edit Mode State
     const [editingLogId, setEditingLogId] = useState<string | null>(null);
     const [editNotes, setEditNotes] = useState('');
+    const [editPrice, setEditPrice] = useState('');
 
     const [isPending, startTransition] = useTransition();
     const router = useRouter();
@@ -55,11 +56,13 @@ export default function ServicesClient({ logs, serviceTypes, mentors }: Props) {
     const handleEditClick = (log: LogData) => {
         setEditingLogId(log.id);
         setEditNotes(log.notes || '');
+        setEditPrice(log.servicePrice.toString());
     };
 
     const handleCancelEdit = () => {
         setEditingLogId(null);
         setEditNotes('');
+        setEditPrice('');
     };
 
     // Filter logs
@@ -492,7 +495,24 @@ export default function ServicesClient({ logs, serviceTypes, mentors }: Props) {
                                                             await updateServiceLogDetails(formData);
                                                             setEditingLogId(null);
                                                             setEditNotes('');
+                                                            setEditPrice('');
                                                         }}>
+                                                            <div style={{ marginBottom: '1.5rem' }}>
+                                                                <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: '#6b7280', marginBottom: '0.35rem', textTransform: 'uppercase' }}>
+                                                                    Hizmet Ücreti (€)
+                                                                </label>
+                                                                <input
+                                                                    type="number"
+                                                                    name="unitPrice"
+                                                                    min="0"
+                                                                    step="0.01"
+                                                                    required
+                                                                    value={editPrice}
+                                                                    onChange={(event) => setEditPrice(event.target.value)}
+                                                                    className="input-field"
+                                                                    style={{ width: '100%', maxWidth: '220px' }}
+                                                                />
+                                                            </div>
                                                             <div style={{ marginBottom: '1.5rem' }}>
                                                                 <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: '#6b7280', marginBottom: '0.35rem', textTransform: 'uppercase' }}>
                                                                     Notlar (Düzenle)

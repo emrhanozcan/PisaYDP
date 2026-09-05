@@ -72,9 +72,23 @@ export async function createServiceLog(formData: FormData) {
     const unitPriceRaw = formData.get('unitPrice') as string;
     const customUnitPrice = unitPriceRaw ? parseFloat(unitPriceRaw) : undefined;
 
+    if (customUnitPrice !== undefined && (!Number.isFinite(customUnitPrice) || customUnitPrice < 0)) {
+        throw new Error('Hizmet ücreti sıfır veya daha büyük geçerli bir sayı olmalıdır.');
+    }
+
     if (!mentorId) {
         throw new Error("Lütfen hizmeti gerçekleştiren mentoru seçiniz.");
     }
+
+    const assignments = await db.assignments.getByStudentId(studentId);
+    const assignment = assignments.find(item => item.mentorId === mentorId);
+    if (!assignment) {
+        throw new Error('Bu öğrenci ile mentor arasında aktif bir atama bulunamadı.');
+    }
+    if (assignment.allowedServiceIds && !assignment.allowedServiceIds.includes(serviceTypeId)) {
+        throw new Error('Seçilen hizmet bu mentorun atamasında yetkili değildir.');
+    }
+    const assignmentPrice = assignment?.servicePrices?.[serviceTypeId];
 
     const newLog: any = {
         id: crypto.randomUUID(),
@@ -87,7 +101,9 @@ export async function createServiceLog(formData: FormData) {
         attachments,
         status: session.role === 'mentor' ? 'submitted' : 'assigned',
         paymentStatus: 'pending',
-        unitPrice: (customUnitPrice !== undefined && !isNaN(customUnitPrice)) ? customUnitPrice : undefined,
+        unitPrice: (customUnitPrice !== undefined && !isNaN(customUnitPrice))
+            ? customUnitPrice
+            : assignmentPrice,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString()
     };

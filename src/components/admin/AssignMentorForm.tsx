@@ -69,10 +69,22 @@ export default function AssignMentorForm({ studentId, mentors, serviceTypes }: A
                     border: '1px solid #e5e7eb'
                 }}>
                     {serviceTypes.map(service => (
-                        <label key={service.id} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.8rem', cursor: 'pointer' }}>
+                        <div key={service.id} style={{ display: 'grid', gridTemplateColumns: 'auto 1fr 90px', alignItems: 'center', gap: '0.5rem', fontSize: '0.8rem' }}>
                             <input type="checkbox" name="serviceIds" value={service.id} defaultChecked />
                             <span>{service.name}</span>
-                        </label>
+                            <div style={{ position: 'relative' }}>
+                                <input
+                                    type="number"
+                                    name={`servicePrice:${service.id}`}
+                                    defaultValue={service.unitPrice}
+                                    min="0"
+                                    step="0.01"
+                                    aria-label={`${service.name} mentor fiyatı`}
+                                    style={{ width: '100%', padding: '0.35rem 1.2rem 0.35rem 0.4rem', borderRadius: '6px', border: '1px solid #d1d5db' }}
+                                />
+                                <span style={{ position: 'absolute', right: '0.4rem', top: '50%', transform: 'translateY(-50%)', color: '#6b7280' }}>€</span>
+                            </div>
+                        </div>
                     ))}
                 </div>
             </div>
