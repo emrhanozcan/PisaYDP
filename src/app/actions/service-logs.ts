@@ -19,6 +19,16 @@ export async function createServiceLog(formData: FormData) {
     const duration = parseInt(formData.get('duration') as string || '0');
     const notes = formData.get('notes') as string;
 
+    if (!studentId || !serviceTypeId) {
+        throw new Error('Öğrenci ve hizmet tipi seçilmelidir.');
+    }
+
+    // Mentor bağımsız kontrol: bir öğrenci-hizmet çifti yalnızca bir kez bulunabilir.
+    const existingStudentLogs = await db.logs.getByStudentId(studentId);
+    if (existingStudentLogs.some(log => log.serviceTypeId === serviceTypeId)) {
+        throw new Error('Bu hizmet öğrenciye daha önce eklenmiş. Aynı hizmet tekrar eklenemez.');
+    }
+
     // Handle File Uploads via Supabase Storage
     const attachments: string[] = [];
     const files = formData.getAll('attachments') as File[];
@@ -108,7 +118,18 @@ export async function createServiceLog(formData: FormData) {
         updatedAt: new Date().toISOString()
     };
 
-    await db.logs.create(newLog);
+    try {
+        await db.logs.create(newLog);
+    } catch (error: unknown) {
+        // Veritabanındaki unique index eşzamanlı istekleri de güvenli biçimde engeller.
+        const errorCode = typeof error === 'object' && error !== null && 'code' in error
+            ? (error as { code?: string }).code
+            : undefined;
+        if (errorCode === '23505') {
+            throw new Error('Bu hizmet öğrenciye daha önce eklenmiş. Aynı hizmet tekrar eklenemez.');
+        }
+        throw error;
+    }
 
     await db.audit.create({
         id: `audit-${Date.now()}`,

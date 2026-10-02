@@ -14,9 +14,10 @@ interface ServiceType {
 interface Props {
     studentId: string;
     serviceTypes: ServiceType[];
+    usedServiceTypeIds: string[];
 }
 
-export default function ServiceLogForm({ studentId, serviceTypes }: Props) {
+export default function ServiceLogForm({ studentId, serviceTypes, usedServiceTypeIds }: Props) {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [selectedServiceId, setSelectedServiceId] = useState('');
     const [unitPrice, setUnitPrice] = useState('');
@@ -44,9 +45,16 @@ export default function ServiceLogForm({ studentId, serviceTypes }: Props) {
                     <select name="serviceTypeId" required className="input-field" value={selectedServiceId} onChange={handleServiceChange}>
                         <option value="">Seçiniz...</option>
                         {serviceTypes.map(t => (
-                            <option key={t.id} value={t.id}>{t.name}</option>
+                            <option key={t.id} value={t.id} disabled={usedServiceTypeIds.includes(t.id)}>
+                                {t.name}{usedServiceTypeIds.includes(t.id) ? ' (Daha önce eklendi)' : ''}
+                            </option>
                         ))}
                     </select>
+                    {usedServiceTypeIds.length > 0 && (
+                        <p style={{ fontSize: '0.7rem', color: '#9ca3af', marginTop: '0.35rem' }}>
+                            Öğrenciye daha önce eklenen hizmetler tekrar seçilemez.
+                        </p>
+                    )}
                 </div>
                 <div>
                     <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 500, color: '#374151', marginBottom: '0.5rem' }}>

@@ -23,9 +23,10 @@ interface Props {
     studentId: string;
     assignedMentors: Mentor[];
     serviceTypes: ServiceType[];
+    usedServiceTypeIds: string[];
 }
 
-export default function AdminServiceLogForm({ studentId, assignedMentors, serviceTypes }: Props) {
+export default function AdminServiceLogForm({ studentId, assignedMentors, serviceTypes, usedServiceTypeIds }: Props) {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [selectedServiceId, setSelectedServiceId] = useState('');
     const [selectedMentorId, setSelectedMentorId] = useState('');
@@ -113,9 +114,16 @@ export default function AdminServiceLogForm({ studentId, assignedMentors, servic
                     >
                         <option value="">Seçiniz...</option>
                         {availableServiceTypes.map(t => (
-                            <option key={t.id} value={t.id}>{t.name}</option>
+                            <option key={t.id} value={t.id} disabled={usedServiceTypeIds.includes(t.id)}>
+                                {t.name}{usedServiceTypeIds.includes(t.id) ? ' (Daha önce eklendi)' : ''}
+                            </option>
                         ))}
                     </select>
+                    {usedServiceTypeIds.length > 0 && (
+                        <p style={{ fontSize: '0.7rem', color: '#9ca3af', marginTop: '0.35rem' }}>
+                            Öğrenciye daha önce eklenen hizmetler tekrar seçilemez.
+                        </p>
+                    )}
                 </div>
             </div>
 

@@ -504,6 +504,7 @@ export default function StudentDetailView({
                                 } : null;
                             }).filter(m => m !== null) as any[]}
                             serviceTypes={serviceTypes.filter(t => t.isActive)}
+                            usedServiceTypeIds={[...new Set(serviceLogs.map(log => log.serviceTypeId))] as string[]}
                         />
                     </div>
                 </div>

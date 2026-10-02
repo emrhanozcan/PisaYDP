@@ -1,5 +1,4 @@
 import { db } from "@/lib/db";
-import { createServiceLog } from "@/app/actions/mentor";
 import { getSession } from "@/app/actions/auth";
 import Link from "next/link";
 import {
@@ -133,7 +132,9 @@ export default async function MentorStudentDetailPage({ params }: { params: Prom
 
     let serviceTypes = allServiceTypes; // Restore original to ensure all logs find their names
     const allLogs = await db.logs.getAll().catch(() => []);
-    const logs = (allLogs || []).filter(l => l && l.studentId === id && l.mentorId === session.id);
+    const studentLogs = (allLogs || []).filter(l => l && l.studentId === id);
+    const usedServiceTypeIds = [...new Set(studentLogs.map(log => log.serviceTypeId))];
+    const logs = studentLogs.filter(l => l.mentorId === session.id);
 
     const approvedLogs = logs.filter(l => l.status === 'approved');
     const pendingLogs = logs.filter(l => l.status === 'submitted');
@@ -350,7 +351,11 @@ export default async function MentorStudentDetailPage({ params }: { params: Prom
                                 <p style={{ fontSize: '0.8rem', color: '#808191' }}>Gerçekleştirdiğiniz yeni bir hizmetin kaydını oluşturun</p>
                             </div>
                         </div>
-                        <ServiceLogForm studentId={id} serviceTypes={allowedServiceTypes} />
+                        <ServiceLogForm
+                            studentId={id}
+                            serviceTypes={allowedServiceTypes}
+                            usedServiceTypeIds={usedServiceTypeIds}
+                        />
                     </div>
                 </div>
 
