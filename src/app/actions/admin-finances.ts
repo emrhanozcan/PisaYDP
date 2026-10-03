@@ -87,13 +87,18 @@ export async function deleteMentorTransaction(transactionId: string) {
 
     if (!transactionId) throw new Error("İşlem ID gerekli.");
 
-    // Mentor için ek kontroller
-    if (session.role === 'mentor') {
-        const transactions = await db.mentorTransactions.getByMentorId(session.id);
-        const tx = transactions.find(t => t.id === transactionId);
+    const transactions = session.role === 'mentor'
+        ? await db.mentorTransactions.getByMentorId(session.id)
+        : await db.mentorTransactions.getAll();
+    const tx = transactions.find(t => t.id === transactionId);
 
-        if (!tx) throw new Error("İşlem bulunamadı veya bu işlem size ait değil.");
-        if (tx.status !== 'pending') throw new Error("Sadece onay bekleyen (pending) işlemler silinebilir.");
+    if (!tx) throw new Error("İşlem bulunamadı veya bu işlem için yetkiniz yok.");
+    if (tx.type !== 'advance' && tx.type !== 'expense') {
+        throw new Error("Bu işlem üzerinden yalnızca masraf ve avans talepleri kaldırılabilir.");
+    }
+
+    if (session.role === 'mentor' && tx.status !== 'pending') {
+        throw new Error("Yalnızca onay bekleyen talepler iptal edilebilir.");
     }
 
     await db.mentorTransactions.delete(transactionId);

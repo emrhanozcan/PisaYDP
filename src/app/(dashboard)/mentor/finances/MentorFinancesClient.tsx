@@ -1,15 +1,20 @@
 'use client';
 
-import { useState, useTransition, Fragment } from 'react';
+import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { 
-    Wallet, TrendingUp, TrendingDown, Receipt, PlusCircle, CreditCard, Clock, FileText, Download
+    Wallet, TrendingUp, TrendingDown, Receipt, PlusCircle, CreditCard, FileText, Download, XCircle
 } from "lucide-react";
 import Toast, { ToastType } from '@/components/common/Toast';
-import { createMentorTransaction } from '@/app/actions/mentor-finances';
+import { createMentorTransaction, deleteMentorTransaction } from '@/app/actions/mentor-finances';
+import type { MentorTransaction } from '@/types';
+
+function getErrorMessage(error: unknown, fallback: string) {
+    return error instanceof Error ? error.message : fallback;
+}
 
 interface PropData {
-    transactions: any[];
+    transactions: MentorTransaction[];
     balance: number;
     approvedEarnings: number;
     approvedExpenses: number;
@@ -38,8 +43,20 @@ export default function MentorFinancesClient({
             setToast({ message: "Talebiniz başarıyla oluşturuldu.", type: 'success' });
             setModalOpen(null);
             router.refresh();
-        } catch (err: any) {
-            setToast({ message: err.message || "Bir hata oluştu.", type: 'error' });
+        } catch (error: unknown) {
+            setToast({ message: getErrorMessage(error, "Bir hata oluştu."), type: 'error' });
+        }
+    };
+
+    const handleCancelAdvance = async (id: string) => {
+        if (!window.confirm('Bu avans talebini iptal etmek istediğinize emin misiniz?')) return;
+
+        try {
+            await deleteMentorTransaction(id);
+            setToast({ message: "Avans talebi iptal edildi.", type: 'success' });
+            router.refresh();
+        } catch (error: unknown) {
+            setToast({ message: getErrorMessage(error, "Avans talebi iptal edilemedi."), type: 'error' });
         }
     };
 
@@ -147,12 +164,13 @@ export default function MentorFinancesClient({
                                 <th style={{ textAlign: 'left', padding: '1rem', fontSize: '0.8rem', color: '#64748b', fontWeight: 600 }}>Tutar</th>
                                 <th style={{ textAlign: 'center', padding: '1rem', fontSize: '0.8rem', color: '#64748b', fontWeight: 600 }}>Statü</th>
                                 <th style={{ textAlign: 'center', padding: '1rem', fontSize: '0.8rem', color: '#64748b', fontWeight: 600 }}>Fiş / Belge</th>
+                                <th style={{ textAlign: 'right', padding: '1rem', fontSize: '0.8rem', color: '#64748b', fontWeight: 600 }}>İşlem</th>
                             </tr>
                         </thead>
                         <tbody>
                             {transactions.length === 0 ? (
                                 <tr>
-                                    <td colSpan={6} style={{ textAlign: 'center', padding: '3rem 1rem', color: '#9ca3af' }}>
+                                    <td colSpan={7} style={{ textAlign: 'center', padding: '3rem 1rem', color: '#9ca3af' }}>
                                         Henüz bir işleminiz bulunmuyor.
                                     </td>
                                 </tr>
@@ -188,6 +206,23 @@ export default function MentorFinancesClient({
                                                 <Download size={14} /> Resmi Gör
                                             </a>
                                         ) : '-'}
+                                    </td>
+                                    <td style={{ padding: '1rem', textAlign: 'right' }}>
+                                        {t.type === 'advance' && t.status === 'pending' ? (
+                                            <button
+                                                type="button"
+                                                onClick={() => startTransition(() => handleCancelAdvance(t.id))}
+                                                disabled={isPending}
+                                                style={{
+                                                    display: 'inline-flex', alignItems: 'center', gap: '0.3rem', padding: '0.5rem 0.75rem',
+                                                    borderRadius: '8px', border: '1px solid #fecaca', background: '#fff7f7', color: '#dc2626',
+                                                    fontSize: '0.8rem', fontWeight: 600, cursor: isPending ? 'not-allowed' : 'pointer'
+                                                }}
+                                                title="Avans talebini iptal et"
+                                            >
+                                                <XCircle size={15} /> İptal Et
+                                            </button>
+                                        ) : <span style={{ color: '#cbd5e1' }}>-</span>}
                                     </td>
                                 </tr>
                             ))}

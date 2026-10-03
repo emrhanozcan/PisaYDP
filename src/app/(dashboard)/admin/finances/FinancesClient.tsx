@@ -1,11 +1,18 @@
 'use client';
 
 import { useState, useTransition } from 'react';
+import { useRouter } from 'next/navigation';
 import { 
-    Receipt, CheckCircle, XCircle, Search, Filter, Download, ArrowUpRight, ArrowDownRight
+    CheckCircle, XCircle, Search, Download, ArrowUpRight, ArrowDownRight, Trash2
 } from "lucide-react";
 import Toast, { ToastType } from '@/components/common/Toast';
-import { updateMentorTransactionStatus } from '@/app/actions/admin-finances';
+import { deleteMentorTransaction, updateMentorTransactionStatus } from '@/app/actions/admin-finances';
+
+type StatusFilter = 'all' | 'pending' | 'approved' | 'rejected';
+
+function getErrorMessage(error: unknown, fallback: string) {
+    return error instanceof Error ? error.message : fallback;
+}
 
 interface Transaction {
     id: string;
@@ -25,16 +32,32 @@ interface FinancesClientProps {
 
 export default function FinancesClient({ transactions }: FinancesClientProps) {
     const [isPending, startTransition] = useTransition();
+    const router = useRouter();
     const [toast, setToast] = useState<{ message: string; type: ToastType } | null>(null);
-    const [filterStatus, setFilterStatus] = useState<'all' | 'pending' | 'approved' | 'rejected'>('all');
+    const [filterStatus, setFilterStatus] = useState<StatusFilter>('all');
     const [searchTerm, setSearchTerm] = useState('');
 
     const handleUpdateStatus = async (id: string, newStatus: 'approved' | 'rejected') => {
         try {
             await updateMentorTransactionStatus(id, newStatus);
             setToast({ message: "İşlem durumu başarıyla güncellendi.", type: 'success' });
-        } catch (err: any) {
-            setToast({ message: err.message || "Bir hata oluştu.", type: 'error' });
+        } catch (error: unknown) {
+            setToast({ message: getErrorMessage(error, "Bir hata oluştu."), type: 'error' });
+        }
+    };
+
+    const handleDeleteRequest = async (id: string, type: Transaction['type']) => {
+        if (type !== 'expense' && type !== 'advance') return;
+
+        const requestLabel = type === 'expense' ? 'masraf' : 'avans';
+        if (!window.confirm(`Onaylanan ${requestLabel} talebi kalıcı olarak kaldırılacak ve bakiye yeniden hesaplanacak. Devam edilsin mi?`)) return;
+
+        try {
+            await deleteMentorTransaction(id);
+            setToast({ message: `${type === 'expense' ? 'Masraf' : 'Avans'} talebi kaldırıldı.`, type: 'success' });
+            router.refresh();
+        } catch (error: unknown) {
+            setToast({ message: getErrorMessage(error, "Talep kaldırılamadı."), type: 'error' });
         }
     };
 
@@ -76,7 +99,7 @@ export default function FinancesClient({ transactions }: FinancesClientProps) {
                 
                 <select
                     value={filterStatus}
-                    onChange={(e) => setFilterStatus(e.target.value as any)}
+                    onChange={(e) => setFilterStatus(e.target.value as StatusFilter)}
                     style={{ padding: '0.85rem 1.5rem', borderRadius: '12px', border: '1px solid #e5e7eb', background: 'white', color: '#374151', fontSize: '0.95rem', minWidth: '150px' }}
                 >
                     <option value="all">Tüm Durumlar</option>
@@ -178,6 +201,20 @@ export default function FinancesClient({ transactions }: FinancesClientProps) {
                                                     <XCircle size={16} /> Reddet
                                                 </button>
                                             </div>
+                                        ) : (t.type === 'expense' || t.type === 'advance') && t.status === 'approved' ? (
+                                            <button
+                                                type="button"
+                                                onClick={() => startTransition(() => handleDeleteRequest(t.id, t.type))}
+                                                disabled={isPending}
+                                                style={{
+                                                    display: 'inline-flex', alignItems: 'center', gap: '0.3rem', padding: '0.5rem 0.75rem',
+                                                    borderRadius: '8px', border: '1px solid #fecaca', background: '#fff7f7', color: '#dc2626',
+                                                    fontSize: '0.8rem', fontWeight: 600, cursor: isPending ? 'not-allowed' : 'pointer'
+                                                }}
+                                                title={`Onaylanan ${t.type === 'expense' ? 'masraf' : 'avans'} talebini kaldır`}
+                                            >
+                                                <Trash2 size={15} /> Kaldır
+                                            </button>
                                         ) : (
                                             <span style={{ fontSize: '0.8rem', color: '#9ca3af', fontWeight: 500 }}>
                                                 İşlem Yapıldı
